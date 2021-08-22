@@ -1,0 +1,48 @@
+package main
+
+import (
+	nex "github.com/PretendoNetwork/nex-go"
+	nexproto "github.com/PretendoNetwork/nex-protocols-go"
+)
+
+func prepareGetObject(err error, client *nex.Client, callID uint32, dataStorePrepareGetParam *nexproto.DataStorePrepareGetParam) {
+	// TODO: CDN
+	rmcResponseStream := nex.NewStreamOut(nexServer)
+
+	pReqGetInfo := nexproto.NewDataStoreReqGetInfo()
+	//pReqGetInfo.URL = "http://nyc3.digitaloceanspaces.com/1018d-d1.space/special/900000.bin?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=XUSKGQ4BEWX53QYMDJAQ%2F20210821%2Fnyc3%2Fs3%2Faws4_request&X-Amz-Date=20210821T223224Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=b7b18b5ca92653257a21994a0419482fb67914114fbf5f0b196b353ea5c34d4f"
+	//pReqGetInfo.URL = "https://nyc3.digitaloceanspaces.com/1018d-d1.space/special/900000.bin?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=XUSKGQ4BEWX53QYMDJAQ%2F20210822%2Fnyc3%2Fs3%2Faws4_request&X-Amz-Date=20210822T173733Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=5684c4be10f48217e72a5cfa5e9bae1688dc81eba1cca551aef59ecbb70fea9e"
+	pReqGetInfo.URL = "https://billy-test2.b-cdn.net/special/900000.bin?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=XUSKGQ4BEWX53QYMDJAQ%2F20210821%2Fnyc3%2Fs3%2Faws4_request&X-Amz-Date=20210821T210211Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=beaf7b49e3fad7e9fcff8b120daec63c1830751839f9ce58f92b2d05d7d731e7"
+	headers := nexproto.NewDataStoreKeyValue()
+	headers.Key = "User-Agent"
+	headers.Value = "WUP-NEX/3.8.31.3022 PID=1750087940 Region=USA(2) Country=US(49) AreaCode=Unknown"
+
+	//pReqGetInfo.RequestHeaders = []*nexproto.DataStoreKeyValue{headers}
+	pReqGetInfo.RequestHeaders = []*nexproto.DataStoreKeyValue{}
+	pReqGetInfo.Size = 450068
+	//pReqGetInfo.RootCA, _ = hex.DecodeString("308203af30820297a0030201020210083be056904246b1a1756ac95991c74a300d06092a864886f70d01010505003061310b300906035504061302555331153013060355040a130c446967694365727420496e6331193017060355040b13107777772e64696769636572742e636f6d3120301e06035504031317446967694365727420476c6f62616c20526f6f74204341301e170d3036313131303030303030305a170d3331313131303030303030305a3061310b300906035504061302555331153013060355040a130c446967694365727420496e6331193017060355040b13107777772e64696769636572742e636f6d3120301e06035504031317446967694365727420476c6f62616c20526f6f7420434130820122300d06092a864886f70d01010105000382010f003082010a0282010100e23be11172dea8a4d3a357aa50a28f0b7790c9a2a5ee12ce965b010920cc0193a74e30b753f743c46900579de28d22dd870640008109cece1b83bfdfcd3b7146e2d666c705b37627168f7b9e1e957deeb748a308dad6af7a0c3906657f4a5d1fbc17f8abbeee28d7747f7a78995985686e5c23324bbf4ec0e85a6de370bf7710bffc01f685d9a844105832a97518d5d1a2be47e2276af49a33f84908608bd45fb43a84bfa1aa4a4c7d3ecf4f5f6c765ea04b37919edc22e66dce141a8e6acbfecdb3146417c75b299e32bff2eefad30b42d4abb74132da0cd4eff881d5bb8d583fb51be84928a270da3104ddf7b216f24c0a4e07a8ed4a3d5eb57fa390c3af270203010001a3633061300e0603551d0f0101ff040403020186300f0603551d130101ff040530030101ff301d0603551d0e0416041403de503556d14cbb66f0a3e21b1bc397b23dd155301f0603551d2304183016801403de503556d14cbb66f0a3e21b1bc397b23dd155300d06092a864886f70d01010505000382010100cb9c37aa4813120afadd449c4f52b0f4dfae04f5797908a32418fc4b2b84c02db9d5c7fef4c11f58cbb86d9c7a74e79829ab11b5e370a0a1cd4c8899938c9170e2ab0f1cbe93a9ff63d5e40760d3a3bf9d5b09f1d58ee353f48e63fa3fa7dbb466df6266d6d16e418df22db5ea774a9f9d58e22b59c04023ed2d2882453e7954922698e08048a837eff0d6796016deace80ecd6eac4417382f49dae1453e2ab93653cf3a5006f72ee8c457496c612118d504ad783c2c3a806ba7ebaf1514e9d889c1b9386ce2916c8aff64b977255730c01b24a3e1dce9df477cb5b424080530ec2dbd0bbf45bf50b9a9f3eb980112adc888c698345f8d0a3cc6e9d595956dde")
+	pReqGetInfo.RootCA = []byte{}
+	pReqGetInfo.DataID = 900000
+
+	rmcResponseStream.WriteStructure(pReqGetInfo)
+
+	rmcResponseBody := rmcResponseStream.Bytes()
+
+	rmcResponse := nex.NewRMCResponse(nexproto.DataStoreProtocolID, callID)
+	rmcResponse.SetSuccess(nexproto.DataStoreMethodPrepareGetObject, rmcResponseBody)
+
+	rmcResponseBytes := rmcResponse.Bytes()
+
+	responsePacket, _ := nex.NewPacketV1(client, nil)
+
+	responsePacket.SetVersion(1)
+	responsePacket.SetSource(0xA1)
+	responsePacket.SetDestination(0xAF)
+	responsePacket.SetType(nex.DataPacket)
+	responsePacket.SetPayload(rmcResponseBytes)
+
+	responsePacket.AddFlag(nex.FlagNeedsAck)
+	responsePacket.AddFlag(nex.FlagReliable)
+
+	nexServer.Send(responsePacket)
+}
