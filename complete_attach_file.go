@@ -5,23 +5,17 @@ import (
 	nexproto "github.com/PretendoNetwork/nex-protocols-go"
 )
 
-func prepareGetObject(err error, client *nex.Client, callID uint32, dataStorePrepareGetParam *nexproto.DataStorePrepareGetParam) {
-	// TODO: CDN
+func completeAttachFile(err error, client *nex.Client, callID uint32, dataStoreCompletePostParam *nexproto.DataStoreCompletePostParam) {
 	rmcResponseStream := nex.NewStreamOut(nexServer)
 
-	pReqGetInfo := nexproto.NewDataStoreReqGetInfo()
-	pReqGetInfo.URL = "http://pds-AMAJ-d1.b-cdn.net/special/900000.bin"
-	pReqGetInfo.RequestHeaders = []*nexproto.DataStoreKeyValue{}
-	pReqGetInfo.Size = 450068
-	pReqGetInfo.RootCA = []byte{}
-	pReqGetInfo.DataID = 900000
+	// TODO complete this
 
-	rmcResponseStream.WriteStructure(pReqGetInfo)
+	rmcResponseStream.WriteString("http://pds-amaj-d1.b-cdn.net/image/1.jpg")
 
 	rmcResponseBody := rmcResponseStream.Bytes()
 
-	rmcResponse := nex.NewRMCResponse(nexproto.DataStoreProtocolID, callID)
-	rmcResponse.SetSuccess(nexproto.DataStoreMethodPrepareGetObject, rmcResponseBody)
+	rmcResponse := nex.NewRMCResponse(nexproto.DataStoreSMMProtocolID, callID)
+	rmcResponse.SetSuccess(nexproto.DataStoreSMMMethodCompleteAttachFile, rmcResponseBody)
 
 	rmcResponseBytes := rmcResponse.Bytes()
 

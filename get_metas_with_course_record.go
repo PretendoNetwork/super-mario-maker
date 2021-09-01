@@ -6,9 +6,9 @@ import (
 )
 
 func getMetasWithCourseRecord(err error, client *nex.Client, callID uint32, dataStoreGetCourseRecordParams []*nexproto.DataStoreGetCourseRecordParam, dataStoreGetMetaParam *nexproto.DataStoreGetMetaParam) {
-	rmcResponseStream := nex.NewStreamOut(nexServer)
-
 	// TODO complete this
+
+	rmcResponseStream := nex.NewStreamOut(nexServer)
 
 	rmcResponseStream.WriteUInt32LE(0x00000000) // pMetaInfo List length 0
 	rmcResponseStream.WriteUInt32LE(0x00000000) // pCourseResults List length 0

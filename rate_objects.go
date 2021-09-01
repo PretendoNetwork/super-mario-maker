@@ -5,23 +5,18 @@ import (
 	nexproto "github.com/PretendoNetwork/nex-protocols-go"
 )
 
-func prepareGetObject(err error, client *nex.Client, callID uint32, dataStorePrepareGetParam *nexproto.DataStorePrepareGetParam) {
-	// TODO: CDN
+func rateObjects(err error, client *nex.Client, callID uint32, targets []*nexproto.DataStoreRatingTarget, params []*nexproto.DataStoreRateObjectParam, transactional bool, fetchRatings bool) {
 	rmcResponseStream := nex.NewStreamOut(nexServer)
 
-	pReqGetInfo := nexproto.NewDataStoreReqGetInfo()
-	pReqGetInfo.URL = "http://pds-AMAJ-d1.b-cdn.net/special/900000.bin"
-	pReqGetInfo.RequestHeaders = []*nexproto.DataStoreKeyValue{}
-	pReqGetInfo.Size = 450068
-	pReqGetInfo.RootCA = []byte{}
-	pReqGetInfo.DataID = 900000
+	// TODO complete this
 
-	rmcResponseStream.WriteStructure(pReqGetInfo)
+	rmcResponseStream.WriteUInt32LE(0x00000000) // pRatings List length 0
+	rmcResponseStream.WriteUInt32LE(0x00000000) // pResults List length 0
 
 	rmcResponseBody := rmcResponseStream.Bytes()
 
-	rmcResponse := nex.NewRMCResponse(nexproto.DataStoreProtocolID, callID)
-	rmcResponse.SetSuccess(nexproto.DataStoreMethodPrepareGetObject, rmcResponseBody)
+	rmcResponse := nex.NewRMCResponse(nexproto.DataStoreSMMProtocolID, callID)
+	rmcResponse.SetSuccess(nexproto.DataStoreMethodRateObjects, rmcResponseBody)
 
 	rmcResponseBytes := rmcResponse.Bytes()
 
