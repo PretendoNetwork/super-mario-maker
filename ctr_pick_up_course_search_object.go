@@ -7,7 +7,7 @@ import (
 	nexproto "github.com/PretendoNetwork/nex-protocols-go"
 )
 
-func recommendedCourseSearchObject(err error, client *nex.Client, callID uint32, dataStoreSearchParam *nexproto.DataStoreSearchParam, extraData []string) {
+func ctrPickUpCourseSearchObject(err error, client *nex.Client, callID uint32, dataStoreSearchParam *nexproto.DataStoreSearchParam, extraData []string) {
 	// TODO complete this
 
 	now := uint64(time.Now().Unix())
@@ -25,7 +25,7 @@ func recommendedCourseSearchObject(err error, client *nex.Client, callID uint32,
 	rankingResult.MetaInfo.DataType = 6 // idk?
 	rankingResult.MetaInfo.MetaBinary = []byte{
 		0x00, 0x00, 0x00, 0x01, // always 1
-		0x00, 0x00, 0x00, 0x00, // course theme
+		0x00, 0x00, 0x00, 0x01, // course theme
 		0x00, 0x00, 0x04, 0xcc, // length of compressed course data
 		0x00, 0x00, 0x00, 0xc0, // length of compressed course sub data
 		0x00, 0x00, 0x26, 0x8c, // length of compressed thumbnail0
@@ -64,7 +64,7 @@ func recommendedCourseSearchObject(err error, client *nex.Client, callID uint32,
 	rmcResponseBody := rmcResponseStream.Bytes()
 
 	rmcResponse := nex.NewRMCResponse(nexproto.DataStoreSMMProtocolID, callID)
-	rmcResponse.SetSuccess(nexproto.DataStoreSMMMethodRecommendedCourseSearchObject, rmcResponseBody)
+	rmcResponse.SetSuccess(nexproto.DataStoreSMMMethodCTRPickUpCourseSearchObject, rmcResponseBody)
 
 	rmcResponseBytes := rmcResponse.Bytes()
 

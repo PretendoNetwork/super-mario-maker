@@ -69,6 +69,7 @@ func main() {
 	dataStoreSmmServer.RecommendedCourseSearchObject(recommendedCourseSearchObject)
 	dataStoreSmmServer.GetApplicationConfigString(getApplicationConfigString)
 	dataStoreSmmServer.GetMetasWithCourseRecord(getMetasWithCourseRecord)
+	dataStoreSmmServer.CTRPickUpCourseSearchObject(ctrPickUpCourseSearchObject)
 
 	nexServer.Listen(":60003")
 }
