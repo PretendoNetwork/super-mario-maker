@@ -16,6 +16,8 @@ func getApplicationConfig(err error, client *nex.Client, callID uint32, applicat
 		getApplicationConfig_PID(client, callID, applicationID)
 	case 2: // Unknown?
 		getApplicationConfig_Unknown2(client, callID, applicationID)
+	case 10: // Unknown?
+		getApplicationConfig_Unknown10(client, callID, applicationID)
 	default:
 		fmt.Printf("[Warning] DataStoreSMMProtocol::GetApplicationConfig Unsupported applicationID: %v\n", applicationID)
 	}
@@ -106,6 +108,39 @@ func getApplicationConfig_Unknown2(client *nex.Client, callID uint32, applicatio
 	// I have no idea what this is
 	// Just replaying data sent from the real server
 	config := []uint32{0xdf070000, 0x0c000000, 0x16000000, 0x05000000, 0x00000000}
+
+	rmcResponseStream.WriteListUInt32LE(config)
+
+	rmcResponseBody := rmcResponseStream.Bytes()
+
+	rmcResponse := nex.NewRMCResponse(nexproto.DataStoreSMMProtocolID, callID)
+	rmcResponse.SetSuccess(nexproto.DataStoreSMMMethodGetApplicationConfig, rmcResponseBody)
+
+	rmcResponseBytes := rmcResponse.Bytes()
+
+	responsePacket, _ := nex.NewPacketV1(client, nil)
+
+	responsePacket.SetVersion(1)
+	responsePacket.SetSource(0xA1)
+	responsePacket.SetDestination(0xAF)
+	responsePacket.SetType(nex.DataPacket)
+	responsePacket.SetPayload(rmcResponseBytes)
+
+	responsePacket.AddFlag(nex.FlagNeedsAck)
+	responsePacket.AddFlag(nex.FlagReliable)
+
+	nexServer.Send(responsePacket)
+}
+
+func getApplicationConfig_Unknown10(client *nex.Client, callID uint32, applicationID uint32) {
+	rmcResponseStream := nex.NewStreamOut(nexServer)
+
+	// TODO complete this
+
+	// I have no idea what this is
+	// Just replaying data sent from the real server
+	// Only seen on the 3DS
+	config := []uint32{35, 75, 96, 40, 5, 6}
 
 	rmcResponseStream.WriteListUInt32LE(config)
 
