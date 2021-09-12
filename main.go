@@ -58,6 +58,7 @@ func main() {
 	dataStoreSmmServer.GetMetasMultipleParam(getMetasMultipleParam)
 	dataStoreSmmServer.ChangeMeta(changeMeta)
 	dataStoreSmmServer.RateObjects(rateObjects)
+	dataStoreSmmServer.GetObjectInfos(getObjectInfos)
 	dataStoreSmmServer.RateCustomRanking(rateCustomRanking)
 	dataStoreSmmServer.GetCustomRankingByDataId(getCustomRankingByDataId)
 	dataStoreSmmServer.GetBufferQueue(getBufferQueue)

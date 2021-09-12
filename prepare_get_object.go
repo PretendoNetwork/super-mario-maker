@@ -7,14 +7,24 @@ import (
 
 func prepareGetObject(err error, client *nex.Client, callID uint32, dataStorePrepareGetParam *nexproto.DataStorePrepareGetParam) {
 	// TODO: CDN
-	rmcResponseStream := nex.NewStreamOut(nexServer)
 
 	pReqGetInfo := nexproto.NewDataStoreReqGetInfo()
-	pReqGetInfo.URL = "http://pds-AMAJ-d1.b-cdn.net/special/900000.bin"
-	pReqGetInfo.RequestHeaders = []*nexproto.DataStoreKeyValue{}
-	pReqGetInfo.Size = 450068
-	pReqGetInfo.RootCA = []byte{}
-	pReqGetInfo.DataID = 900000
+
+	if dataStorePrepareGetParam.DataID == 900000 {
+		pReqGetInfo.URL = "http://pds-AMAJ-d1.b-cdn.net/special/900000.bin"
+		pReqGetInfo.RequestHeaders = []*nexproto.DataStoreKeyValue{}
+		pReqGetInfo.Size = 450068
+		pReqGetInfo.RootCA = []byte{}
+		pReqGetInfo.DataID = 900000
+	} else {
+		pReqGetInfo.URL = "http://pds-AMAJ-d1.b-cdn.net/course/1.bin"
+		pReqGetInfo.RequestHeaders = []*nexproto.DataStoreKeyValue{}
+		pReqGetInfo.Size = 42516
+		pReqGetInfo.RootCA = []byte{}
+		pReqGetInfo.DataID = 1
+	}
+
+	rmcResponseStream := nex.NewStreamOut(nexServer)
 
 	rmcResponseStream.WriteStructure(pReqGetInfo)
 

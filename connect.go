@@ -19,7 +19,8 @@ func connect(packet *nex.PacketV1) {
 	checkDataDecrypted := kerberos.Decrypt(checkData)
 	checkDataStream := nex.NewStreamIn(checkDataDecrypted, nexServer)
 
-	_ = checkDataStream.ReadUInt32LE() // User PID
+	userPID := checkDataStream.ReadUInt32LE() // User PID
+	packet.Sender().SetPID(userPID)
 	_ = checkDataStream.ReadUInt32LE() //CID of secure server station url
 	responseCheck := checkDataStream.ReadUInt32LE()
 
