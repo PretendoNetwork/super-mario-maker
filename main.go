@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"os"
 
 	nex "github.com/PretendoNetwork/nex-go"
 	nexproto "github.com/PretendoNetwork/nex-protocols-go"
@@ -9,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/joho/godotenv"
 )
 
 var nexServer *nex.Server
@@ -16,8 +19,13 @@ var secureServer *nexproto.SecureProtocol
 var s3Client *s3.S3
 
 func main() {
-	key := "M5SMDMTOQRWWXQTSJZFN"
-	secret := "tctgfEPSzbqOiBZooWTSY78V+yAYGOAy5Vcos4+LQyU"
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	key := os.Getenv("DO_SPACES_KEY")
+	secret := os.Getenv("DO_SPACES_SECRET")
 
 	s3Config := &aws.Config{
 		Credentials: credentials.NewStaticCredentials(key, secret, ""),
