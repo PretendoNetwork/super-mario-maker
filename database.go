@@ -32,7 +32,6 @@ func connectMongo() {
 
 func connectCassandra() {
 	// Connect to Cassandra
-	return
 
 	var err error
 
@@ -51,7 +50,61 @@ func connectCassandra() {
 
 	// Create tables if missing
 
-	// TODO: Add tables
+	if err := cassandraClusterSession.Query(`CREATE TABLE IF NOT EXISTS pretendo_smm.courses (
+			data_id bigint PRIMARY KEY,
+			playable boolean,
+			owner_pid int,
+			name text,
+			size int,
+			creation_date bigint,
+			update_date bigint,
+			stars int,
+			world_record_pid int,
+			world_record_creation_date bigint,
+			world_record_update_date bigint,
+			attempts int,
+			failures int,
+			completions int,
+			meta_binary blob,
+			flag int,
+			extra_data list<text>,
+			data_type smallint,
+			period smallint,
+		)`).Exec(); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := cassandraClusterSession.Query(`CREATE TABLE IF NOT EXISTS pretendo_smm.buffer_queues (
+			id int PRIMARY KEY,
+			data_id int,
+			slot int,
+			buffer blob
+		)`).Exec(); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := cassandraClusterSession.Query(`CREATE TABLE IF NOT EXISTS pretendo_smm.generator_last_id (
+		node_id int PRIMARY KEY,
+		last_id int
+	)`).Exec(); err != nil {
+		log.Fatal(err)
+	}
+
+	/*
+		if err := cassandraClusterSession.Query(`INSERT INTO pretendo_smm.courses(data_id, meta_binary) VALUES (?, ?) IF NOT EXISTS`, 0, []byte{0, 1, 2, 3}).Exec(); err != nil {
+			log.Fatal(err)
+		}
+	*/
+
+	/*
+		type MetaData struct {
+			meta_binary []byte
+		}
+		meta := &MetaData{}
+		_ = cassandraClusterSession.Query(`SELECT meta_binary FROM pretendo_smm.courses WHERE data_id=? LIMIT 1`, 0).Scan(&meta)
+
+		fmt.Println(meta)
+	*/
 
 	fmt.Println("Connected to Cassandra")
 }
@@ -86,6 +139,150 @@ func createKeyspace(keyspace string) {
 // Cassandra database methods //
 //                            //
 ////////////////////////////////
+
+func createDataStoreIDGeneratorRow(nodeID int) {
+	if err := cassandraClusterSession.Query(`INSERT INTO pretendo_smm.generator_last_id(node_id, last_id) VALUES (?, ?) IF NOT EXISTS`, nodeID, 0).Exec(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func getDataStoreIDGeneratorLastID(nodeID int) uint32 {
+	var lastID uint32
+	_ = cassandraClusterSession.Query(`SELECT last_id FROM pretendo_smm.generator_last_id WHERE node_id=?`, nodeID).Scan(&lastID)
+
+	return lastID
+}
+
+func setDataStoreIDGeneratorLastID(nodeID int, value uint32) {
+	if err := cassandraClusterSession.Query(`UPDATE pretendo_smm.generator_last_id SET last_id=? WHERE node_id=?`, value, nodeID).Exec(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func insertCourseDataRow(courseID uint64, ownerPID uint32, size uint32, name string, flag uint32, extraData []string, dataType uint16, period uint16) {
+	if err := cassandraClusterSession.Query(`INSERT INTO pretendo_smm.courses(
+		data_id,
+		owner_pid,
+		size,
+		name,
+		flag,
+		extra_data,
+		playable,
+		creation_date,
+		update_date,
+		stars,
+		world_record_pid,
+		world_record_creation_date,
+		world_record_update_date,
+		attempts,
+		failures,
+		completions,
+		data_type,
+		period
+	)
+	VALUES (
+		?,
+		?,
+		?,
+		?,
+		?,
+		?,
+		false,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		?,
+		?
+	) IF NOT EXISTS`,
+		courseID, ownerPID, size, name, flag, extraData, dataType, period).Exec(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func updateCourseMetaBinary(courseID uint64, metaBinary []byte) {
+	if err := cassandraClusterSession.Query(`UPDATE pretendo_smm.courses SET meta_binary=? WHERE data_id=?`, metaBinary, courseID).Exec(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func setCoursePlayable(courseID uint64) {
+	if err := cassandraClusterSession.Query(`UPDATE pretendo_smm.courses SET playable=true WHERE data_id=?`, courseID).Exec(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func getCourseMetadatasByLimit(limit uint32) []*CourseMetadata {
+	var sliceMap []map[string]interface{}
+	var err error
+
+	if sliceMap, err = cassandraClusterSession.Query(`SELECT stars, data_id, owner_pid, size, name, meta_binary, flag, data_type, period FROM pretendo_smm.courses LIMIT ?`, limit).Iter().SliceMap(); err != nil {
+		log.Fatal(err)
+	}
+
+	courseMetadatas := make([]*CourseMetadata, 0)
+
+	for i := 0; i < len(sliceMap); i++ {
+		courseMetadata := &CourseMetadata{
+			Stars:      uint32(sliceMap[i]["stars"].(int)),
+			DataID:     uint64(sliceMap[i]["data_id"].(int64)),
+			OwnerPID:   uint32(sliceMap[i]["owner_pid"].(int)),
+			Size:       uint32(sliceMap[i]["size"].(int)),
+			Name:       sliceMap[i]["name"].(string),
+			MetaBinary: sliceMap[i]["meta_binary"].([]byte),
+			Flag:       uint32(sliceMap[i]["flag"].(int)),
+			DataType:   uint16(sliceMap[i]["data_type"].(int16)),
+			Period:     uint16(sliceMap[i]["period"].(int16)),
+		}
+
+		courseMetadatas = append(courseMetadatas, courseMetadata)
+	}
+
+	return courseMetadatas
+}
+
+func getCourseMetadataByDataID(dataID uint64) *CourseMetadata {
+	var stars uint32
+	var ownerPID uint32
+	var size uint32
+	var name string
+	var metaBinary []byte
+	var flag uint32
+	var dataType uint16
+	var period uint16
+
+	_ = cassandraClusterSession.Query(`SELECT stars, owner_pid, size, name, meta_binary, flag, data_type, period FROM pretendo_smm.courses WHERE data_id=?`, dataID).Scan(&stars, &ownerPID, &size, &name, &metaBinary, &flag, &dataType, &period)
+
+	courseMetadata := &CourseMetadata{
+		Stars:      stars,
+		DataID:     dataID,
+		OwnerPID:   ownerPID,
+		Size:       size,
+		Name:       name,
+		MetaBinary: metaBinary,
+		Flag:       flag,
+		DataType:   dataType,
+		Period:     period,
+	}
+
+	return courseMetadata
+}
+
+func getCourseMetadataByDataIDs(dataIDs []uint64) []*CourseMetadata {
+	// TODO: Do this in one query?
+	courseMetadatas := make([]*CourseMetadata, 0)
+
+	for i := 0; i < len(dataIDs); i++ {
+		courseMetadatas = append(courseMetadatas, getCourseMetadataByDataID(dataIDs[i]))
+	}
+
+	return courseMetadatas
+}
 
 //////////////////////////////
 //                          //

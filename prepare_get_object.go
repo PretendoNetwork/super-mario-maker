@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	nex "github.com/PretendoNetwork/nex-go"
 	nexproto "github.com/PretendoNetwork/nex-protocols-go"
 )
@@ -17,11 +19,13 @@ func prepareGetObject(err error, client *nex.Client, callID uint32, dataStorePre
 		pReqGetInfo.RootCA = []byte{}
 		pReqGetInfo.DataID = 900000
 	} else {
-		pReqGetInfo.URL = "http://pds-AMAJ-d1.b-cdn.net/course/1.bin"
+		courseMetadata := getCourseMetadataByDataID(dataStorePrepareGetParam.DataID)
+
+		pReqGetInfo.URL = fmt.Sprintf("http://pds-AMAJ-d1.b-cdn.net/course/%d.bin", dataStorePrepareGetParam.DataID)
 		pReqGetInfo.RequestHeaders = []*nexproto.DataStoreKeyValue{}
-		pReqGetInfo.Size = 42516
+		pReqGetInfo.Size = courseMetadata.Size
 		pReqGetInfo.RootCA = []byte{}
-		pReqGetInfo.DataID = 1
+		pReqGetInfo.DataID = dataStorePrepareGetParam.DataID
 	}
 
 	rmcResponseStream := nex.NewStreamOut(nexServer)

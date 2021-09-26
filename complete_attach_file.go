@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	nex "github.com/PretendoNetwork/nex-go"
 	nexproto "github.com/PretendoNetwork/nex-protocols-go"
 )
@@ -10,7 +12,16 @@ func completeAttachFile(err error, client *nex.Client, callID uint32, dataStoreC
 
 	// TODO complete this
 
-	rmcResponseStream.WriteString("http://pds-amaj-d1.b-cdn.net/image/1.jpg")
+	/*
+		fmt.Println(dataStoreCompletePostParam.IsSuccess)
+		fmt.Println(dataStoreCompletePostParam.DataID)
+
+		if dataStoreCompletePostParam.IsSuccess {
+			setCoursePlayable(dataStoreCompletePostParam.DataID)
+		}
+	*/
+
+	rmcResponseStream.WriteString(fmt.Sprintf("http://pds-amaj-d1.b-cdn.net/image/%d.jpg", dataStoreCompletePostParam.DataID))
 
 	rmcResponseBody := rmcResponseStream.Bytes()
 

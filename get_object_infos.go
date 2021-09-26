@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	nex "github.com/PretendoNetwork/nex-go"
 	nexproto "github.com/PretendoNetwork/nex-protocols-go"
 )
@@ -10,16 +12,22 @@ func getObjectInfos(err error, client *nex.Client, callID uint32, dataIDs []uint
 
 	pInfos := make([]*nexproto.DataStoreFileServerObjectInfo, 0)
 
-	info := nexproto.NewDataStoreFileServerObjectInfo()
-	info.DataID = 1
-	info.GetInfo = nexproto.NewDataStoreReqGetInfo()
-	info.GetInfo.URL = "http://pds-AMAJ-d1.b-cdn.net/course/1.bin"
-	info.GetInfo.RequestHeaders = []*nexproto.DataStoreKeyValue{}
-	info.GetInfo.Size = 42516
-	info.GetInfo.RootCA = []byte{}
-	info.GetInfo.DataID = 1
+	courseMetadatas := getCourseMetadataByDataIDs(dataIDs)
 
-	pInfos = append(pInfos, info)
+	for i := 0; i < len(courseMetadatas); i++ {
+		courseMetadata := courseMetadatas[i]
+
+		info := nexproto.NewDataStoreFileServerObjectInfo()
+		info.DataID = courseMetadata.DataID
+		info.GetInfo = nexproto.NewDataStoreReqGetInfo()
+		info.GetInfo.URL = fmt.Sprintf("http://pds-AMAJ-d1.b-cdn.net/course/%d.bin", courseMetadata.DataID)
+		info.GetInfo.RequestHeaders = []*nexproto.DataStoreKeyValue{}
+		info.GetInfo.Size = courseMetadata.Size
+		info.GetInfo.RootCA = []byte{}
+		info.GetInfo.DataID = courseMetadata.DataID
+
+		pInfos = append(pInfos, info)
+	}
 
 	rmcResponseStream := nex.NewStreamOut(nexServer)
 

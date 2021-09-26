@@ -4,6 +4,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -12,7 +13,7 @@ import (
 )
 
 func prepareAttachFile(err error, client *nex.Client, callID uint32, dataStoreAttachFileParam *nexproto.DataStoreAttachFileParam) {
-	key := "image/1.jpg"
+	key := fmt.Sprintf("image/%d.jpg", dataStoreAttachFileParam.ReferDataID)
 	bucket := "pds-amaj-d1"
 	date := strconv.Itoa(int(time.Now().Unix()))
 	pid := strconv.Itoa(int(client.PID()))
@@ -56,7 +57,7 @@ func prepareAttachFile(err error, client *nex.Client, callID uint32, dataStoreAt
 
 	pReqPostInfo := nexproto.NewDataStoreReqPostInfo()
 
-	pReqPostInfo.DataID = 1
+	pReqPostInfo.DataID = dataStoreAttachFileParam.ReferDataID
 	pReqPostInfo.URL = "http://datastore.pretendo.cc/upload"
 	pReqPostInfo.RequestHeaders = []*nexproto.DataStoreKeyValue{}
 	pReqPostInfo.FormFields = []*nexproto.DataStoreKeyValue{fieldBucket, fieldKey, fieldACL, fieldContentType, fieldPID, fieldDate, fieldSignature}

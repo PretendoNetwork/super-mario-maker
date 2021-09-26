@@ -4,6 +4,8 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
+	"math/rand"
 	"strconv"
 	"time"
 
@@ -11,8 +13,30 @@ import (
 	nexproto "github.com/PretendoNetwork/nex-protocols-go"
 )
 
-func preparePostObject(err error, client *nex.Client, callID uint32, dataStorePreparePostParam *nexproto.DataStorePreparePostParam) {
-	key := "courses/1.bin"
+func preparePostObject(err error, client *nex.Client, callID uint32, param *nexproto.DataStorePreparePostParam) {
+	rand.Seed(time.Now().UnixNano())
+	nodeID := rand.Intn(len(dataStoreIDGenerators))
+
+	dataStoreIDGenerator := dataStoreIDGenerators[nodeID]
+
+	for dataStoreIDGenerator.InUse() {
+		// Do nothing, wait until it's done
+		// There has to be a better way to do this
+	}
+
+	//dataStoreIDGenerator.SetInUse(true)
+
+	dataID := dataStoreIDGenerator.Next()
+	setDataStoreIDGeneratorLastID(nodeID, dataStoreIDGenerator.Value)
+	insertCourseDataRow(dataID, client.PID(), param.Size, param.Name, param.Flag, param.ExtraData, param.DataType, param.Period)
+
+	if param.DataType != 1 { // 1 is Mii data, assume other values are course meta data
+		updateCourseMetaBinary(dataID, param.MetaBinary)
+	}
+
+	//dataStoreIDGenerator.SetInUse(false)
+
+	key := fmt.Sprintf("course/%d.bin", dataID)
 	bucket := "pds-amaj-d1"
 	date := strconv.Itoa(int(time.Now().Unix()))
 	pid := strconv.Itoa(int(client.PID()))
@@ -52,7 +76,7 @@ func preparePostObject(err error, client *nex.Client, callID uint32, dataStorePr
 
 	pReqPostInfo := nexproto.NewDataStoreReqPostInfo()
 
-	pReqPostInfo.DataID = 1
+	pReqPostInfo.DataID = dataID
 	pReqPostInfo.URL = "http://datastore.pretendo.cc/upload"
 	pReqPostInfo.RequestHeaders = []*nexproto.DataStoreKeyValue{}
 	pReqPostInfo.FormFields = []*nexproto.DataStoreKeyValue{fieldBucket, fieldKey, fieldACL, fieldPID, fieldDate, fieldSignature}
