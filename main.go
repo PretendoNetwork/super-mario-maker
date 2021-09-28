@@ -75,6 +75,7 @@ func main() {
 	dataStoreSmmServer.GetApplicationConfig(getApplicationConfig)
 	dataStoreSmmServer.FollowingsLatestCourseSearchObject(followingsLatestCourseSearchObject)
 	dataStoreSmmServer.RecommendedCourseSearchObject(recommendedCourseSearchObject)
+	dataStoreSmmServer.SuggestedCourseSearchObject(suggestedCourseSearchObject)
 	dataStoreSmmServer.GetCourseRecord(getCourseRecord)
 	dataStoreSmmServer.GetApplicationConfigString(getApplicationConfigString)
 	dataStoreSmmServer.GetMetasWithCourseRecord(getMetasWithCourseRecord)
