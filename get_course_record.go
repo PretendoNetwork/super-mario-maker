@@ -6,35 +6,29 @@ import (
 )
 
 func getCourseRecord(err error, client *nex.Client, callID uint32, param *nexproto.DataStoreGetCourseRecordParam) {
-	// TODO complete this
-	// Hard coded to always say the course creator holds the world record
+	worldRecord := getCourseWorldRecord(param.DataID)
 
-	/*
-		courseMetadata := getCourseMetadataByDataID(param.DataID)
+	rmcResponse := nex.NewRMCResponse(nexproto.DataStoreSMMProtocolID, callID)
 
+	if worldRecord == nil {
+		rmcResponse.SetError(0x00690004)
+	} else {
 		result := nexproto.NewDataStoreGetCourseRecordResult()
 		result.DataID = param.DataID
-		result.Slot = 0
-		result.FirstPID = courseMetadata.OwnerPID
-		result.BestPID = courseMetadata.OwnerPID
-		result.BestScore = 0
-		result.CreatedTime = nex.NewDateTime(0)
-		result.UpdatedTime = nex.NewDateTime(0)
+		result.Slot = param.Slot
+		result.FirstPID = worldRecord.FirstPID
+		result.BestPID = worldRecord.BestPID
+		result.BestScore = worldRecord.Score
+		result.CreatedTime = worldRecord.CreatedTime
+		result.UpdatedTime = worldRecord.UpdatedTime
 
 		rmcResponseStream := nex.NewStreamOut(nexServer)
 
 		rmcResponseStream.WriteStructure(result)
 
 		rmcResponseBody := rmcResponseStream.Bytes()
-
-		rmcResponse := nex.NewRMCResponse(nexproto.DataStoreSMMProtocolID, callID)
 		rmcResponse.SetSuccess(nexproto.DataStoreSMMMethodGetCourseRecord, rmcResponseBody)
-
-		rmcResponseBytes := rmcResponse.Bytes()
-	*/
-
-	rmcResponse := nex.NewRMCResponse(nexproto.DataStoreSMMProtocolID, callID)
-	rmcResponse.SetError(0x00690004)
+	}
 
 	rmcResponseBytes := rmcResponse.Bytes()
 

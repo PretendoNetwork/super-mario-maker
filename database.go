@@ -7,6 +7,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/PretendoNetwork/nex-go"
 	"github.com/gocql/gocql"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -59,9 +60,11 @@ func connectCassandra() {
 			creation_date bigint,
 			update_date bigint,
 			stars int,
+			world_record_first_pid int,
 			world_record_pid int,
 			world_record_creation_date bigint,
 			world_record_update_date bigint,
+			world_record int,
 			attempts int,
 			failures int,
 			completions int,
@@ -69,7 +72,7 @@ func connectCassandra() {
 			flag int,
 			extra_data list<text>,
 			data_type smallint,
-			period smallint,
+			period smallint
 		)`).Exec(); err != nil {
 		log.Fatal(err)
 	}
@@ -286,6 +289,42 @@ func getCourseMetadataByDataIDs(dataIDs []uint64) []*CourseMetadata {
 
 func insertBufferQueueData(dataID uint64, slot uint32, buffer []byte) {
 	if err := cassandraClusterSession.Query(`INSERT INTO pretendo_smm.buffer_queues( id, data_id, slot, buffer ) VALUES ( now(), ?, ?, ? ) IF NOT EXISTS`, dataID, slot, buffer).Exec(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func getCourseWorldRecord(dataID uint64) *CourseWorldRecord {
+	var worldRecordFirstPID uint32
+	var worldRecordPID uint32
+	var worldRecordCreatedTime uint64
+	var worldRecordUpdatedTime uint64
+	var worldRecord int32
+
+	_ = cassandraClusterSession.Query(`SELECT world_record_first_pid, world_record_pid, world_record_creation_date, world_record_update_date, world_record FROM pretendo_smm.courses WHERE data_id=?`, dataID).Scan(&worldRecordFirstPID, &worldRecordPID, &worldRecordCreatedTime, &worldRecordUpdatedTime, &worldRecord)
+
+	if worldRecordFirstPID == 0 {
+		return nil
+	}
+
+	return &CourseWorldRecord{
+		FirstPID:    worldRecordFirstPID,
+		BestPID:     worldRecordPID,
+		CreatedTime: nex.NewDateTime(worldRecordCreatedTime),
+		UpdatedTime: nex.NewDateTime(worldRecordUpdatedTime),
+		Score:       worldRecord,
+	}
+}
+
+func updateCourseWorldRecord(courseID uint64, ownerPID uint32, score int32) {
+	now := uint64(time.Now().Unix())
+
+	if getCourseWorldRecord(courseID) == nil {
+		if err := cassandraClusterSession.Query(`UPDATE pretendo_smm.courses SET world_record_first_pid=?, world_record_creation_date=? WHERE data_id=?`, ownerPID, now, courseID).Exec(); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	if err := cassandraClusterSession.Query(`UPDATE pretendo_smm.courses SET world_record_pid=?, world_record_update_date=?, world_record=? WHERE data_id=?`, ownerPID, now, score, courseID).Exec(); err != nil {
 		log.Fatal(err)
 	}
 }
