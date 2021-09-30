@@ -75,8 +75,8 @@ func connectCassandra() {
 	}
 
 	if err := cassandraClusterSession.Query(`CREATE TABLE IF NOT EXISTS pretendo_smm.buffer_queues (
-			id int PRIMARY KEY,
-			data_id int,
+			id uuid PRIMARY KEY,
+			data_id bigint,
 			slot int,
 			buffer blob
 		)`).Exec(); err != nil {
@@ -282,6 +282,12 @@ func getCourseMetadataByDataIDs(dataIDs []uint64) []*CourseMetadata {
 	}
 
 	return courseMetadatas
+}
+
+func insertBufferQueueData(dataID uint64, slot uint32, buffer []byte) {
+	if err := cassandraClusterSession.Query(`INSERT INTO pretendo_smm.buffer_queues( id, data_id, slot, buffer ) VALUES ( now(), ?, ?, ? ) IF NOT EXISTS`, dataID, slot, buffer).Exec(); err != nil {
+		log.Fatal(err)
+	}
 }
 
 //////////////////////////////

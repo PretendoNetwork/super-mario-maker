@@ -44,15 +44,57 @@ func recommendedCourseSearchObject(err error, client *nex.Client, callID uint32,
 		rankingResult.MetaInfo.Flag = courseMetadata.Flag
 		rankingResult.MetaInfo.ReferredTime = nex.NewDateTime(now)
 		rankingResult.MetaInfo.ExpireTime = nex.NewDateTime(now)
-		rankingResult.MetaInfo.Tags = []string{""} // idk?
+		rankingResult.MetaInfo.Tags = []string{"AYMHAAADAAB2V0gFWV1WtQ"} // idk?
 		rankingResult.MetaInfo.Ratings = []*nexproto.DataStoreRatingInfoWithSlot{
+			nexproto.NewDataStoreRatingInfoWithSlot(),
+			nexproto.NewDataStoreRatingInfoWithSlot(),
+			nexproto.NewDataStoreRatingInfoWithSlot(),
+			nexproto.NewDataStoreRatingInfoWithSlot(),
+			nexproto.NewDataStoreRatingInfoWithSlot(),
+			nexproto.NewDataStoreRatingInfoWithSlot(),
 			nexproto.NewDataStoreRatingInfoWithSlot(),
 		}
 		rankingResult.MetaInfo.Ratings[0].Slot = 0
 		rankingResult.MetaInfo.Ratings[0].Rating = nexproto.NewDataStoreRatingInfo()
-		rankingResult.MetaInfo.Ratings[0].Rating.TotalValue = 3
-		rankingResult.MetaInfo.Ratings[0].Rating.Count = 3
+		rankingResult.MetaInfo.Ratings[0].Rating.TotalValue = 0
+		rankingResult.MetaInfo.Ratings[0].Rating.Count = 0
 		rankingResult.MetaInfo.Ratings[0].Rating.InitialValue = 0
+
+		rankingResult.MetaInfo.Ratings[1].Slot = 1
+		rankingResult.MetaInfo.Ratings[1].Rating = nexproto.NewDataStoreRatingInfo()
+		rankingResult.MetaInfo.Ratings[1].Rating.TotalValue = 0
+		rankingResult.MetaInfo.Ratings[1].Rating.Count = 0
+		rankingResult.MetaInfo.Ratings[1].Rating.InitialValue = 0
+
+		rankingResult.MetaInfo.Ratings[2].Slot = 2
+		rankingResult.MetaInfo.Ratings[2].Rating = nexproto.NewDataStoreRatingInfo()
+		rankingResult.MetaInfo.Ratings[2].Rating.TotalValue = 0
+		rankingResult.MetaInfo.Ratings[2].Rating.Count = 0
+		rankingResult.MetaInfo.Ratings[2].Rating.InitialValue = 0
+
+		rankingResult.MetaInfo.Ratings[3].Slot = 3
+		rankingResult.MetaInfo.Ratings[3].Rating = nexproto.NewDataStoreRatingInfo()
+		rankingResult.MetaInfo.Ratings[3].Rating.TotalValue = 0
+		rankingResult.MetaInfo.Ratings[3].Rating.Count = 0
+		rankingResult.MetaInfo.Ratings[3].Rating.InitialValue = 0
+
+		rankingResult.MetaInfo.Ratings[4].Slot = 4
+		rankingResult.MetaInfo.Ratings[4].Rating = nexproto.NewDataStoreRatingInfo()
+		rankingResult.MetaInfo.Ratings[4].Rating.TotalValue = 0
+		rankingResult.MetaInfo.Ratings[4].Rating.Count = 0
+		rankingResult.MetaInfo.Ratings[4].Rating.InitialValue = 0
+
+		rankingResult.MetaInfo.Ratings[5].Slot = 5
+		rankingResult.MetaInfo.Ratings[5].Rating = nexproto.NewDataStoreRatingInfo()
+		rankingResult.MetaInfo.Ratings[5].Rating.TotalValue = 0
+		rankingResult.MetaInfo.Ratings[5].Rating.Count = 0
+		rankingResult.MetaInfo.Ratings[5].Rating.InitialValue = 0
+
+		rankingResult.MetaInfo.Ratings[6].Slot = 6
+		rankingResult.MetaInfo.Ratings[6].Rating = nexproto.NewDataStoreRatingInfo()
+		rankingResult.MetaInfo.Ratings[6].Rating.TotalValue = 0
+		rankingResult.MetaInfo.Ratings[6].Rating.Count = 0
+		rankingResult.MetaInfo.Ratings[6].Rating.InitialValue = 0
 
 		pRankingResults = append(pRankingResults, rankingResult)
 	}

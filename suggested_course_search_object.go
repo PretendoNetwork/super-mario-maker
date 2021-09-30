@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"time"
 
 	nex "github.com/PretendoNetwork/nex-go"
@@ -12,7 +13,9 @@ func suggestedCourseSearchObject(err error, client *nex.Client, callID uint32, p
 
 	pRankingResults := make([]*nexproto.DataStoreCustomRankingResult, 0)
 
-	courseMetadatas := getCourseMetadatasByLimit(100) // In PCAPs param.minimalRatingFrequency is 100 but is 0 here?
+	fmt.Println(param.MinimalRatingFrequency)
+
+	courseMetadatas := getCourseMetadatasByLimit(4) // In PCAPs param.minimalRatingFrequency is 4 but is 0 here?
 
 	for i := 0; i < len(courseMetadatas); i++ {
 		now := uint64(time.Now().Unix())

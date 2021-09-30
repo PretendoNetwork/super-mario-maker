@@ -69,6 +69,7 @@ func main() {
 	dataStoreSmmServer.GetObjectInfos(getObjectInfos)
 	dataStoreSmmServer.RateCustomRanking(rateCustomRanking)
 	dataStoreSmmServer.GetCustomRankingByDataId(getCustomRankingByDataId)
+	dataStoreSmmServer.AddToBufferQueues(addToBufferQueues)
 	dataStoreSmmServer.GetBufferQueue(getBufferQueue)
 	dataStoreSmmServer.CompleteAttachFile(completeAttachFile)
 	dataStoreSmmServer.PrepareAttachFile(prepareAttachFile)
