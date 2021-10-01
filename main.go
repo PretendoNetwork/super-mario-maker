@@ -53,6 +53,7 @@ func main() {
 
 	secureServer = nexproto.NewSecureProtocol(nexServer)
 	dataStoreSmmServer := nexproto.NewDataStoreSMMProtocol(nexServer)
+	messageDeliveryServer := nexproto.NewMessageDeliveryProtocol(nexServer)
 
 	// Handle PRUDP CONNECT packet (not an RMC method)
 	nexServer.On("Connect", connect)
@@ -82,6 +83,8 @@ func main() {
 	dataStoreSmmServer.GetApplicationConfigString(getApplicationConfigString)
 	dataStoreSmmServer.GetMetasWithCourseRecord(getMetasWithCourseRecord)
 	dataStoreSmmServer.CTRPickUpCourseSearchObject(ctrPickUpCourseSearchObject)
+
+	messageDeliveryServer.DeliverMessage(deliverMessage)
 
 	nexServer.Listen(":60003")
 }
