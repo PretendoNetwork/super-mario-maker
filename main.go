@@ -82,6 +82,7 @@ func main() {
 	dataStoreSmmServer.GetCourseRecord(getCourseRecord)
 	dataStoreSmmServer.GetApplicationConfigString(getApplicationConfigString)
 	dataStoreSmmServer.GetMetasWithCourseRecord(getMetasWithCourseRecord)
+	dataStoreSmmServer.CheckRateCustomRankingCounter(checkRateCustomRankingCounter)
 	dataStoreSmmServer.CTRPickUpCourseSearchObject(ctrPickUpCourseSearchObject)
 
 	messageDeliveryServer.DeliverMessage(deliverMessage)
