@@ -23,7 +23,7 @@ var mongoDatabase *mongo.Database
 var mongoCollection *mongo.Collection
 
 func connectMongo() {
-	mongoClient, _ = mongo.NewClient(options.Client().ApplyURI("mongodb://127.0.0.1:27017/"))
+	mongoClient, _ = mongo.NewClient(options.Client().ApplyURI("mongodb://143.198.126.113:27017/"))
 	mongoContext, _ = context.WithTimeout(context.Background(), 10*time.Second)
 	_ = mongoClient.Connect(mongoContext)
 
@@ -70,6 +70,7 @@ func connectCassandra() {
 			data_type smallint,
 			period smallint
 		)`).Exec(); err != nil {
+		fmt.Println("pretendo_smm.courses")
 		log.Fatal(err)
 	}
 
@@ -78,8 +79,9 @@ func connectCassandra() {
 			stars counter,
 			attempts counter,
 			failures counter,
-			completions int
+			completions counter
 		)`).Exec(); err != nil {
+		fmt.Println("pretendo_smm.ratings")
 		log.Fatal(err)
 	}
 
@@ -89,6 +91,7 @@ func connectCassandra() {
 			slot int,
 			buffer blob
 		)`).Exec(); err != nil {
+		fmt.Println("pretendo_smm.buffer_queues")
 		log.Fatal(err)
 	}
 
@@ -96,6 +99,7 @@ func connectCassandra() {
 		node_id int PRIMARY KEY,
 		last_id int
 	)`).Exec(); err != nil {
+		fmt.Println("pretendo_smm.generator_last_id")
 		log.Fatal(err)
 	}
 
@@ -268,7 +272,6 @@ func getCourseMetadatasByLimit(limit uint32) []*CourseMetadata {
 }
 
 func getCourseMetadataByDataID(dataID uint64) *CourseMetadata {
-	var stars uint32
 	var ownerPID uint32
 	var size uint32
 	var name string
@@ -277,18 +280,28 @@ func getCourseMetadataByDataID(dataID uint64) *CourseMetadata {
 	var dataType uint16
 	var period uint16
 
-	_ = cassandraClusterSession.Query(`SELECT stars, owner_pid, size, name, meta_binary, flag, data_type, period FROM pretendo_smm.courses WHERE data_id=?`, dataID).Scan(&stars, &ownerPID, &size, &name, &metaBinary, &flag, &dataType, &period)
+	_ = cassandraClusterSession.Query(`SELECT owner_pid, size, name, meta_binary, flag, data_type, period FROM pretendo_smm.courses WHERE data_id=?`, dataID).Scan(&ownerPID, &size, &name, &metaBinary, &flag, &dataType, &period)
+
+	var stars uint32
+	var attempts uint32
+	var failures uint32
+	var completions uint32
+
+	_ = cassandraClusterSession.Query(`SELECT stars, attempts, failures, completions FROM pretendo_smm.ratings WHERE data_id=?`, dataID).Scan(&stars, &attempts, &failures, &completions)
 
 	courseMetadata := &CourseMetadata{
-		Stars:      stars,
-		DataID:     dataID,
-		OwnerPID:   ownerPID,
-		Size:       size,
-		Name:       name,
-		MetaBinary: metaBinary,
-		Flag:       flag,
-		DataType:   dataType,
-		Period:     period,
+		DataID:      dataID,
+		OwnerPID:    ownerPID,
+		Size:        size,
+		Name:        name,
+		MetaBinary:  metaBinary,
+		Stars:       stars,
+		Attempts:    attempts,
+		Failures:    failures,
+		Completions: completions,
+		Flag:        flag,
+		DataType:    dataType,
+		Period:      period,
 	}
 
 	return courseMetadata
