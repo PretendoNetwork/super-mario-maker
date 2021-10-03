@@ -28,7 +28,7 @@ func preparePostObject(err error, client *nex.Client, callID uint32, param *nexp
 
 	dataID := dataStoreIDGenerator.Next()
 	setDataStoreIDGeneratorLastID(nodeID, dataStoreIDGenerator.Value)
-	insertCourseDataRow(dataID, client.PID(), param.Size, param.Name, param.Flag, param.ExtraData, param.DataType, param.Period)
+	initializeCourseData(dataID, client.PID(), param.Size, param.Name, param.Flag, param.ExtraData, param.DataType, param.Period)
 
 	if param.DataType != 1 { // 1 is Mii data, assume other values are course meta data
 		updateCourseMetaBinary(dataID, param.MetaBinary)

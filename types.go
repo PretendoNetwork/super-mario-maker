@@ -3,15 +3,18 @@ package main
 import "github.com/PretendoNetwork/nex-go"
 
 type CourseMetadata struct {
-	Stars      uint32
-	DataID     uint64
-	OwnerPID   uint32
-	Size       uint32
-	Name       string
-	MetaBinary []byte
-	Flag       uint32
-	DataType   uint16
-	Period     uint16
+	DataID      uint64
+	OwnerPID    uint32
+	Size        uint32
+	Name        string
+	MetaBinary  []byte
+	Stars       uint32
+	Attempts    uint32
+	Failures    uint32
+	Completions uint32
+	Flag        uint32
+	DataType    uint16
+	Period      uint16
 }
 
 type CourseWorldRecord struct {

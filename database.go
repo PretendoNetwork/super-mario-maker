@@ -59,20 +59,26 @@ func connectCassandra() {
 			size int,
 			creation_date bigint,
 			update_date bigint,
-			stars int,
 			world_record_first_pid int,
 			world_record_pid int,
 			world_record_creation_date bigint,
 			world_record_update_date bigint,
 			world_record int,
-			attempts int,
-			failures int,
-			completions int,
 			meta_binary blob,
 			flag int,
 			extra_data list<text>,
 			data_type smallint,
 			period smallint
+		)`).Exec(); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := cassandraClusterSession.Query(`CREATE TABLE IF NOT EXISTS pretendo_smm.ratings (
+			data_id bigint PRIMARY KEY,
+			stars counter,
+			attempts counter,
+			failures counter,
+			completions int
 		)`).Exec(); err != nil {
 		log.Fatal(err)
 	}
@@ -162,7 +168,7 @@ func setDataStoreIDGeneratorLastID(nodeID int, value uint32) {
 	}
 }
 
-func insertCourseDataRow(courseID uint64, ownerPID uint32, size uint32, name string, flag uint32, extraData []string, dataType uint16, period uint16) {
+func initializeCourseData(courseID uint64, ownerPID uint32, size uint32, name string, flag uint32, extraData []string, dataType uint16, period uint16) {
 	if err := cassandraClusterSession.Query(`INSERT INTO pretendo_smm.courses(
 		data_id,
 		owner_pid,
@@ -173,13 +179,11 @@ func insertCourseDataRow(courseID uint64, ownerPID uint32, size uint32, name str
 		playable,
 		creation_date,
 		update_date,
-		stars,
+		world_record_first_pid,
 		world_record_pid,
 		world_record_creation_date,
 		world_record_update_date,
-		attempts,
-		failures,
-		completions,
+		world_record,
 		data_type,
 		period
 	)
@@ -198,12 +202,14 @@ func insertCourseDataRow(courseID uint64, ownerPID uint32, size uint32, name str
 		0,
 		0,
 		0,
-		0,
-		0,
 		?,
 		?
 	) IF NOT EXISTS`,
 		courseID, ownerPID, size, name, flag, extraData, dataType, period).Exec(); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := cassandraClusterSession.Query(`UPDATE pretendo_smm.ratings SET stars=stars+0, attempts=attempts+0, failures=failures+0, completions=completions+0 WHERE data_id=?`, courseID).Exec(); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -224,23 +230,35 @@ func getCourseMetadatasByLimit(limit uint32) []*CourseMetadata {
 	var sliceMap []map[string]interface{}
 	var err error
 
-	if sliceMap, err = cassandraClusterSession.Query(`SELECT stars, data_id, owner_pid, size, name, meta_binary, flag, data_type, period FROM pretendo_smm.courses LIMIT ?`, limit).Iter().SliceMap(); err != nil {
+	if sliceMap, err = cassandraClusterSession.Query(`SELECT data_id, owner_pid, size, name, meta_binary, flag, data_type, period FROM pretendo_smm.courses LIMIT ?`, limit).Iter().SliceMap(); err != nil {
 		log.Fatal(err)
 	}
 
 	courseMetadatas := make([]*CourseMetadata, 0)
 
 	for i := 0; i < len(sliceMap); i++ {
+		dataID := uint64(sliceMap[i]["data_id"].(int64))
+
+		var stars uint32
+		var attempts uint32
+		var failures uint32
+		var completions uint32
+
+		_ = cassandraClusterSession.Query(`SELECT stars, attempts, failures, completions FROM pretendo_smm.ratings WHERE data_id=?`, dataID).Scan(&stars, &attempts, &failures, &completions)
+
 		courseMetadata := &CourseMetadata{
-			Stars:      uint32(sliceMap[i]["stars"].(int)),
-			DataID:     uint64(sliceMap[i]["data_id"].(int64)),
-			OwnerPID:   uint32(sliceMap[i]["owner_pid"].(int)),
-			Size:       uint32(sliceMap[i]["size"].(int)),
-			Name:       sliceMap[i]["name"].(string),
-			MetaBinary: sliceMap[i]["meta_binary"].([]byte),
-			Flag:       uint32(sliceMap[i]["flag"].(int)),
-			DataType:   uint16(sliceMap[i]["data_type"].(int16)),
-			Period:     uint16(sliceMap[i]["period"].(int16)),
+			DataID:      dataID,
+			OwnerPID:    uint32(sliceMap[i]["owner_pid"].(int)),
+			Size:        uint32(sliceMap[i]["size"].(int)),
+			Name:        sliceMap[i]["name"].(string),
+			MetaBinary:  sliceMap[i]["meta_binary"].([]byte),
+			Stars:       stars,
+			Attempts:    attempts,
+			Failures:    failures,
+			Completions: completions,
+			Flag:        uint32(sliceMap[i]["flag"].(int)),
+			DataType:    uint16(sliceMap[i]["data_type"].(int16)),
+			Period:      uint16(sliceMap[i]["period"].(int16)),
 		}
 
 		courseMetadatas = append(courseMetadatas, courseMetadata)
