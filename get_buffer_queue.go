@@ -1,16 +1,32 @@
 package main
 
 import (
+	"fmt"
+
 	nex "github.com/PretendoNetwork/nex-go"
 	nexproto "github.com/PretendoNetwork/nex-protocols-go"
 )
 
-func getBufferQueue(err error, client *nex.Client, callID uint32, bufferQueueParam *nexproto.BufferQueueParam) {
+func getBufferQueue(err error, client *nex.Client, callID uint32, param *nexproto.BufferQueueParam) {
 	rmcResponseStream := nex.NewStreamOut(nexServer)
+
+	fmt.Printf("%+v\n", param)
 
 	// TODO complete this
 
-	rmcResponseStream.WriteUInt32LE(0x00000000) // pBufferQueue List length 0
+	pBufferQueue := make([][]byte, 0)
+
+	switch param.Slot {
+	case 0: // unknown
+		pBufferQueue = make([][]byte, 0)
+	case 3: // death data
+		pBufferQueue = getBufferQueueDeathData(param.DataID)
+		incrementCourseAttemptCount(param.DataID) // We also know this is when a user attempts a course
+	default:
+		fmt.Printf("[Warning] DataStoreSMMProtocol::GetBufferQueue Unsupported slot: %v\n", param.Slot)
+	}
+
+	rmcResponseStream.WriteListQBuffer(pBufferQueue)
 
 	rmcResponseBody := rmcResponseStream.Bytes()
 

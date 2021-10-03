@@ -13,6 +13,7 @@ func addToBufferQueues(err error, client *nex.Client, callID uint32, params []*n
 		param := params[i]
 
 		insertBufferQueueData(param.DataID, param.Slot, buffer)
+		incrementCourseFailCount(param.DataID)
 
 		pResults = append(pResults, 0x690001)
 	}

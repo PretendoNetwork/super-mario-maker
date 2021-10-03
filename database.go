@@ -311,6 +311,23 @@ func insertBufferQueueData(dataID uint64, slot uint32, buffer []byte) {
 	}
 }
 
+func getBufferQueueDeathData(dataID uint64) [][]byte {
+	pBufferQueue := make([][]byte, 0)
+
+	var sliceMap []map[string]interface{}
+	var err error
+
+	if sliceMap, err = cassandraClusterSession.Query(`SELECT buffer FROM pretendo_smm.buffer_queues WHERE data_id=? AND slot=3 ALLOW FILTERING`, dataID).Iter().SliceMap(); err != nil {
+		log.Fatal(err)
+	}
+
+	for i := 0; i < len(sliceMap); i++ {
+		pBufferQueue = append(pBufferQueue, sliceMap[i]["buffer"].([]byte))
+	}
+
+	return pBufferQueue
+}
+
 func getCourseWorldRecord(dataID uint64) *CourseWorldRecord {
 	var worldRecordFirstPID uint32
 	var worldRecordPID uint32
@@ -343,6 +360,30 @@ func updateCourseWorldRecord(courseID uint64, ownerPID uint32, score int32) {
 	}
 
 	if err := cassandraClusterSession.Query(`UPDATE pretendo_smm.courses SET world_record_pid=?, world_record_update_date=?, world_record=? WHERE data_id=?`, ownerPID, now, score, courseID).Exec(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func incrementCourseClearCount(courseID uint64) {
+	if err := cassandraClusterSession.Query(`UPDATE pretendo_smm.ratings SET completions=completions+1 WHERE data_id=?`, courseID).Exec(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func incrementCourseStarCount(courseID uint64) {
+	if err := cassandraClusterSession.Query(`UPDATE pretendo_smm.ratings SET stars=stars+1 WHERE data_id=?`, courseID).Exec(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func incrementCourseFailCount(courseID uint64) {
+	if err := cassandraClusterSession.Query(`UPDATE pretendo_smm.ratings SET failures=failures+1 WHERE data_id=?`, courseID).Exec(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func incrementCourseAttemptCount(courseID uint64) {
+	if err := cassandraClusterSession.Query(`UPDATE pretendo_smm.ratings SET attempts=attempts+1 WHERE data_id=?`, courseID).Exec(); err != nil {
 		log.Fatal(err)
 	}
 }
