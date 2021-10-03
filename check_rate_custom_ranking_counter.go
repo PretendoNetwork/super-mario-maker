@@ -12,7 +12,7 @@ func checkRateCustomRankingCounter(err error, client *nex.Client, callID uint32,
 	var isBelowThreshold uint8
 
 	switch applicationID {
-	case 0: // Unknown?
+	case 0: // unknown
 		isBelowThreshold = 1
 	default:
 		fmt.Printf("[Warning] DataStoreSMMProtocol::CheckRateCustomRankingCounter Unsupported applicationID: %v\n", applicationID)
