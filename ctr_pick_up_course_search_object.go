@@ -37,8 +37,8 @@ func ctrPickUpCourseSearchObject(err error, client *nex.Client, callID uint32, d
 		rankingResult.MetaInfo.DelPermission = nexproto.NewDataStorePermission()
 		rankingResult.MetaInfo.DelPermission.Permission = 3 // unknown
 		rankingResult.MetaInfo.DelPermission.RecipientIds = []uint32{}
-		rankingResult.MetaInfo.CreatedTime = nex.NewDateTime(now)
-		rankingResult.MetaInfo.UpdatedTime = nex.NewDateTime(now)
+		rankingResult.MetaInfo.CreatedTime = courseMetadata.CreatedTime
+		rankingResult.MetaInfo.UpdatedTime = courseMetadata.UpdatedTime
 		rankingResult.MetaInfo.Period = courseMetadata.Period
 		rankingResult.MetaInfo.Status = 0      // unknown
 		rankingResult.MetaInfo.ReferredCnt = 0 // unknown

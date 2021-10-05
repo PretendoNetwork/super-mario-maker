@@ -6,6 +6,8 @@ type CourseMetadata struct {
 	DataID      uint64
 	OwnerPID    uint32
 	Size        uint32
+	CreatedTime *nex.DateTime
+	UpdatedTime *nex.DateTime
 	Name        string
 	MetaBinary  []byte
 	Stars       uint32

@@ -38,8 +38,8 @@ func suggestedCourseSearchObject(err error, client *nex.Client, callID uint32, p
 		rankingResult.MetaInfo.DelPermission = nexproto.NewDataStorePermission()
 		rankingResult.MetaInfo.DelPermission.Permission = 3 // idk?
 		rankingResult.MetaInfo.DelPermission.RecipientIds = []uint32{}
-		rankingResult.MetaInfo.CreatedTime = nex.NewDateTime(now)
-		rankingResult.MetaInfo.UpdatedTime = nex.NewDateTime(now)
+		rankingResult.MetaInfo.CreatedTime = courseMetadata.CreatedTime
+		rankingResult.MetaInfo.UpdatedTime = courseMetadata.UpdatedTime
 		rankingResult.MetaInfo.Period = courseMetadata.Period
 		rankingResult.MetaInfo.Status = 0      // idk?
 		rankingResult.MetaInfo.ReferredCnt = 0 // idk?

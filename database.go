@@ -174,6 +174,9 @@ func setDataStoreIDGeneratorLastID(nodeID int, value uint32) {
 }
 
 func initializeCourseData(courseID uint64, ownerPID uint32, size uint32, name string, flag uint32, extraData []string, dataType uint16, period uint16) {
+	datetime := nex.NewDateTime(0)
+	now := datetime.Now()
+
 	if err := cassandraClusterSession.Query(`INSERT INTO pretendo_smm.courses(
 		data_id,
 		owner_pid,
@@ -200,8 +203,8 @@ func initializeCourseData(courseID uint64, ownerPID uint32, size uint32, name st
 		?,
 		?,
 		false,
-		0,
-		0,
+		?,
+		?,
 		0,
 		0,
 		0,
@@ -210,7 +213,7 @@ func initializeCourseData(courseID uint64, ownerPID uint32, size uint32, name st
 		?,
 		?
 	) IF NOT EXISTS`,
-		courseID, ownerPID, size, name, flag, extraData, dataType, period).Exec(); err != nil {
+		courseID, ownerPID, size, name, flag, extraData, now, now, dataType, period).Exec(); err != nil {
 		log.Fatal(err)
 	}
 
@@ -235,7 +238,7 @@ func getCourseMetadatasByLimit(limit uint32) []*CourseMetadata {
 	var sliceMap []map[string]interface{}
 	var err error
 
-	if sliceMap, err = cassandraClusterSession.Query(`SELECT data_id, owner_pid, size, name, meta_binary, flag, data_type, period FROM pretendo_smm.courses LIMIT ?`, limit).Iter().SliceMap(); err != nil {
+	if sliceMap, err = cassandraClusterSession.Query(`SELECT data_id, owner_pid, size, name, meta_binary, flag, creation_date, update_date, data_type, period FROM pretendo_smm.courses LIMIT ?`, limit).Iter().SliceMap(); err != nil {
 		log.Fatal(err)
 	}
 
@@ -255,6 +258,8 @@ func getCourseMetadatasByLimit(limit uint32) []*CourseMetadata {
 			DataID:      dataID,
 			OwnerPID:    uint32(sliceMap[i]["owner_pid"].(int)),
 			Size:        uint32(sliceMap[i]["size"].(int)),
+			CreatedTime: nex.NewDateTime(uint64(sliceMap[i]["creation_date"].(int64))),
+			UpdatedTime: nex.NewDateTime(uint64(sliceMap[i]["update_date"].(int64))),
 			Name:        sliceMap[i]["name"].(string),
 			MetaBinary:  sliceMap[i]["meta_binary"].([]byte),
 			Stars:       stars,
@@ -278,10 +283,12 @@ func getCourseMetadataByDataID(dataID uint64) *CourseMetadata {
 	var name string
 	var metaBinary []byte
 	var flag uint32
+	var createdTime uint64
+	var updatedTime uint64
 	var dataType uint16
 	var period uint16
 
-	_ = cassandraClusterSession.Query(`SELECT owner_pid, size, name, meta_binary, flag, data_type, period FROM pretendo_smm.courses WHERE data_id=?`, dataID).Scan(&ownerPID, &size, &name, &metaBinary, &flag, &dataType, &period)
+	_ = cassandraClusterSession.Query(`SELECT owner_pid, size, name, meta_binary, flag, creation_date, update_date, data_type, period FROM pretendo_smm.courses WHERE data_id=?`, dataID).Scan(&ownerPID, &size, &name, &metaBinary, &flag, &createdTime, &updatedTime, &dataType, &period)
 
 	var stars uint32
 	var attempts uint32
@@ -294,6 +301,8 @@ func getCourseMetadataByDataID(dataID uint64) *CourseMetadata {
 		DataID:      dataID,
 		OwnerPID:    ownerPID,
 		Size:        size,
+		CreatedTime: nex.NewDateTime(createdTime),
+		UpdatedTime: nex.NewDateTime(updatedTime),
 		Name:        name,
 		MetaBinary:  metaBinary,
 		Stars:       stars,
@@ -365,7 +374,8 @@ func getCourseWorldRecord(dataID uint64) *CourseWorldRecord {
 }
 
 func updateCourseWorldRecord(courseID uint64, ownerPID uint32, score int32) {
-	now := uint64(time.Now().Unix())
+	datetime := nex.NewDateTime(0)
+	now := datetime.Now()
 
 	if getCourseWorldRecord(courseID) == nil {
 		if err := cassandraClusterSession.Query(`UPDATE pretendo_smm.courses SET world_record_first_pid=?, world_record_creation_date=? WHERE data_id=?`, ownerPID, now, courseID).Exec(); err != nil {
