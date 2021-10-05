@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"math/rand"
+	"os"
 	"strconv"
 	"time"
 
@@ -77,7 +78,7 @@ func preparePostObject(err error, client *nex.Client, callID uint32, param *nexp
 	pReqPostInfo := nexproto.NewDataStoreReqPostInfo()
 
 	pReqPostInfo.DataID = dataID
-	pReqPostInfo.URL = "http://datastore.pretendo.cc/upload"
+	pReqPostInfo.URL = os.Getenv("DATASTORE_UPLOAD_URL")
 	pReqPostInfo.RequestHeaders = []*nexproto.DataStoreKeyValue{}
 	pReqPostInfo.FormFields = []*nexproto.DataStoreKeyValue{fieldBucket, fieldKey, fieldACL, fieldPID, fieldDate, fieldSignature}
 	pReqPostInfo.RootCACert = []byte{}

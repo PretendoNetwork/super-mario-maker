@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"os"
 	"strconv"
 	"time"
 
@@ -58,7 +59,7 @@ func prepareAttachFile(err error, client *nex.Client, callID uint32, dataStoreAt
 	pReqPostInfo := nexproto.NewDataStoreReqPostInfo()
 
 	pReqPostInfo.DataID = dataStoreAttachFileParam.ReferDataID
-	pReqPostInfo.URL = "http://datastore.pretendo.cc/upload"
+	pReqPostInfo.URL = os.Getenv("DATASTORE_UPLOAD_URL")
 	pReqPostInfo.RequestHeaders = []*nexproto.DataStoreKeyValue{}
 	pReqPostInfo.FormFields = []*nexproto.DataStoreKeyValue{fieldBucket, fieldKey, fieldACL, fieldContentType, fieldPID, fieldDate, fieldSignature}
 	pReqPostInfo.RootCACert = []byte{}
