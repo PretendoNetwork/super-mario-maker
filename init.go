@@ -2,7 +2,10 @@ package main
 
 import (
 	"io/ioutil"
+	"log"
 	"runtime"
+
+	"github.com/joho/godotenv"
 )
 
 /*
@@ -18,6 +21,11 @@ var dataStoreIDGenerators []*DataStoreIDGenerator
 
 func init() {
 	var err error
+
+	err = godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
 	hmacSecret, err = ioutil.ReadFile("secret.key")
 	if err != nil {
