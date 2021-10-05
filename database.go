@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/PretendoNetwork/nex-go"
@@ -23,7 +24,7 @@ var mongoDatabase *mongo.Database
 var mongoCollection *mongo.Collection
 
 func connectMongo() {
-	mongoClient, _ = mongo.NewClient(options.Client().ApplyURI("mongodb://143.198.126.113:27017/"))
+	mongoClient, _ = mongo.NewClient(options.Client().ApplyURI(os.Getenv("MONGO_URI")))
 	mongoContext, _ = context.WithTimeout(context.Background(), 10*time.Second)
 	_ = mongoClient.Connect(mongoContext)
 
