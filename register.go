@@ -27,7 +27,7 @@ func register(err error, client *nex.Client, callID uint32, stationUrls []*nex.S
 
 	// Build response packet
 	rmcResponse := nex.NewRMCResponse(nexproto.SecureProtocolID, callID)
-	rmcResponse.SetSuccess(nexproto.SecureMethodRegisterEx, rmcResponseBody)
+	rmcResponse.SetSuccess(nexproto.SecureMethodRegister, rmcResponseBody)
 
 	rmcResponseBytes := rmcResponse.Bytes()
 
