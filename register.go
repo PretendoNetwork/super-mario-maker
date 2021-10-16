@@ -3,13 +3,14 @@ package main
 import (
 	nex "github.com/PretendoNetwork/nex-go"
 	nexproto "github.com/PretendoNetwork/nex-protocols-go"
+	"strconv"
 )
 
 func register(err error, client *nex.Client, callID uint32, stationUrls []*nex.StationURL) {
 	localStation := stationUrls[0]
 
 	address := client.Address().IP.String()
-	port := string(client.Address().Port)
+	port := strconv.Itoa(client.Address().Port)
 
 	localStation.SetAddress(&address)
 	localStation.SetPort(&port)
