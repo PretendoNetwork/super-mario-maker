@@ -33,6 +33,8 @@ func main() {
 	nexServer.SetPrudpVersion(1)
 	nexServer.SetNexVersion(4)
 	nexServer.SetKerberosKeySize(32)
+	nexServer.SetFragmentSize(1300)
+	nexServer.SetPingTimeout(20)
 	nexServer.SetAccessKey("9f2b4678")
 
 	nexServer.On("Data", func(packet *nex.PacketV1) {
@@ -42,6 +44,14 @@ func main() {
 		fmt.Printf("Protocol ID: %#v\n", request.ProtocolID())
 		fmt.Printf("Method ID: %#v\n", request.MethodID())
 		fmt.Println("=================")
+	})
+
+	nexServer.On("Kick", func(packet *nex.PacketV1) {
+		fmt.Println("Leaving")
+	})
+
+	nexServer.On("Ping", func(packet *nex.PacketV1) {
+		fmt.Println("Pinged")
 	})
 
 	secureServer = nexproto.NewSecureProtocol(nexServer)
