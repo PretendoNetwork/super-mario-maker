@@ -7,6 +7,8 @@ import (
 	nexproto "github.com/PretendoNetwork/nex-protocols-go"
 )
 
+var MAX_COURSE_UPLOADS uint32 = 0x64 // Nintendo has this set to 100, but we can change it if we want
+
 func getApplicationConfig(err error, client *nex.Client, callID uint32, applicationID uint32) {
 
 	config := make([]uint32, 0)
@@ -55,7 +57,7 @@ func getApplicationConfig_Unknown0(client *nex.Client, callID uint32, applicatio
 	return []uint32{
 		0x01000000, 0x32000000, 0x96000000, 0x2c010000, 0xf4010000,
 		0x20030000, 0x14050000, 0xd0070000, 0xb80b0000, 0x88130000,
-		0x0a000000, 0x14000000, 0x1e000000, 0x28000000, 0x32000000,
+		MAX_COURSE_UPLOADS, 0x14000000, 0x1e000000, 0x28000000, 0x32000000,
 		0x3c000000, 0x46000000, 0x50000000, 0x5a000000, 0x64000000,
 		0x23000000, 0x4b000000, 0x23000000, 0x4b000000, 0x32000000,
 		0x00000000, 0x03000000, 0x03000000, 0x64000000, 0x06000000,
