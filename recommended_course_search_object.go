@@ -97,12 +97,12 @@ func recommendedCourseSearchObject(err error, client *nex.Client, callID uint32,
 		rankingResult.MetaInfo.Ratings[5].Rating.Count = 6
 		rankingResult.MetaInfo.Ratings[5].Rating.InitialValue = 6
 
-		// unknown
+		// Number of new Miiverse comments
 		rankingResult.MetaInfo.Ratings[6].Slot = 6
 		rankingResult.MetaInfo.Ratings[6].Rating = nexproto.NewDataStoreRatingInfo()
-		rankingResult.MetaInfo.Ratings[6].Rating.TotalValue = 7
-		rankingResult.MetaInfo.Ratings[6].Rating.Count = 7
-		rankingResult.MetaInfo.Ratings[6].Rating.InitialValue = 7
+		rankingResult.MetaInfo.Ratings[6].Rating.TotalValue = 0
+		rankingResult.MetaInfo.Ratings[6].Rating.Count = 0
+		rankingResult.MetaInfo.Ratings[6].Rating.InitialValue = 0
 
 		pRankingResults = append(pRankingResults, rankingResult)
 	}
