@@ -328,6 +328,25 @@ func getCourseMetadataByDataIDs(dataIDs []uint64) []*CourseMetadata {
 	return courseMetadatas
 }
 
+func getCourseMetadatasByPID(pid uint32) []*CourseMetadata {
+	courseMetadatas := make([]*CourseMetadata, 0)
+
+	// TODO: Fix this query? Seems like a weird way of doing this...
+	var sliceMap []map[string]interface{}
+	var err error
+
+	if sliceMap, err = cassandraClusterSession.Query(`SELECT data_id FROM pretendo_smm.courses WHERE owner_pid=? ALLOW FILTERING`, pid).Iter().SliceMap(); err != nil {
+		log.Fatal(err)
+	}
+
+	for _, course := range sliceMap {
+		dataID := uint64(course["data_id"].(int64))
+		courseMetadatas = append(courseMetadatas, getCourseMetadataByDataID(dataID))
+	}
+
+	return courseMetadatas
+}
+
 func insertBufferQueueData(dataID uint64, slot uint32, buffer []byte) {
 	if err := cassandraClusterSession.Query(`INSERT INTO pretendo_smm.buffer_queues( id, data_id, slot, buffer ) VALUES ( now(), ?, ?, ? ) IF NOT EXISTS`, dataID, slot, buffer).Exec(); err != nil {
 		log.Fatal(err)
