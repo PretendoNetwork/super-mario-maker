@@ -99,7 +99,7 @@ func ctrPickUpCourseSearchObject(err error, client *nex.Client, callID uint32, d
 		rankingResult.MetaInfo.Ratings[5].Rating.Count = 6
 		rankingResult.MetaInfo.Ratings[5].Rating.InitialValue = 6
 
-		// unknown
+		// Number of new Miiverse comments
 		rankingResult.MetaInfo.Ratings[6].Slot = 6
 		rankingResult.MetaInfo.Ratings[6].Rating = nexproto.NewDataStoreRatingInfo()
 		rankingResult.MetaInfo.Ratings[6].Rating.TotalValue = 7
