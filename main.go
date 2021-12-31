@@ -84,6 +84,7 @@ func main() {
 	dataStoreSmmServer.UploadCourseRecord(uploadCourseRecord)
 	dataStoreSmmServer.GetCourseRecord(getCourseRecord)
 	dataStoreSmmServer.GetApplicationConfigString(getApplicationConfigString)
+	dataStoreSmmServer.GetDeletionReason(getDeletionReason)
 	dataStoreSmmServer.GetMetasWithCourseRecord(getMetasWithCourseRecord)
 	dataStoreSmmServer.CheckRateCustomRankingCounter(checkRateCustomRankingCounter)
 	dataStoreSmmServer.CTRPickUpCourseSearchObject(ctrPickUpCourseSearchObject)
