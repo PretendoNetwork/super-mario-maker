@@ -1,8 +1,6 @@
 package main
 
 import (
-	"time"
-
 	nex "github.com/PretendoNetwork/nex-go"
 	nexproto "github.com/PretendoNetwork/nex-protocols-go"
 )
@@ -14,8 +12,6 @@ func followingsLatestCourseSearchObject(err error, client *nex.Client, callID ui
 		courseMetadatas := getCourseMetadatasByPID(pid)
 
 		for _, courseMetadata := range courseMetadatas {
-			now := uint64(time.Now().Unix())
-
 			rankingResult := nexproto.NewDataStoreCustomRankingResult()
 
 			rankingResult.Order = 0 // unknown
@@ -40,9 +36,9 @@ func followingsLatestCourseSearchObject(err error, client *nex.Client, callID ui
 			rankingResult.MetaInfo.ReferredCnt = 0 // unknown
 			rankingResult.MetaInfo.ReferDataID = 0 // unknown
 			rankingResult.MetaInfo.Flag = courseMetadata.Flag
-			rankingResult.MetaInfo.ReferredTime = nex.NewDateTime(now)
-			rankingResult.MetaInfo.ExpireTime = nex.NewDateTime(now)
-			rankingResult.MetaInfo.Tags = []string{""} // unknown
+			rankingResult.MetaInfo.ReferredTime = courseMetadata.CreatedTime
+			rankingResult.MetaInfo.ExpireTime = nex.NewDateTime(671075926016) // December 31st, year 9999
+			rankingResult.MetaInfo.Tags = []string{""}                        // unknown
 			rankingResult.MetaInfo.Ratings = []*nexproto.DataStoreRatingInfoWithSlot{
 				nexproto.NewDataStoreRatingInfoWithSlot(), // attempts
 				nexproto.NewDataStoreRatingInfoWithSlot(), // unknown
@@ -58,42 +54,42 @@ func followingsLatestCourseSearchObject(err error, client *nex.Client, callID ui
 			rankingResult.MetaInfo.Ratings[0].Rating = nexproto.NewDataStoreRatingInfo()
 			rankingResult.MetaInfo.Ratings[0].Rating.TotalValue = int64(courseMetadata.Attempts)
 			rankingResult.MetaInfo.Ratings[0].Rating.Count = courseMetadata.Attempts
-			rankingResult.MetaInfo.Ratings[0].Rating.InitialValue = int64(courseMetadata.Attempts)
+			rankingResult.MetaInfo.Ratings[0].Rating.InitialValue = 0
 
 			// unknown
 			rankingResult.MetaInfo.Ratings[1].Slot = 1
 			rankingResult.MetaInfo.Ratings[1].Rating = nexproto.NewDataStoreRatingInfo()
 			rankingResult.MetaInfo.Ratings[1].Rating.TotalValue = 2
 			rankingResult.MetaInfo.Ratings[1].Rating.Count = 2
-			rankingResult.MetaInfo.Ratings[1].Rating.InitialValue = 2
+			rankingResult.MetaInfo.Ratings[1].Rating.InitialValue = 0
 
 			// completions
 			rankingResult.MetaInfo.Ratings[2].Slot = 2
 			rankingResult.MetaInfo.Ratings[2].Rating = nexproto.NewDataStoreRatingInfo()
 			rankingResult.MetaInfo.Ratings[2].Rating.TotalValue = int64(courseMetadata.Completions)
 			rankingResult.MetaInfo.Ratings[2].Rating.Count = courseMetadata.Completions
-			rankingResult.MetaInfo.Ratings[2].Rating.InitialValue = int64(courseMetadata.Completions)
+			rankingResult.MetaInfo.Ratings[2].Rating.InitialValue = 0
 
 			// failures
 			rankingResult.MetaInfo.Ratings[3].Slot = 3
 			rankingResult.MetaInfo.Ratings[3].Rating = nexproto.NewDataStoreRatingInfo()
 			rankingResult.MetaInfo.Ratings[3].Rating.TotalValue = int64(courseMetadata.Failures)
 			rankingResult.MetaInfo.Ratings[3].Rating.Count = courseMetadata.Failures
-			rankingResult.MetaInfo.Ratings[3].Rating.InitialValue = int64(courseMetadata.Failures)
+			rankingResult.MetaInfo.Ratings[3].Rating.InitialValue = 0
 
 			// unknown
 			rankingResult.MetaInfo.Ratings[4].Slot = 4
 			rankingResult.MetaInfo.Ratings[4].Rating = nexproto.NewDataStoreRatingInfo()
 			rankingResult.MetaInfo.Ratings[4].Rating.TotalValue = 5
 			rankingResult.MetaInfo.Ratings[4].Rating.Count = 5
-			rankingResult.MetaInfo.Ratings[4].Rating.InitialValue = 5
+			rankingResult.MetaInfo.Ratings[4].Rating.InitialValue = 0
 
 			// unknown
 			rankingResult.MetaInfo.Ratings[5].Slot = 5
 			rankingResult.MetaInfo.Ratings[5].Rating = nexproto.NewDataStoreRatingInfo()
 			rankingResult.MetaInfo.Ratings[5].Rating.TotalValue = 6
 			rankingResult.MetaInfo.Ratings[5].Rating.Count = 6
-			rankingResult.MetaInfo.Ratings[5].Rating.InitialValue = 6
+			rankingResult.MetaInfo.Ratings[5].Rating.InitialValue = 0
 
 			// Number of new Miiverse comments
 			rankingResult.MetaInfo.Ratings[6].Slot = 6

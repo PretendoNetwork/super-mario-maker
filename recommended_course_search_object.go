@@ -1,8 +1,6 @@
 package main
 
 import (
-	"time"
-
 	nex "github.com/PretendoNetwork/nex-go"
 	nexproto "github.com/PretendoNetwork/nex-protocols-go"
 )
@@ -14,10 +12,7 @@ func recommendedCourseSearchObject(err error, client *nex.Client, callID uint32,
 
 	courseMetadatas := getCourseMetadatasByLimit(100) // In PCAPs param.minimalRatingFrequency is 100 but is 0 here?
 
-	for i := 0; i < len(courseMetadatas); i++ {
-		now := uint64(time.Now().Unix())
-		courseMetadata := courseMetadatas[i]
-
+	for _, courseMetadata := range courseMetadatas {
 		rankingResult := nexproto.NewDataStoreCustomRankingResult()
 
 		rankingResult.Order = 0 // unknown
@@ -42,9 +37,9 @@ func recommendedCourseSearchObject(err error, client *nex.Client, callID uint32,
 		rankingResult.MetaInfo.ReferredCnt = 0 // unknown
 		rankingResult.MetaInfo.ReferDataID = 0 // unknown
 		rankingResult.MetaInfo.Flag = courseMetadata.Flag
-		rankingResult.MetaInfo.ReferredTime = nex.NewDateTime(now)
-		rankingResult.MetaInfo.ExpireTime = nex.NewDateTime(now)
-		rankingResult.MetaInfo.Tags = []string{""} // unknown
+		rankingResult.MetaInfo.ReferredTime = courseMetadata.CreatedTime
+		rankingResult.MetaInfo.ExpireTime = nex.NewDateTime(671075926016) // December 31st, year 9999
+		rankingResult.MetaInfo.Tags = []string{""}                        // unknown
 		rankingResult.MetaInfo.Ratings = []*nexproto.DataStoreRatingInfoWithSlot{
 			nexproto.NewDataStoreRatingInfoWithSlot(), // attempts
 			nexproto.NewDataStoreRatingInfoWithSlot(), // unknown
