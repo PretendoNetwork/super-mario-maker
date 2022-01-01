@@ -104,22 +104,6 @@ func connectCassandra() {
 		log.Fatal(err)
 	}
 
-	/*
-		if err := cassandraClusterSession.Query(`INSERT INTO pretendo_smm.courses(data_id, meta_binary) VALUES (?, ?) IF NOT EXISTS`, 0, []byte{0, 1, 2, 3}).Exec(); err != nil {
-			log.Fatal(err)
-		}
-	*/
-
-	/*
-		type MetaData struct {
-			meta_binary []byte
-		}
-		meta := &MetaData{}
-		_ = cassandraClusterSession.Query(`SELECT meta_binary FROM pretendo_smm.courses WHERE data_id=? LIMIT 1`, 0).Scan(&meta)
-
-		fmt.Println(meta)
-	*/
-
 	fmt.Println("Connected to Cassandra")
 }
 
