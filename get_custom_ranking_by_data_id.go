@@ -9,16 +9,43 @@ import (
 )
 
 func getCustomRankingByDataId(err error, client *nex.Client, callID uint32, param *nexproto.DataStoreGetCustomRankingByDataIdParam) {
-	if param.ApplicationId == 300000000 {
-		// Mii Data
-		getCustomRankingByDataIdMiiData(client, callID, param)
-	} else {
-		// Course Metadata
-		getCustomRankingByDataIdCourseMetadata(client, callID, param)
+	var pRankingResult []*nexproto.DataStoreCustomRankingResult
+	var pResults []uint32
+
+	switch param.ApplicationId {
+	case 300000000: // Mii data
+		pRankingResult, pResults = getCustomRankingByDataIdMiiData(client, callID, param)
+	default: // Normal course data
+		pRankingResult, pResults = getCustomRankingByDataIdCourseMetadata(client, callID, param)
 	}
+
+	rmcResponseStream := nex.NewStreamOut(nexServer)
+
+	rmcResponseStream.WriteListStructure(pRankingResult)
+	rmcResponseStream.WriteListUInt32LE(pResults)
+
+	rmcResponseBody := rmcResponseStream.Bytes()
+
+	rmcResponse := nex.NewRMCResponse(nexproto.DataStoreProtocolID, callID)
+	rmcResponse.SetSuccess(nexproto.DataStoreSMMMethodGetCustomRankingByDataId, rmcResponseBody)
+
+	rmcResponseBytes := rmcResponse.Bytes()
+
+	responsePacket, _ := nex.NewPacketV1(client, nil)
+
+	responsePacket.SetVersion(1)
+	responsePacket.SetSource(0xA1)
+	responsePacket.SetDestination(0xAF)
+	responsePacket.SetType(nex.DataPacket)
+	responsePacket.SetPayload(rmcResponseBytes)
+
+	responsePacket.AddFlag(nex.FlagNeedsAck)
+	responsePacket.AddFlag(nex.FlagReliable)
+
+	nexServer.Send(responsePacket)
 }
 
-func getCustomRankingByDataIdMiiData(client *nex.Client, callID uint32, param *nexproto.DataStoreGetCustomRankingByDataIdParam) {
+func getCustomRankingByDataIdMiiData(client *nex.Client, callID uint32, param *nexproto.DataStoreGetCustomRankingByDataIdParam) ([]*nexproto.DataStoreCustomRankingResult, []uint32) {
 	pRankingResult := make([]*nexproto.DataStoreCustomRankingResult, 0)
 	pResults := make([]uint32, 0)
 
@@ -85,57 +112,14 @@ func getCustomRankingByDataIdMiiData(client *nex.Client, callID uint32, param *n
 		}
 	}
 
-	rmcResponseStream := nex.NewStreamOut(nexServer)
-
-	rmcResponseStream.WriteListStructure(pRankingResult)
-	rmcResponseStream.WriteListUInt32LE(pResults)
-
-	rmcResponseBody := rmcResponseStream.Bytes()
-
-	rmcResponse := nex.NewRMCResponse(nexproto.DataStoreProtocolID, callID)
-	rmcResponse.SetSuccess(nexproto.DataStoreSMMMethodGetCustomRankingByDataId, rmcResponseBody)
-
-	rmcResponseBytes := rmcResponse.Bytes()
-
-	responsePacket, _ := nex.NewPacketV1(client, nil)
-
-	responsePacket.SetVersion(1)
-	responsePacket.SetSource(0xA1)
-	responsePacket.SetDestination(0xAF)
-	responsePacket.SetType(nex.DataPacket)
-	responsePacket.SetPayload(rmcResponseBytes)
-
-	responsePacket.AddFlag(nex.FlagNeedsAck)
-	responsePacket.AddFlag(nex.FlagReliable)
-
-	nexServer.Send(responsePacket)
+	return pRankingResult, pResults
 }
 
-func getCustomRankingByDataIdCourseMetadata(client *nex.Client, callID uint32, param *nexproto.DataStoreGetCustomRankingByDataIdParam) {
-	rmcResponseStream := nex.NewStreamOut(nexServer)
+func getCustomRankingByDataIdCourseMetadata(client *nex.Client, callID uint32, param *nexproto.DataStoreGetCustomRankingByDataIdParam) ([]*nexproto.DataStoreCustomRankingResult, []uint32) {
+	// TODO: Complete this
 
-	// TODO complete this
+	pRankingResult := make([]*nexproto.DataStoreCustomRankingResult, 0)
+	pResults := make([]uint32, 0)
 
-	rmcResponseStream.WriteUInt32LE(0x00000000) // pRankingResult List length 0
-	rmcResponseStream.WriteUInt32LE(0x00000000) // pResults List length 0
-
-	rmcResponseBody := rmcResponseStream.Bytes()
-
-	rmcResponse := nex.NewRMCResponse(nexproto.DataStoreSMMProtocolID, callID)
-	rmcResponse.SetSuccess(nexproto.DataStoreSMMMethodGetCustomRankingByDataId, rmcResponseBody)
-
-	rmcResponseBytes := rmcResponse.Bytes()
-
-	responsePacket, _ := nex.NewPacketV1(client, nil)
-
-	responsePacket.SetVersion(1)
-	responsePacket.SetSource(0xA1)
-	responsePacket.SetDestination(0xAF)
-	responsePacket.SetType(nex.DataPacket)
-	responsePacket.SetPayload(rmcResponseBytes)
-
-	responsePacket.AddFlag(nex.FlagNeedsAck)
-	responsePacket.AddFlag(nex.FlagReliable)
-
-	nexServer.Send(responsePacket)
+	return pRankingResult, pResults
 }
