@@ -14,9 +14,9 @@ func getCustomRankingByDataId(err error, client *nex.Client, callID uint32, para
 
 	switch param.ApplicationId {
 	case 300000000: // Mii data
-		pRankingResult, pResults = getCustomRankingByDataIdMiiData(client, callID, param)
+		pRankingResult, pResults = getCustomRankingByDataIdMiiData(param)
 	default: // Normal course data
-		pRankingResult, pResults = getCustomRankingByDataIdCourseMetadata(client, callID, param)
+		pRankingResult, pResults = getCustomRankingByDataIdCourseMetadata(param)
 	}
 
 	rmcResponseStream := nex.NewStreamOut(nexServer)
@@ -45,7 +45,7 @@ func getCustomRankingByDataId(err error, client *nex.Client, callID uint32, para
 	nexServer.Send(responsePacket)
 }
 
-func getCustomRankingByDataIdMiiData(client *nex.Client, callID uint32, param *nexproto.DataStoreGetCustomRankingByDataIdParam) ([]*nexproto.DataStoreCustomRankingResult, []uint32) {
+func getCustomRankingByDataIdMiiData(param *nexproto.DataStoreGetCustomRankingByDataIdParam) ([]*nexproto.DataStoreCustomRankingResult, []uint32) {
 	pRankingResult := make([]*nexproto.DataStoreCustomRankingResult, 0)
 	pResults := make([]uint32, 0)
 
@@ -115,7 +115,7 @@ func getCustomRankingByDataIdMiiData(client *nex.Client, callID uint32, param *n
 	return pRankingResult, pResults
 }
 
-func getCustomRankingByDataIdCourseMetadata(client *nex.Client, callID uint32, param *nexproto.DataStoreGetCustomRankingByDataIdParam) ([]*nexproto.DataStoreCustomRankingResult, []uint32) {
+func getCustomRankingByDataIdCourseMetadata(param *nexproto.DataStoreGetCustomRankingByDataIdParam) ([]*nexproto.DataStoreCustomRankingResult, []uint32) {
 	// TODO: Complete this
 
 	pRankingResult := make([]*nexproto.DataStoreCustomRankingResult, 0)
