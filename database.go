@@ -281,7 +281,15 @@ func getCourseMetadataByDataID(dataID uint64) *CourseMetadata {
 	var dataType uint16
 	var period uint16
 
-	_ = cassandraClusterSession.Query(`SELECT owner_pid, size, name, meta_binary, flag, creation_date, update_date, data_type, period FROM pretendo_smm.courses WHERE data_id=?`, dataID).Scan(&ownerPID, &size, &name, &metaBinary, &flag, &createdTime, &updatedTime, &dataType, &period)
+	err := cassandraClusterSession.Query(`SELECT owner_pid, size, name, meta_binary, flag, creation_date, update_date, data_type, period FROM pretendo_smm.courses WHERE data_id=?`, dataID).Scan(&ownerPID, &size, &name, &metaBinary, &flag, &createdTime, &updatedTime, &dataType, &period)
+
+	if err != nil {
+		if err == gocql.ErrNotFound {
+			return nil
+		} else {
+			log.Fatal(err)
+		}
+	}
 
 	var stars uint32
 	var attempts uint32
@@ -315,7 +323,11 @@ func getCourseMetadataByDataIDs(dataIDs []uint64) []*CourseMetadata {
 	courseMetadatas := make([]*CourseMetadata, 0)
 
 	for i := 0; i < len(dataIDs); i++ {
-		courseMetadatas = append(courseMetadatas, getCourseMetadataByDataID(dataIDs[i]))
+		courseMetadata := getCourseMetadataByDataID(dataIDs[i])
+
+		if courseMetadata != nil {
+			courseMetadatas = append(courseMetadatas, courseMetadata)
+		}
 	}
 
 	return courseMetadatas
