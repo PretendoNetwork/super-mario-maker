@@ -104,6 +104,15 @@ func connectCassandra() {
 		log.Fatal(err)
 	}
 
+	if err := cassandraClusterSession.Query(`CREATE TABLE IF NOT EXISTS pretendo_smm.user_play_info (
+		pid int PRIMARY KEY,
+		starred_courses set<bigint>,
+		played_courses set<bigint>
+	)`).Exec(); err != nil {
+		fmt.Println("pretendo_smm.user_play_info")
+		log.Fatal(err)
+	}
+
 	fmt.Println("Connected to Cassandra")
 }
 
@@ -413,6 +422,13 @@ func incrementCourseAttemptCount(courseID uint64) {
 	if err := cassandraClusterSession.Query(`UPDATE pretendo_smm.ratings SET attempts=attempts+1 WHERE data_id=?`, courseID).Exec(); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func getUserStarredCourses(pid uint32) []*CourseMetadata {
+	var dataIDs []uint64
+	_ = cassandraClusterSession.Query(`SELECT starred_courses FROM pretendo_smm.user_play_info WHERE pid=?`, pid).Scan(&dataIDs)
+
+	return getCourseMetadataByDataIDs(dataIDs)
 }
 
 //////////////////////////////
