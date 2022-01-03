@@ -8,14 +8,6 @@ import (
 	"github.com/joho/godotenv"
 )
 
-/*
-type Config struct {
-	Mongo struct {
-	}
-	Cassandra struct{}
-}
-*/
-
 var hmacSecret []byte
 var dataStoreIDGenerators []*DataStoreIDGenerator
 
@@ -36,9 +28,6 @@ func init() {
 	connectMongo()
 	connectCassandra()
 	createDataStoreIDGenerators()
-	//insertCourseDataRow(dataID, param.Size, param.Name, param.Flag, param.ExtraData)
-	//updateCourseMetaBinary(dataID, param.MetaBinary)
-	//fmt.Printf("%+v", getCourseMetadataByDataID(288230376151711744))
 }
 
 func createDataStoreIDGenerators() {

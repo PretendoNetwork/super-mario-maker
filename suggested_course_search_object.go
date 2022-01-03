@@ -8,7 +8,7 @@ import (
 )
 
 func suggestedCourseSearchObject(err error, client *nex.Client, callID uint32, param *nexproto.DataStoreSearchParam, extraData []string) {
-	// TODO complete this
+	// TODO: complete this
 
 	courseID, _ := strconv.ParseUint(extraData[0], 0, 64)
 

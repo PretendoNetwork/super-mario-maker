@@ -10,16 +10,7 @@ import (
 func completeAttachFile(err error, client *nex.Client, callID uint32, dataStoreCompletePostParam *nexproto.DataStoreCompletePostParam) {
 	rmcResponseStream := nex.NewStreamOut(nexServer)
 
-	// TODO complete this
-
-	/*
-		fmt.Println(dataStoreCompletePostParam.IsSuccess)
-		fmt.Println(dataStoreCompletePostParam.DataID)
-
-		if dataStoreCompletePostParam.IsSuccess {
-			setCoursePlayable(dataStoreCompletePostParam.DataID)
-		}
-	*/
+	// TODO: complete this
 
 	rmcResponseStream.WriteString(fmt.Sprintf("http://pds-amaj-d1.b-cdn.net/image/%d.jpg", dataStoreCompletePostParam.DataID))
 

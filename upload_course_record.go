@@ -6,9 +6,6 @@ import (
 )
 
 func uploadCourseRecord(err error, client *nex.Client, callID uint32, param *nexproto.DataStoreUploadCourseRecordParam) {
-	// STUBBED
-	// TODO complete this
-
 	updateCourseWorldRecord(param.DataID, client.PID(), param.Score)
 
 	rmcResponse := nex.NewRMCResponse(nexproto.DataStoreProtocolID, callID)

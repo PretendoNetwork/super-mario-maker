@@ -8,8 +8,6 @@ import (
 // This is the same as DataStoreSMM::RecommendedCourseSearchObject
 // Not sure why they used a different method here?
 func ctrPickUpCourseSearchObject(err error, client *nex.Client, callID uint32, dataStoreSearchParam *nexproto.DataStoreSearchParam, extraData []string) {
-	// TODO complete this
-
 	pRankingResults := make([]*nexproto.DataStoreCustomRankingResult, 0)
 
 	courseMetadatas := getCourseMetadatasByLimit(100) // In PCAPs param.minimalRatingFrequency is 100 but is 0 here?

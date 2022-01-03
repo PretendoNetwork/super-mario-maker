@@ -8,8 +8,6 @@ import (
 )
 
 func getObjectInfos(err error, client *nex.Client, callID uint32, dataIDs []uint64) {
-	// TODO: CDN
-
 	pInfos := make([]*nexproto.DataStoreFileServerObjectInfo, 0)
 
 	courseMetadatas := getCourseMetadataByDataIDs(dataIDs)

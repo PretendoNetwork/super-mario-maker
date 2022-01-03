@@ -8,7 +8,6 @@ import (
 )
 
 func checkRateCustomRankingCounter(err error, client *nex.Client, callID uint32, applicationID uint32) {
-
 	var isBelowThreshold uint8
 
 	switch applicationID {

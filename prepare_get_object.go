@@ -8,8 +8,6 @@ import (
 )
 
 func prepareGetObject(err error, client *nex.Client, callID uint32, dataStorePrepareGetParam *nexproto.DataStorePrepareGetParam) {
-	// TODO: CDN
-
 	pReqGetInfo := nexproto.NewDataStoreReqGetInfo()
 
 	if dataStorePrepareGetParam.DataID == 900000 {

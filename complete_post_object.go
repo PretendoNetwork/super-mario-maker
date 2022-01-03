@@ -1,17 +1,13 @@
 package main
 
 import (
-	"fmt"
-
 	nex "github.com/PretendoNetwork/nex-go"
 	nexproto "github.com/PretendoNetwork/nex-protocols-go"
 )
 
 func completePostObject(err error, client *nex.Client, callID uint32, dataStoreCompletePostParam *nexproto.DataStoreCompletePostParam) {
-	// STUBBED
 	// TODO: DO SOMETHING WITH THE DATA
 
-	fmt.Printf("%+v\n", dataStoreCompletePostParam)
 	rmcResponse := nex.NewRMCResponse(nexproto.DataStoreProtocolID, callID)
 	rmcResponse.SetSuccess(nexproto.DataStoreMethodCompletePostObject, nil)
 

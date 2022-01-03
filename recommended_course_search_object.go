@@ -6,7 +6,7 @@ import (
 )
 
 func recommendedCourseSearchObject(err error, client *nex.Client, callID uint32, param *nexproto.DataStoreSearchParam, extraData []string) {
-	// TODO complete this
+	// TODO: complete this
 
 	pRankingResults := make([]*nexproto.DataStoreCustomRankingResult, 0)
 

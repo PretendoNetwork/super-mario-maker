@@ -20,13 +20,6 @@ func preparePostObject(err error, client *nex.Client, callID uint32, param *nexp
 
 	dataStoreIDGenerator := dataStoreIDGenerators[nodeID]
 
-	for dataStoreIDGenerator.InUse() {
-		// Do nothing, wait until it's done
-		// There has to be a better way to do this
-	}
-
-	//dataStoreIDGenerator.SetInUse(true)
-
 	dataID := dataStoreIDGenerator.Next()
 	setDataStoreIDGeneratorLastID(nodeID, dataStoreIDGenerator.Value)
 	initializeCourseData(dataID, client.PID(), param.Size, param.Name, param.Flag, param.ExtraData, param.DataType, param.Period)
@@ -34,8 +27,6 @@ func preparePostObject(err error, client *nex.Client, callID uint32, param *nexp
 	if param.DataType != 1 { // 1 is Mii data, assume other values are course meta data
 		updateCourseMetaBinary(dataID, param.MetaBinary)
 	}
-
-	//dataStoreIDGenerator.SetInUse(false)
 
 	key := fmt.Sprintf("course/%d.bin", dataID)
 	bucket := "pds-amaj-d1"

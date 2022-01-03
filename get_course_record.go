@@ -11,7 +11,7 @@ func getCourseRecord(err error, client *nex.Client, callID uint32, param *nexpro
 	rmcResponse := nex.NewRMCResponse(nexproto.DataStoreSMMProtocolID, callID)
 
 	if worldRecord == nil {
-		rmcResponse.SetError(0x00690004)
+		rmcResponse.SetError(0x690004)
 	} else {
 		result := nexproto.NewDataStoreGetCourseRecordResult()
 		result.DataID = param.DataID

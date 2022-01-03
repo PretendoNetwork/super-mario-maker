@@ -6,9 +6,9 @@ import (
 )
 
 func rateObjects(err error, client *nex.Client, callID uint32, targets []*nexproto.DataStoreRatingTarget, params []*nexproto.DataStoreRateObjectParam, transactional bool, fetchRatings bool) {
-	rmcResponseStream := nex.NewStreamOut(nexServer)
+	// TODO: complete this
 
-	// TODO complete this
+	rmcResponseStream := nex.NewStreamOut(nexServer)
 
 	rmcResponseStream.WriteUInt32LE(0x00000000) // pRatings List length 0
 	rmcResponseStream.WriteUInt32LE(0x00000000) // pResults List length 0

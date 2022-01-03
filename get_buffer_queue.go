@@ -8,9 +8,9 @@ import (
 )
 
 func getBufferQueue(err error, client *nex.Client, callID uint32, param *nexproto.BufferQueueParam) {
-	rmcResponseStream := nex.NewStreamOut(nexServer)
-
 	// TODO: complete this
+
+	rmcResponseStream := nex.NewStreamOut(nexServer)
 
 	var pBufferQueue [][]byte
 
