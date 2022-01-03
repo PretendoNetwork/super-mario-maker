@@ -13,11 +13,11 @@ func getApplicationConfigString(err error, client *nex.Client, callID uint32, ap
 
 	switch applicationID {
 	case 128:
-		config = getApplicationConfigString_WordBlacklist1(client, callID, applicationID)
+		config = getApplicationConfigString_WordBlacklist1()
 	case 129:
-		config = getApplicationConfigString_WordBlacklist2(client, callID, applicationID)
+		config = getApplicationConfigString_WordBlacklist2()
 	case 130:
-		config = getApplicationConfigString_WordBlacklist3(client, callID, applicationID)
+		config = getApplicationConfigString_WordBlacklist3()
 	default:
 		fmt.Printf("[Warning] DataStoreSMMProtocol::GetApplicationConfigString Unsupported applicationID: %v\n", applicationID)
 	}
@@ -47,7 +47,7 @@ func getApplicationConfigString(err error, client *nex.Client, callID uint32, ap
 	nexServer.Send(responsePacket)
 }
 
-func getApplicationConfigString_WordBlacklist1(client *nex.Client, callID uint32, applicationID uint32) []string {
+func getApplicationConfigString_WordBlacklist1() []string {
 	// Just replaying data sent from Nintendo's servers
 	return []string{
 		"けされ", "消され", "削除され", "リセットされ",
@@ -70,14 +70,14 @@ func getApplicationConfigString_WordBlacklist1(client *nex.Client, callID uint32
 	}
 }
 
-func getApplicationConfigString_WordBlacklist2(client *nex.Client, callID uint32, applicationID uint32) []string {
+func getApplicationConfigString_WordBlacklist2() []string {
 	// Just replaying data sent from Nintendo's servers
 	return []string{
 		"ゼロから", "０から", "0から", "い　　い　　ね", "いい", "東日本", "大震",
 	}
 }
 
-func getApplicationConfigString_WordBlacklist3(client *nex.Client, callID uint32, applicationID uint32) []string {
+func getApplicationConfigString_WordBlacklist3() []string {
 	// Just replaying data sent from Nintendo's servers
 	return []string{
 		"いいね", "下さい", "ください",

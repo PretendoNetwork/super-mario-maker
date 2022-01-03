@@ -15,13 +15,13 @@ func getApplicationConfig(err error, client *nex.Client, callID uint32, applicat
 
 	switch applicationID {
 	case 0: // Unknown?
-		config = getApplicationConfig_Unknown0(client, callID, applicationID)
+		config = getApplicationConfig_Unknown0()
 	case 1: // PIDs?
-		config = getApplicationConfig_PID(client, callID, applicationID)
+		config = getApplicationConfig_PID()
 	case 2: // Unknown?
-		config = getApplicationConfig_Unknown2(client, callID, applicationID)
+		config = getApplicationConfig_Unknown2()
 	case 10: // Unknown?
-		config = getApplicationConfig_Unknown10(client, callID, applicationID)
+		config = getApplicationConfig_Unknown10()
 	default:
 		fmt.Printf("[Warning] DataStoreSMMProtocol::GetApplicationConfig Unsupported applicationID: %v\n", applicationID)
 	}
@@ -51,7 +51,7 @@ func getApplicationConfig(err error, client *nex.Client, callID uint32, applicat
 	nexServer.Send(responsePacket)
 }
 
-func getApplicationConfig_Unknown0(client *nex.Client, callID uint32, applicationID uint32) []uint32 {
+func getApplicationConfig_Unknown0() []uint32 {
 	// I have no idea what this is
 	// Just replaying data sent from the real server
 	return []uint32{
@@ -66,7 +66,7 @@ func getApplicationConfig_Unknown0(client *nex.Client, callID uint32, applicatio
 	}
 }
 
-func getApplicationConfig_PID(client *nex.Client, callID uint32, applicationID uint32) []uint32 {
+func getApplicationConfig_PID() []uint32 {
 	// This looks like user PIDs?
 	// Sending an empty list here crashes the game
 	return []uint32{
@@ -76,13 +76,13 @@ func getApplicationConfig_PID(client *nex.Client, callID uint32, applicationID u
 	}
 }
 
-func getApplicationConfig_Unknown2(client *nex.Client, callID uint32, applicationID uint32) []uint32 {
+func getApplicationConfig_Unknown2() []uint32 {
 	// I have no idea what this is
 	// Just replaying data sent from the real server
 	return []uint32{0xdf070000, 0x0c000000, 0x16000000, 0x05000000, 0x00000000}
 }
 
-func getApplicationConfig_Unknown10(client *nex.Client, callID uint32, applicationID uint32) []uint32 {
+func getApplicationConfig_Unknown10() []uint32 {
 	// I have no idea what this is
 	// Just replaying data sent from the real server
 	// Only seen on the 3DS
