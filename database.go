@@ -237,8 +237,8 @@ func getCourseMetadatasByLimit(limit uint32) []*CourseMetadata {
 
 	courseMetadatas := make([]*CourseMetadata, 0)
 
-	for i := 0; i < len(sliceMap); i++ {
-		dataID := uint64(sliceMap[i]["data_id"].(int64))
+	for _, course := range sliceMap {
+		dataID := uint64(course["data_id"].(int64))
 
 		var stars uint32
 		var attempts uint32
@@ -249,19 +249,19 @@ func getCourseMetadatasByLimit(limit uint32) []*CourseMetadata {
 
 		courseMetadata := &CourseMetadata{
 			DataID:      dataID,
-			OwnerPID:    uint32(sliceMap[i]["owner_pid"].(int)),
-			Size:        uint32(sliceMap[i]["size"].(int)),
-			CreatedTime: nex.NewDateTime(uint64(sliceMap[i]["creation_date"].(int64))),
-			UpdatedTime: nex.NewDateTime(uint64(sliceMap[i]["update_date"].(int64))),
-			Name:        sliceMap[i]["name"].(string),
-			MetaBinary:  sliceMap[i]["meta_binary"].([]byte),
+			OwnerPID:    uint32(course["owner_pid"].(int)),
+			Size:        uint32(course["size"].(int)),
+			CreatedTime: nex.NewDateTime(uint64(course["creation_date"].(int64))),
+			UpdatedTime: nex.NewDateTime(uint64(course["update_date"].(int64))),
+			Name:        course["name"].(string),
+			MetaBinary:  course["meta_binary"].([]byte),
 			Stars:       stars,
 			Attempts:    attempts,
 			Failures:    failures,
 			Completions: completions,
-			Flag:        uint32(sliceMap[i]["flag"].(int)),
-			DataType:    uint16(sliceMap[i]["data_type"].(int16)),
-			Period:      uint16(sliceMap[i]["period"].(int16)),
+			Flag:        uint32(course["flag"].(int)),
+			DataType:    uint16(course["data_type"].(int16)),
+			Period:      uint16(course["period"].(int16)),
 		}
 
 		courseMetadatas = append(courseMetadatas, courseMetadata)
@@ -322,8 +322,8 @@ func getCourseMetadataByDataIDs(dataIDs []uint64) []*CourseMetadata {
 	// TODO: Do this in one query?
 	courseMetadatas := make([]*CourseMetadata, 0)
 
-	for i := 0; i < len(dataIDs); i++ {
-		courseMetadata := getCourseMetadataByDataID(dataIDs[i])
+	for _, dataID := range dataIDs {
+		courseMetadata := getCourseMetadataByDataID(dataID)
 
 		if courseMetadata != nil {
 			courseMetadatas = append(courseMetadatas, courseMetadata)
@@ -368,8 +368,8 @@ func getBufferQueueDeathData(dataID uint64) [][]byte {
 		log.Fatal(err)
 	}
 
-	for i := 0; i < len(sliceMap); i++ {
-		pBufferQueue = append(pBufferQueue, sliceMap[i]["buffer"].([]byte))
+	for _, bufferQueue := range sliceMap {
+		pBufferQueue = append(pBufferQueue, bufferQueue["buffer"].([]byte))
 	}
 
 	return pBufferQueue

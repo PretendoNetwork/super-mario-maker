@@ -14,9 +14,7 @@ func getObjectInfos(err error, client *nex.Client, callID uint32, dataIDs []uint
 
 	courseMetadatas := getCourseMetadataByDataIDs(dataIDs)
 
-	for i := 0; i < len(courseMetadatas); i++ {
-		courseMetadata := courseMetadatas[i]
-
+	for _, courseMetadata := range courseMetadatas {
 		info := nexproto.NewDataStoreFileServerObjectInfo()
 		info.DataID = courseMetadata.DataID
 		info.GetInfo = nexproto.NewDataStoreReqGetInfo()

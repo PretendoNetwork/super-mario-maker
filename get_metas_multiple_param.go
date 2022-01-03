@@ -11,9 +11,7 @@ func getMetasMultipleParam(err error, client *nex.Client, callID uint32, params 
 	pMetaInfo := make([]*nexproto.DataStoreMetaInfo, 0)
 	pResults := make([]uint32, 0)
 
-	for i := 0; i < len(params); i++ {
-		param := params[i]
-
+	for _, param := range params {
 		if param.DataID == 0 {
 			pMetaInfo = append(pMetaInfo, getMetasMultipleParamMiiData(param))
 		} else {

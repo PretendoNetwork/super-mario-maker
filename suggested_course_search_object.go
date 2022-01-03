@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	nex "github.com/PretendoNetwork/nex-go"
 	nexproto "github.com/PretendoNetwork/nex-protocols-go"
 )
@@ -11,8 +9,6 @@ func suggestedCourseSearchObject(err error, client *nex.Client, callID uint32, p
 	// TODO complete this
 
 	pRankingResults := make([]*nexproto.DataStoreCustomRankingResult, 0)
-
-	fmt.Println(param.MinimalRatingFrequency)
 
 	courseMetadatas := getCourseMetadatasByLimit(4) // In PCAPs param.minimalRatingFrequency is 4 but is 0 here?
 

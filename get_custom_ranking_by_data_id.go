@@ -66,12 +66,12 @@ func getCustomRankingByDataIdMiiData(param *nexproto.DataStoreGetCustomRankingBy
 	pRankingResult := make([]*nexproto.DataStoreCustomRankingResult, 0)
 	pResults := make([]uint32, 0)
 
-	for i := 0; i < len(param.DataIdList); i++ {
-		ownerID := uint32(param.DataIdList[i]) // This isn't actually a PID when using the official servers! I set it as one to make this easier for me
-		miiInfo := getUserMiiInfoByPID(ownerID)
+	for _, pid := range param.DataIdList {
+		pid := uint32(pid)
+		miiInfo := getUserMiiInfoByPID(pid) // This isn't actually a PID when using the official servers! I set it as one to make this easier for me
 
 		if miiInfo != nil {
-			pRankingResult = append(pRankingResult, userMiiDataToDataStoreCustomRankingResult(ownerID, miiInfo))
+			pRankingResult = append(pRankingResult, userMiiDataToDataStoreCustomRankingResult(pid, miiInfo))
 			pResults = append(pResults, 0x690001)
 		}
 	}
