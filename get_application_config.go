@@ -16,8 +16,8 @@ func getApplicationConfig(err error, client *nex.Client, callID uint32, applicat
 	switch applicationID {
 	case 0: // Unknown?
 		config = getApplicationConfig_Unknown0()
-	case 1: // PIDs?
-		config = getApplicationConfig_PID()
+	case 1: // Official player PIDs
+		config = getApplicationConfig_OfficialPlayers()
 	case 2: // Unknown?
 		config = getApplicationConfig_Unknown2()
 	case 10: // Unknown?
@@ -66,13 +66,17 @@ func getApplicationConfig_Unknown0() []uint32 {
 	}
 }
 
-func getApplicationConfig_PID() []uint32 {
-	// This looks like user PIDs?
-	// Sending an empty list here crashes the game
+func getApplicationConfig_OfficialPlayers() []uint32 {
 	return []uint32{
-		0x02000000, 0x70cc8269, 0x50cc8269,
-		0x38cc8269, 0xdbd08269, 0xa9d08269,
-		0x89d08269, 0x59c48269, 0x36c48269,
+		0x02000000, // 2 (not a real user PID, this translates to the internal Quazal Rendez-Vous user used by NEX)
+		0x70cc8269, // 1770179696 (official_player0 on NN, need to make PN versions)
+		0x50cc8269, // 1770179664 (official_player1 on NN, need to make PN versions)
+		0x38cc8269, // 1770179640 (official_player2 on NN, need to make PN versions)
+		0xdbd08269, // 1770180827 (official_player3 on NN, need to make PN versions)
+		0xa9d08269, // 1770180777 (official_player4 on NN, need to make PN versions)
+		0x89d08269, // 1770180745 (official_player5 on NN, need to make PN versions)
+		0x59c48269, // 1770177625 (official_player6 on NN, need to make PN versions)
+		0x36c48269, // 1770177590 (official_player7 on NN, need to make PN versions)
 	}
 }
 
