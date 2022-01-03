@@ -168,3 +168,9 @@ func userMiiDataToDataStoreMetaInfo(ownerID uint32, miiInfo primitive.M) *nexpro
 
 	return metaInfo
 }
+
+func userNotOwnCourse(courseID uint64, pid uint32) bool {
+	courseMetadata := getCourseMetadataByDataID(courseID)
+
+	return courseMetadata.OwnerPID != pid
+}

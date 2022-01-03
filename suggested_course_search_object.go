@@ -1,12 +1,20 @@
 package main
 
 import (
+	"strconv"
+
 	nex "github.com/PretendoNetwork/nex-go"
 	nexproto "github.com/PretendoNetwork/nex-protocols-go"
 )
 
 func suggestedCourseSearchObject(err error, client *nex.Client, callID uint32, param *nexproto.DataStoreSearchParam, extraData []string) {
 	// TODO complete this
+
+	courseID, _ := strconv.ParseUint(extraData[0], 0, 64)
+
+	if userNotOwnCourse(courseID, client.PID()) {
+		incrementCourseAttemptCount(courseID) // We also know this is when a user attempts a course
+	}
 
 	pRankingResults := make([]*nexproto.DataStoreCustomRankingResult, 0)
 

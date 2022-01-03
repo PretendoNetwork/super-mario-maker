@@ -19,7 +19,6 @@ func getBufferQueue(err error, client *nex.Client, callID uint32, param *nexprot
 		pBufferQueue = make([][]byte, 0)
 	case 3: // death data
 		pBufferQueue = getBufferQueueDeathData(param.DataID)
-		incrementCourseAttemptCount(param.DataID) // We also know this is when a user attempts a course
 	default:
 		fmt.Printf("[Warning] DataStoreSMMProtocol::GetBufferQueue Unsupported slot: %v\n", param.Slot)
 	}
