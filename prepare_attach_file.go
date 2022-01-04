@@ -15,7 +15,7 @@ import (
 
 func prepareAttachFile(err error, client *nex.Client, callID uint32, dataStoreAttachFileParam *nexproto.DataStoreAttachFileParam) {
 	key := fmt.Sprintf("image/%d.jpg", dataStoreAttachFileParam.ReferDataID)
-	bucket := "pds-amaj-d1"
+	bucket := os.Getenv("DO_SPACES_NAME")
 	date := strconv.Itoa(int(time.Now().Unix()))
 	pid := strconv.Itoa(int(client.PID()))
 

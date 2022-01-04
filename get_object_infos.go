@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	nex "github.com/PretendoNetwork/nex-go"
 	nexproto "github.com/PretendoNetwork/nex-protocols-go"
@@ -16,7 +17,7 @@ func getObjectInfos(err error, client *nex.Client, callID uint32, dataIDs []uint
 		info := nexproto.NewDataStoreFileServerObjectInfo()
 		info.DataID = courseMetadata.DataID
 		info.GetInfo = nexproto.NewDataStoreReqGetInfo()
-		info.GetInfo.URL = fmt.Sprintf("http://pds-AMAJ-d1.b-cdn.net/course/%d.bin", courseMetadata.DataID)
+		info.GetInfo.URL = fmt.Sprintf("http://%s.b-cdn.net/course/%d.bin", os.Getenv("DO_SPACES_NAME"), courseMetadata.DataID)
 		info.GetInfo.RequestHeaders = []*nexproto.DataStoreKeyValue{}
 		info.GetInfo.Size = courseMetadata.Size
 		info.GetInfo.RootCA = []byte{}

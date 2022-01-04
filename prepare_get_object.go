@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	nex "github.com/PretendoNetwork/nex-go"
 	nexproto "github.com/PretendoNetwork/nex-protocols-go"
@@ -11,15 +12,16 @@ func prepareGetObject(err error, client *nex.Client, callID uint32, dataStorePre
 	pReqGetInfo := nexproto.NewDataStoreReqGetInfo()
 
 	if dataStorePrepareGetParam.DataID == 900000 {
-		pReqGetInfo.URL = "http://pds-AMAJ-d1.b-cdn.net/special/900000.bin"
+		pReqGetInfo.URL = fmt.Sprintf("http://%s.b-cdn.net/special/900000.bin", os.Getenv("DO_SPACES_NAME"))
 		pReqGetInfo.RequestHeaders = []*nexproto.DataStoreKeyValue{}
-		pReqGetInfo.Size = 450068
+		//pReqGetInfo.Size = 450068
+		pReqGetInfo.Size = 0x263C
 		pReqGetInfo.RootCA = []byte{}
 		pReqGetInfo.DataID = 900000
 	} else {
 		courseMetadata := getCourseMetadataByDataID(dataStorePrepareGetParam.DataID)
 
-		pReqGetInfo.URL = fmt.Sprintf("http://pds-AMAJ-d1.b-cdn.net/course/%d.bin", dataStorePrepareGetParam.DataID)
+		pReqGetInfo.URL = fmt.Sprintf("http://%s.b-cdn.net/course/%d.bin", os.Getenv("DO_SPACES_NAME"), dataStorePrepareGetParam.DataID)
 		pReqGetInfo.RequestHeaders = []*nexproto.DataStoreKeyValue{}
 		pReqGetInfo.Size = courseMetadata.Size
 		pReqGetInfo.RootCA = []byte{}
