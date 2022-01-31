@@ -17,8 +17,8 @@ var secureServer *nexproto.SecureProtocol
 var s3Client *s3.S3
 
 func main() {
-	key := os.Getenv("DO_SPACES_KEY")
-	secret := os.Getenv("DO_SPACES_SECRET")
+	key := os.Getenv("S3_KEY")
+	secret := os.Getenv("S3_SECRET")
 
 	s3Config := &aws.Config{
 		Credentials: credentials.NewStaticCredentials(key, secret, ""),

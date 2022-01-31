@@ -29,7 +29,7 @@ func preparePostObject(err error, client *nex.Client, callID uint32, param *nexp
 	}
 
 	key := fmt.Sprintf("course/%d.bin", dataID)
-	bucket := os.Getenv("DO_SPACES_NAME")
+	bucket := os.Getenv("S3_BUCKET_NAME")
 	date := strconv.Itoa(int(time.Now().Unix()))
 	pid := strconv.Itoa(int(client.PID()))
 

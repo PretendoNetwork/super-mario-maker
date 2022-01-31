@@ -12,16 +12,17 @@ func prepareGetObject(err error, client *nex.Client, callID uint32, dataStorePre
 	pReqGetInfo := nexproto.NewDataStoreReqGetInfo()
 
 	if dataStorePrepareGetParam.DataID == 900000 {
-		pReqGetInfo.URL = fmt.Sprintf("http://%s.b-cdn.net/special/900000.bin", os.Getenv("DO_SPACES_NAME"))
+		objectSize, _ := s3ObjectSize(os.Getenv("S3_BUCKET_NAME"), "special/900000.bin")
+
+		pReqGetInfo.URL = fmt.Sprintf("http://%s.b-cdn.net/special/900000.bin", "pds-AMAJ-d1")
 		pReqGetInfo.RequestHeaders = []*nexproto.DataStoreKeyValue{}
-		//pReqGetInfo.Size = 450068
-		pReqGetInfo.Size = 0x263C
+		pReqGetInfo.Size = uint32(objectSize)
 		pReqGetInfo.RootCA = []byte{}
 		pReqGetInfo.DataID = 900000
 	} else {
 		courseMetadata := getCourseMetadataByDataID(dataStorePrepareGetParam.DataID)
 
-		pReqGetInfo.URL = fmt.Sprintf("http://%s.b-cdn.net/course/%d.bin", os.Getenv("DO_SPACES_NAME"), dataStorePrepareGetParam.DataID)
+		pReqGetInfo.URL = fmt.Sprintf("http://%s.b-cdn.net/course/%d.bin", os.Getenv("S3_BUCKET_NAME"), dataStorePrepareGetParam.DataID)
 		pReqGetInfo.RequestHeaders = []*nexproto.DataStoreKeyValue{}
 		pReqGetInfo.Size = courseMetadata.Size
 		pReqGetInfo.RootCA = []byte{}
