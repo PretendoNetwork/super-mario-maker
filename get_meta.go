@@ -1,8 +1,8 @@
 package main
 
 import (
-	"encoding/hex"
 	"fmt"
+	"os"
 
 	nex "github.com/PretendoNetwork/nex-go"
 	nexproto "github.com/PretendoNetwork/nex-protocols-go"
@@ -12,8 +12,8 @@ func getMeta(err error, client *nex.Client, callID uint32, param *nexproto.DataS
 	switch param.DataID {
 	case 0: // Mii Data
 		getMetaMiiData(client, callID, param)
-	case 900000: // Course ID
-		getMetaCourseMetadata(client, callID, param)
+	case 900000: // Event course news
+		getMetaEventCourseNewsData(client, callID, param)
 	default:
 		fmt.Printf("[Warning] DataStoreProtocol::GetMeta Unsupported dataId: %v\n", param.DataID)
 	}
@@ -48,12 +48,41 @@ func getMetaMiiData(client *nex.Client, callID uint32, param *nexproto.DataStore
 	nexServer.Send(responsePacket)
 }
 
-func getMetaCourseMetadata(client *nex.Client, callID uint32, param *nexproto.DataStoreGetMetaParam) {
-	const examplePayload = "0062000000a0bb0d00000000000200000014de060001000032000000000500000000000000000005000000000000000086fcc87e1f0000001605a2861f00000032fb0000000000000000000000000086fcc87e1f00000000003e3f9c0000000000000000000000"
-	examplePayloadBytes, _ := hex.DecodeString(examplePayload)
+func getMetaEventCourseNewsData(client *nex.Client, callID uint32, param *nexproto.DataStoreGetMetaParam) {
+	objectSize, _ := s3ObjectSize(os.Getenv("S3_BUCKET_NAME"), "special/900000.bin")
+
+	pMetaInfo := nexproto.NewDataStoreMetaInfo()
+	pMetaInfo.DataID = 900000
+	pMetaInfo.OwnerID = 2
+	pMetaInfo.Size = uint32(objectSize)
+	pMetaInfo.Name = ""
+	pMetaInfo.DataType = 50 // Metdata?
+	pMetaInfo.MetaBinary = []byte{}
+	pMetaInfo.Permission = nexproto.NewDataStorePermission()
+	pMetaInfo.Permission.Permission = 0 // idk?
+	pMetaInfo.Permission.RecipientIds = []uint32{}
+	pMetaInfo.DelPermission = nexproto.NewDataStorePermission()
+	pMetaInfo.DelPermission.Permission = 0 // idk?
+	pMetaInfo.DelPermission.RecipientIds = []uint32{}
+	pMetaInfo.CreatedTime = nex.NewDateTime(135271087238) // Reused from Nintendo
+	pMetaInfo.UpdatedTime = nex.NewDateTime(135402751254) // Reused from Nintendo
+	pMetaInfo.Period = 64306                              // idk?
+	pMetaInfo.Status = 0
+	pMetaInfo.ReferredCnt = 0
+	pMetaInfo.ReferDataID = 0
+	pMetaInfo.Flag = 0                                     // idk?
+	pMetaInfo.ReferredTime = nex.NewDateTime(135271087238) // Reused from Nintendo
+	pMetaInfo.ExpireTime = nex.NewDateTime(671075926016)   // Reused from Nintendo
+	pMetaInfo.Tags = []string{}                            // idk?
+	pMetaInfo.Ratings = []*nexproto.DataStoreRatingInfoWithSlot{}
+
+	rmcResponseStream := nex.NewStreamOut(nexServer)
+	rmcResponseStream.WriteStructure(pMetaInfo)
+
+	rmcResponseBody := rmcResponseStream.Bytes()
 
 	rmcResponse := nex.NewRMCResponse(nexproto.DataStoreProtocolID, callID)
-	rmcResponse.SetSuccess(nexproto.DataStoreMethodGetMeta, examplePayloadBytes)
+	rmcResponse.SetSuccess(nexproto.DataStoreMethodGetMeta, rmcResponseBody)
 
 	rmcResponseBytes := rmcResponse.Bytes()
 
