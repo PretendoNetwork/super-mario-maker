@@ -6,6 +6,8 @@ import (
 
 	nex "github.com/PretendoNetwork/nex-go"
 	nexproto "github.com/PretendoNetwork/nex-protocols-go"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -173,4 +175,17 @@ func userNotOwnCourse(courseID uint64, pid uint32) bool {
 	courseMetadata := getCourseMetadataByDataID(courseID)
 
 	return courseMetadata.OwnerPID != pid
+}
+
+func s3ObjectSize(bucket, key string) (uint64, error) {
+	headObj := s3.HeadObjectInput{
+		Bucket: aws.String(bucket),
+		Key:    aws.String(key),
+	}
+	result, err := s3Client.HeadObject(&headObj)
+	if err != nil {
+		return 0, err
+	}
+
+	return uint64(aws.Int64Value(result.ContentLength)), nil
 }
