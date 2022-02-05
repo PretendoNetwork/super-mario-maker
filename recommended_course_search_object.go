@@ -12,7 +12,7 @@ func recommendedCourseSearchObject(err error, client *nex.Client, callID uint32,
 
 	// TEMP FOR SHUTTER TO TEST THINGS
 	if client.PID() == 1049991375 {
-		courseMetadata := getCourseMetadataByDataID(145)
+		courseMetadata := getCourseMetadataByDataID(145) // specific course shutter wants
 		pRankingResults = append(pRankingResults, courseMetadataToDataStoreCustomRankingResult(courseMetadata))
 	} else {
 		courseMetadatas := getCourseMetadatasByLimit(100) // In PCAPs param.minimalRatingFrequency is 100 but is 0 here?
