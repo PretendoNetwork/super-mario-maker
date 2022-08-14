@@ -1,0 +1,6 @@
+[submodule "super-mario-maker-authentication"]
+	path = super-mario-maker-authentication
+	url = https://github.com/PretendoNetwork/super-mario-maker-authentication
+[submodule "super-mario-maker-secure"]
+	path = super-mario-maker-secure
+	url = https://github.com/PretendoNetwork/super-mario-maker-secure
