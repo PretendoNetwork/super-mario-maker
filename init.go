@@ -5,11 +5,10 @@ import (
 	"log"
 	"runtime"
 
+	"github.com/PretendoNetwork/super-mario-maker-secure/database"
+	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 	"github.com/joho/godotenv"
 )
-
-var hmacSecret []byte
-var dataStoreIDGenerators []*DataStoreIDGenerator
 
 func init() {
 	var err error
@@ -19,27 +18,26 @@ func init() {
 		log.Fatal("Error loading .env file")
 	}
 
-	hmacSecret, err = ioutil.ReadFile("secret.key")
+	globals.HMACSecret, err = ioutil.ReadFile("secret.key")
 	if err != nil {
 		panic(err)
 	}
 
 	// Connect to and setup databases
-	connectMongo()
-	connectCassandra()
+	database.ConnectAll()
 	createDataStoreIDGenerators()
 }
 
 func createDataStoreIDGenerators() {
-	dataStoreIDGenerators = make([]*DataStoreIDGenerator, 0)
+	globals.DataStoreIDGenerators = make([]*database.DataStoreIDGenerator, 0)
 	regionID := 0 // USA
 
 	for corenum := 0; corenum < runtime.NumCPU(); corenum++ {
-		createDataStoreIDGeneratorRow(corenum)
+		database.CreateDataStoreIDGeneratorRow(corenum)
 
-		lastID := getDataStoreIDGeneratorLastID(corenum)
+		lastID := database.GetDataStoreIDGeneratorLastID(corenum)
 
-		generator := NewDataStoreIDGenerator(uint8(regionID), uint8(corenum), lastID)
-		dataStoreIDGenerators = append(dataStoreIDGenerators, generator)
+		generator := database.NewDataStoreIDGenerator(uint8(regionID), uint8(corenum), lastID)
+		globals.DataStoreIDGenerators = append(globals.DataStoreIDGenerators, generator)
 	}
 }
