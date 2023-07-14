@@ -5,25 +5,26 @@ import (
 	"os"
 
 	nex "github.com/PretendoNetwork/nex-go"
-	"github.com/PretendoNetwork/nex-protocols-go/datastore"
 	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
+	datastore_super_mario_maker_types "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker/types"
+	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
 	"github.com/PretendoNetwork/super-mario-maker-secure/database"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
 func GetObjectInfos(err error, client *nex.Client, callID uint32, dataIDs []uint64) {
-	pInfos := make([]*datastore_super_mario_maker.DataStoreFileServerObjectInfo, 0)
+	pInfos := make([]*datastore_super_mario_maker_types.DataStoreFileServerObjectInfo, 0)
 
 	courseMetadatas := database.GetCourseMetadataByDataIDs(dataIDs)
 
 	for _, courseMetadata := range courseMetadatas {
-		info := datastore_super_mario_maker.NewDataStoreFileServerObjectInfo()
+		info := datastore_super_mario_maker_types.NewDataStoreFileServerObjectInfo()
 		info.DataID = courseMetadata.DataID
-		info.GetInfo = datastore.NewDataStoreReqGetInfo()
+		info.GetInfo = datastore_types.NewDataStoreReqGetInfo()
 		info.GetInfo.URL = fmt.Sprintf("http://%s.b-cdn.net/course/%d.bin", os.Getenv("S3_BUCKET_NAME"), courseMetadata.DataID)
-		info.GetInfo.RequestHeaders = []*datastore.DataStoreKeyValue{}
+		info.GetInfo.RequestHeaders = []*datastore_types.DataStoreKeyValue{}
 		info.GetInfo.Size = courseMetadata.Size
-		info.GetInfo.RootCA = []byte{}
+		info.GetInfo.RootCACert = []byte{}
 		info.GetInfo.DataID = courseMetadata.DataID
 
 		pInfos = append(pInfos, info)

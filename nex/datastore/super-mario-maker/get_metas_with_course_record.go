@@ -2,12 +2,13 @@ package nex_datastore_super_mario_maker
 
 import (
 	nex "github.com/PretendoNetwork/nex-go"
-	"github.com/PretendoNetwork/nex-protocols-go/datastore"
 	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
+	datastore_super_mario_maker_types "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker/types"
+	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func GetMetasWithCourseRecord(err error, client *nex.Client, callID uint32, dataStoreGetCourseRecordParams []*datastore_super_mario_maker.DataStoreGetCourseRecordParam, dataStoreGetMetaParam *datastore.DataStoreGetMetaParam) {
+func GetMetasWithCourseRecord(err error, client *nex.Client, callID uint32, dataStoreGetCourseRecordParams []*datastore_super_mario_maker_types.DataStoreGetCourseRecordParam, dataStoreGetMetaParam *datastore_types.DataStoreGetMetaParam) {
 	// TODO: complete this
 
 	rmcResponseStream := nex.NewStreamOut(globals.NEXServer)

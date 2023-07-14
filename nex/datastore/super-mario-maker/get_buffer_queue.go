@@ -5,11 +5,12 @@ import (
 
 	nex "github.com/PretendoNetwork/nex-go"
 	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
+	datastore_super_mario_maker_types "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker/types"
 	"github.com/PretendoNetwork/super-mario-maker-secure/database"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func GetBufferQueue(err error, client *nex.Client, callID uint32, param *datastore_super_mario_maker.BufferQueueParam) {
+func GetBufferQueue(err error, client *nex.Client, callID uint32, param *datastore_super_mario_maker_types.BufferQueueParam) {
 	// TODO: complete this
 
 	rmcResponseStream := nex.NewStreamOut(globals.NEXServer)

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	nex "github.com/PretendoNetwork/nex-go"
+	"github.com/PretendoNetwork/nex-go"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 

@@ -2,17 +2,18 @@ package nex_datastore_super_mario_maker
 
 import (
 	nex "github.com/PretendoNetwork/nex-go"
-	"github.com/PretendoNetwork/nex-protocols-go/datastore"
 	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
+	datastore_super_mario_maker_types "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker/types"
+	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
 	"github.com/PretendoNetwork/super-mario-maker-secure/database"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 	"github.com/PretendoNetwork/super-mario-maker-secure/utility"
 )
 
-func RecommendedCourseSearchObject(err error, client *nex.Client, callID uint32, param *datastore.DataStoreSearchParam, extraData []string) {
+func RecommendedCourseSearchObject(err error, client *nex.Client, callID uint32, param *datastore_types.DataStoreSearchParam, extraData []string) {
 	// TODO: complete this
 
-	pRankingResults := make([]*datastore_super_mario_maker.DataStoreCustomRankingResult, 0)
+	pRankingResults := make([]*datastore_super_mario_maker_types.DataStoreCustomRankingResult, 0)
 
 	// TEMP FOR SHUTTER TO TEST THINGS
 	if client.PID() == 1049991375 {

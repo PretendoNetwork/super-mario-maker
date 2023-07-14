@@ -3,10 +3,11 @@ package nex_datastore
 import (
 	nex "github.com/PretendoNetwork/nex-go"
 	"github.com/PretendoNetwork/nex-protocols-go/datastore"
+	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func CompletePostObject(err error, client *nex.Client, callID uint32, dataStoreCompletePostParam *datastore.DataStoreCompletePostParam) {
+func CompletePostObject(err error, client *nex.Client, callID uint32, dataStoreCompletePostParam *datastore_types.DataStoreCompletePostParam) {
 	// TODO: DO SOMETHING WITH THE DATA
 
 	rmcResponse := nex.NewRMCResponse(datastore.ProtocolID, callID)

@@ -2,8 +2,9 @@ package nex_datastore_super_mario_maker
 
 import (
 	nex "github.com/PretendoNetwork/nex-go"
-	"github.com/PretendoNetwork/nex-protocols-go/datastore"
 	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
+	datastore_super_mario_maker_types "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker/types"
+	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
 	"github.com/PretendoNetwork/super-mario-maker-secure/database"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 	"github.com/PretendoNetwork/super-mario-maker-secure/utility"
@@ -11,8 +12,8 @@ import (
 
 // This is the same as DataStoreSMM::RecommendedCourseSearchObject
 // Not sure why they used a different method here?
-func CTRPickUpCourseSearchObject(err error, client *nex.Client, callID uint32, dataStoreSearchParam *datastore.DataStoreSearchParam, extraData []string) {
-	pRankingResults := make([]*datastore_super_mario_maker.DataStoreCustomRankingResult, 0)
+func CTRPickUpCourseSearchObject(err error, client *nex.Client, callID uint32, dataStoreSearchParam *datastore_types.DataStoreSearchParam, extraData []string) {
+	pRankingResults := make([]*datastore_super_mario_maker_types.DataStoreCustomRankingResult, 0)
 
 	courseMetadatas := database.GetCourseMetadatasByLimit(100) // In PCAPs param.minimalRatingFrequency is 100 but is 0 here?
 

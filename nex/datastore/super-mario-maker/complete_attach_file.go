@@ -5,12 +5,12 @@ import (
 	"os"
 
 	nex "github.com/PretendoNetwork/nex-go"
-	"github.com/PretendoNetwork/nex-protocols-go/datastore"
 	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
+	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func CompleteAttachFile(err error, client *nex.Client, callID uint32, dataStoreCompletePostParam *datastore.DataStoreCompletePostParam) {
+func CompleteAttachFile(err error, client *nex.Client, callID uint32, dataStoreCompletePostParam *datastore_types.DataStoreCompletePostParam) {
 	rmcResponseStream := nex.NewStreamOut(globals.NEXServer)
 
 	// TODO: complete this

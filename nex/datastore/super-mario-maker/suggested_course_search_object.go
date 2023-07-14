@@ -4,14 +4,15 @@ import (
 	"strconv"
 
 	nex "github.com/PretendoNetwork/nex-go"
-	"github.com/PretendoNetwork/nex-protocols-go/datastore"
 	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
+	datastore_super_mario_maker_types "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker/types"
+	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
 	"github.com/PretendoNetwork/super-mario-maker-secure/database"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 	"github.com/PretendoNetwork/super-mario-maker-secure/utility"
 )
 
-func SuggestedCourseSearchObject(err error, client *nex.Client, callID uint32, param *datastore.DataStoreSearchParam, extraData []string) {
+func SuggestedCourseSearchObject(err error, client *nex.Client, callID uint32, param *datastore_types.DataStoreSearchParam, extraData []string) {
 	// TODO: complete this
 
 	courseID, _ := strconv.ParseUint(extraData[0], 0, 64)
@@ -20,7 +21,7 @@ func SuggestedCourseSearchObject(err error, client *nex.Client, callID uint32, p
 		database.IncrementCourseAttemptCount(courseID) // We also know this is when a user attempts a course
 	}
 
-	pRankingResults := make([]*datastore_super_mario_maker.DataStoreCustomRankingResult, 0)
+	pRankingResults := make([]*datastore_super_mario_maker_types.DataStoreCustomRankingResult, 0)
 
 	courseMetadatas := database.GetCourseMetadatasByLimit(4) // In PCAPs param.minimalRatingFrequency is 4 but is 0 here?
 

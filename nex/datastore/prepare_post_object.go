@@ -12,11 +12,12 @@ import (
 
 	nex "github.com/PretendoNetwork/nex-go"
 	"github.com/PretendoNetwork/nex-protocols-go/datastore"
+	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
 	"github.com/PretendoNetwork/super-mario-maker-secure/database"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func PreparePostObject(err error, client *nex.Client, callID uint32, param *datastore.DataStorePreparePostParam) {
+func PreparePostObject(err error, client *nex.Client, callID uint32, param *datastore_types.DataStorePreparePostParam) {
 	rand.Seed(time.Now().UnixNano())
 	nodeID := rand.Intn(len(globals.DataStoreIDGenerators))
 
@@ -42,38 +43,38 @@ func PreparePostObject(err error, client *nex.Client, callID uint32, param *data
 
 	signature := hex.EncodeToString(hmac.Sum(nil))
 
-	fieldBucket := datastore.NewDataStoreKeyValue()
+	fieldBucket := datastore_types.NewDataStoreKeyValue()
 	fieldBucket.Key = "bucket"
 	fieldBucket.Value = bucket
 
-	fieldKey := datastore.NewDataStoreKeyValue()
+	fieldKey := datastore_types.NewDataStoreKeyValue()
 	fieldKey.Key = "key"
 	fieldKey.Value = key
 
-	fieldACL := datastore.NewDataStoreKeyValue()
+	fieldACL := datastore_types.NewDataStoreKeyValue()
 	fieldACL.Key = "acl"
 	fieldACL.Value = "private"
 
-	fieldPID := datastore.NewDataStoreKeyValue()
+	fieldPID := datastore_types.NewDataStoreKeyValue()
 	fieldPID.Key = "pid"
 	fieldPID.Value = pid
 
-	fieldDate := datastore.NewDataStoreKeyValue()
+	fieldDate := datastore_types.NewDataStoreKeyValue()
 	fieldDate.Key = "date"
 	fieldDate.Value = date
 
-	fieldSignature := datastore.NewDataStoreKeyValue()
+	fieldSignature := datastore_types.NewDataStoreKeyValue()
 	fieldSignature.Key = "signature"
 	fieldSignature.Value = signature
 
 	rmcResponseStream := nex.NewStreamOut(globals.NEXServer)
 
-	pReqPostInfo := datastore.NewDataStoreReqPostInfo()
+	pReqPostInfo := datastore_types.NewDataStoreReqPostInfo()
 
 	pReqPostInfo.DataID = dataID
 	pReqPostInfo.URL = os.Getenv("DATASTORE_UPLOAD_URL")
-	pReqPostInfo.RequestHeaders = []*datastore.DataStoreKeyValue{}
-	pReqPostInfo.FormFields = []*datastore.DataStoreKeyValue{fieldBucket, fieldKey, fieldACL, fieldPID, fieldDate, fieldSignature}
+	pReqPostInfo.RequestHeaders = []*datastore_types.DataStoreKeyValue{}
+	pReqPostInfo.FormFields = []*datastore_types.DataStoreKeyValue{fieldBucket, fieldKey, fieldACL, fieldPID, fieldDate, fieldSignature}
 	pReqPostInfo.RootCACert = []byte{}
 
 	rmcResponseStream.WriteStructure(pReqPostInfo)

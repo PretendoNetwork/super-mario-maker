@@ -3,11 +3,12 @@ package nex_datastore_super_mario_maker
 import (
 	nex "github.com/PretendoNetwork/nex-go"
 	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
+	datastore_super_mario_maker_types "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker/types"
 	"github.com/PretendoNetwork/super-mario-maker-secure/database"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func AddToBufferQueues(err error, client *nex.Client, callID uint32, params []*datastore_super_mario_maker.BufferQueueParam, buffers [][]byte) {
+func AddToBufferQueues(err error, client *nex.Client, callID uint32, params []*datastore_super_mario_maker_types.BufferQueueParam, buffers [][]byte) {
 	pResults := make([]uint32, 0)
 
 	for i := 0; i < len(params); i++ {

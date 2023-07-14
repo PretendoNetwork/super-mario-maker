@@ -5,13 +5,14 @@ import (
 
 	nex "github.com/PretendoNetwork/nex-go"
 	"github.com/PretendoNetwork/nex-protocols-go/datastore"
+	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
 	"github.com/PretendoNetwork/super-mario-maker-secure/database"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 	"github.com/PretendoNetwork/super-mario-maker-secure/utility"
 )
 
-func GetMetasMultipleParam(err error, client *nex.Client, callID uint32, params []*datastore.DataStoreGetMetaParam) {
-	pMetaInfo := make([]*datastore.DataStoreMetaInfo, 0)
+func GetMetasMultipleParam(err error, client *nex.Client, callID uint32, params []*datastore_types.DataStoreGetMetaParam) {
+	pMetaInfo := make([]*datastore_types.DataStoreMetaInfo, 0)
 	pResults := make([]uint32, 0)
 
 	for _, param := range params {
@@ -50,7 +51,7 @@ func GetMetasMultipleParam(err error, client *nex.Client, callID uint32, params 
 	globals.NEXServer.Send(responsePacket)
 }
 
-func getMetasMultipleParamMiiData(param *datastore.DataStoreGetMetaParam) *datastore.DataStoreMetaInfo {
+func getMetasMultipleParamMiiData(param *datastore_types.DataStoreGetMetaParam) *datastore_types.DataStoreMetaInfo {
 	miiInfo := database.GetUserMiiInfoByPID(param.PersistenceTarget.OwnerID)
 
 	return utility.UserMiiDataToDataStoreMetaInfo(param.PersistenceTarget.OwnerID, miiInfo)
