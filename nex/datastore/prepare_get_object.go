@@ -5,18 +5,23 @@ import (
 	"os"
 
 	nex "github.com/PretendoNetwork/nex-go"
-	"github.com/PretendoNetwork/nex-protocols-go/datastore"
+	datastore "github.com/PretendoNetwork/nex-protocols-go/datastore"
 	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
 	"github.com/PretendoNetwork/super-mario-maker-secure/database"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 	"github.com/PretendoNetwork/super-mario-maker-secure/utility"
 )
 
-func PrepareGetObject(err error, client *nex.Client, callID uint32, dataStorePrepareGetParam *datastore_types.DataStorePrepareGetParam) {
+func PrepareGetObject(err error, client *nex.Client, callID uint32, dataStorePrepareGetParam *datastore_types.DataStorePrepareGetParam) uint32 {
 	pReqGetInfo := datastore_types.NewDataStoreReqGetInfo()
 
+	bucket := os.Getenv("PN_SMM_CONFIG_S3_BUCKET")
+
 	if dataStorePrepareGetParam.DataID == 900000 {
-		objectSize, _ := utility.S3ObjectSize(os.Getenv("S3_BUCKET_NAME"), "special/900000.bin")
+		objectSize, err := utility.S3ObjectSize(bucket, "special/900000.bin")
+		if err != nil {
+			globals.Logger.Error(err.Error())
+		}
 
 		pReqGetInfo.URL = fmt.Sprintf("http://%s.b-cdn.net/special/900000.bin", "pds-AMAJ-d1")
 		pReqGetInfo.RequestHeaders = []*datastore_types.DataStoreKeyValue{}
@@ -26,7 +31,7 @@ func PrepareGetObject(err error, client *nex.Client, callID uint32, dataStorePre
 	} else {
 		courseMetadata := database.GetCourseMetadataByDataID(dataStorePrepareGetParam.DataID)
 
-		pReqGetInfo.URL = fmt.Sprintf("http://%s.b-cdn.net/course/%d.bin", os.Getenv("S3_BUCKET_NAME"), dataStorePrepareGetParam.DataID)
+		pReqGetInfo.URL = fmt.Sprintf("https://%s.b-cdn.net/course/%d.bin", bucket, dataStorePrepareGetParam.DataID)
 		pReqGetInfo.RequestHeaders = []*datastore_types.DataStoreKeyValue{}
 		pReqGetInfo.Size = courseMetadata.Size
 		pReqGetInfo.RootCACert = []byte{}
@@ -56,4 +61,6 @@ func PrepareGetObject(err error, client *nex.Client, callID uint32, dataStorePre
 	responsePacket.AddFlag(nex.FlagReliable)
 
 	globals.NEXServer.Send(responsePacket)
+
+	return 0
 }

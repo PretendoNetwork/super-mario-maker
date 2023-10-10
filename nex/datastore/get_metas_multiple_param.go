@@ -4,14 +4,14 @@ import (
 	"fmt"
 
 	nex "github.com/PretendoNetwork/nex-go"
-	"github.com/PretendoNetwork/nex-protocols-go/datastore"
+	datastore "github.com/PretendoNetwork/nex-protocols-go/datastore"
 	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
 	"github.com/PretendoNetwork/super-mario-maker-secure/database"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 	"github.com/PretendoNetwork/super-mario-maker-secure/utility"
 )
 
-func GetMetasMultipleParam(err error, client *nex.Client, callID uint32, params []*datastore_types.DataStoreGetMetaParam) {
+func GetMetasMultipleParam(err error, client *nex.Client, callID uint32, params []*datastore_types.DataStoreGetMetaParam) uint32 {
 	pMetaInfo := make([]*datastore_types.DataStoreMetaInfo, 0)
 	pResults := make([]uint32, 0)
 
@@ -49,6 +49,8 @@ func GetMetasMultipleParam(err error, client *nex.Client, callID uint32, params 
 	responsePacket.AddFlag(nex.FlagReliable)
 
 	globals.NEXServer.Send(responsePacket)
+
+	return 0
 }
 
 func getMetasMultipleParamMiiData(param *datastore_types.DataStoreGetMetaParam) *datastore_types.DataStoreMetaInfo {

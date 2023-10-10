@@ -12,7 +12,7 @@ import (
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func GetObjectInfos(err error, client *nex.Client, callID uint32, dataIDs []uint64) {
+func GetObjectInfos(err error, client *nex.Client, callID uint32, dataIDs []uint64) uint32 {
 	pInfos := make([]*datastore_super_mario_maker_types.DataStoreFileServerObjectInfo, 0)
 
 	courseMetadatas := database.GetCourseMetadataByDataIDs(dataIDs)
@@ -53,4 +53,6 @@ func GetObjectInfos(err error, client *nex.Client, callID uint32, dataIDs []uint
 	responsePacket.AddFlag(nex.FlagReliable)
 
 	globals.NEXServer.Send(responsePacket)
+
+	return 0
 }

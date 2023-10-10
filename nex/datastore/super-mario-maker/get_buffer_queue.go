@@ -10,7 +10,7 @@ import (
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func GetBufferQueue(err error, client *nex.Client, callID uint32, param *datastore_super_mario_maker_types.BufferQueueParam) {
+func GetBufferQueue(err error, client *nex.Client, callID uint32, param *datastore_super_mario_maker_types.BufferQueueParam) uint32 {
 	// TODO: complete this
 
 	rmcResponseStream := nex.NewStreamOut(globals.NEXServer)
@@ -47,4 +47,6 @@ func GetBufferQueue(err error, client *nex.Client, callID uint32, param *datasto
 	responsePacket.AddFlag(nex.FlagReliable)
 
 	globals.NEXServer.Send(responsePacket)
+
+	return 0
 }

@@ -1,7 +1,6 @@
 package nex
 
 import (
-	"github.com/PretendoNetwork/nex-protocols-go/datastore"
 	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 	nex_datastore "github.com/PretendoNetwork/super-mario-maker-secure/nex/datastore"
@@ -9,18 +8,15 @@ import (
 )
 
 func registerNEXProtocols() {
-	datastoreProtocol := datastore.NewDataStoreProtocol(globals.NEXServer)
+	datastoreSMMProtocol := datastore_super_mario_maker.NewProtocol(globals.NEXServer)
 
-	datastoreProtocol.GetMeta(nex_datastore.GetMeta)
-	datastoreProtocol.PreparePostObject(nex_datastore.PreparePostObject)
-	datastoreProtocol.PrepareGetObject(nex_datastore.PrepareGetObject)
-	datastoreProtocol.CompletePostObject(nex_datastore.CompletePostObject)
-	datastoreProtocol.GetMetasMultipleParam(nex_datastore.GetMetasMultipleParam)
-	datastoreProtocol.ChangeMeta(nex_datastore.ChangeMeta)
-	datastoreProtocol.RateObjects(nex_datastore.RateObjects)
-
-	datastoreSMMProtocol := datastore_super_mario_maker.NewDataStoreSuperMarioMakerProtocol(globals.NEXServer)
-
+	datastoreSMMProtocol.GetMeta(nex_datastore.GetMeta)
+	datastoreSMMProtocol.PreparePostObject(nex_datastore.PreparePostObject)
+	datastoreSMMProtocol.PrepareGetObject(nex_datastore.PrepareGetObject)
+	datastoreSMMProtocol.CompletePostObject(nex_datastore.CompletePostObject)
+	datastoreSMMProtocol.GetMetasMultipleParam(nex_datastore.GetMetasMultipleParam)
+	datastoreSMMProtocol.ChangeMeta(nex_datastore.ChangeMeta)
+	datastoreSMMProtocol.RateObjects(nex_datastore.RateObjects)
 	datastoreSMMProtocol.GetObjectInfos(nex_datastore_super_mario_maker.GetObjectInfos)
 	datastoreSMMProtocol.RateCustomRanking(nex_datastore_super_mario_maker.RateCustomRanking)
 	datastoreSMMProtocol.GetCustomRankingByDataID(nex_datastore_super_mario_maker.GetCustomRankingByDataID)

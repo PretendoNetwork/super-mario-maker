@@ -12,7 +12,7 @@ import (
 	"github.com/PretendoNetwork/super-mario-maker-secure/utility"
 )
 
-func SuggestedCourseSearchObject(err error, client *nex.Client, callID uint32, param *datastore_types.DataStoreSearchParam, extraData []string) {
+func SuggestedCourseSearchObject(err error, client *nex.Client, callID uint32, param *datastore_types.DataStoreSearchParam, extraData []string) uint32 {
 	// TODO: complete this
 
 	courseID, _ := strconv.ParseUint(extraData[0], 0, 64)
@@ -52,4 +52,6 @@ func SuggestedCourseSearchObject(err error, client *nex.Client, callID uint32, p
 	responsePacket.AddFlag(nex.FlagReliable)
 
 	globals.NEXServer.Send(responsePacket)
+
+	return 0
 }

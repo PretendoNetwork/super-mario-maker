@@ -11,13 +11,13 @@ import (
 	"time"
 
 	nex "github.com/PretendoNetwork/nex-go"
-	"github.com/PretendoNetwork/nex-protocols-go/datastore"
+	datastore "github.com/PretendoNetwork/nex-protocols-go/datastore"
 	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
 	"github.com/PretendoNetwork/super-mario-maker-secure/database"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func PreparePostObject(err error, client *nex.Client, callID uint32, param *datastore_types.DataStorePreparePostParam) {
+func PreparePostObject(err error, client *nex.Client, callID uint32, param *datastore_types.DataStorePreparePostParam) uint32 {
 	rand.Seed(time.Now().UnixNano())
 	nodeID := rand.Intn(len(globals.DataStoreIDGenerators))
 
@@ -38,7 +38,7 @@ func PreparePostObject(err error, client *nex.Client, callID uint32, param *data
 
 	data := pid + bucket + key + date
 
-	hmac := hmac.New(sha256.New, globals.HMACSecret)
+	hmac := hmac.New(sha256.New, []byte{})
 	hmac.Write([]byte(data))
 
 	signature := hex.EncodeToString(hmac.Sum(nil))
@@ -98,4 +98,6 @@ func PreparePostObject(err error, client *nex.Client, callID uint32, param *data
 	responsePacket.AddFlag(nex.FlagReliable)
 
 	globals.NEXServer.Send(responsePacket)
+
+	return 0
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func CheckRateCustomRankingCounter(err error, client *nex.Client, callID uint32, applicationID uint32) {
+func CheckRateCustomRankingCounter(err error, client *nex.Client, callID uint32, applicationID uint32) uint32 {
 	var isBelowThreshold uint8
 
 	switch applicationID {
@@ -41,4 +41,6 @@ func CheckRateCustomRankingCounter(err error, client *nex.Client, callID uint32,
 	responsePacket.AddFlag(nex.FlagReliable)
 
 	globals.NEXServer.Send(responsePacket)
+
+	return 0
 }

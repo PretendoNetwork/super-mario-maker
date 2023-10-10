@@ -10,7 +10,7 @@ import (
 	"github.com/PretendoNetwork/super-mario-maker-secure/utility"
 )
 
-func FollowingsLatestCourseSearchObject(err error, client *nex.Client, callID uint32, dataStoreSearchParam *datastore_types.DataStoreSearchParam, extraData []string) {
+func FollowingsLatestCourseSearchObject(err error, client *nex.Client, callID uint32, dataStoreSearchParam *datastore_types.DataStoreSearchParam, extraData []string) uint32 {
 	pRankingResults := make([]*datastore_super_mario_maker_types.DataStoreCustomRankingResult, 0)
 
 	for _, pid := range dataStoreSearchParam.OwnerIDs {
@@ -44,4 +44,6 @@ func FollowingsLatestCourseSearchObject(err error, client *nex.Client, callID ui
 	responsePacket.AddFlag(nex.FlagReliable)
 
 	globals.NEXServer.Send(responsePacket)
+
+	return 0
 }

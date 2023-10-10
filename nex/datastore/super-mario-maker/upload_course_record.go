@@ -8,7 +8,7 @@ import (
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func UploadCourseRecord(err error, client *nex.Client, callID uint32, param *datastore_super_mario_maker_types.DataStoreUploadCourseRecordParam) {
+func UploadCourseRecord(err error, client *nex.Client, callID uint32, param *datastore_super_mario_maker_types.DataStoreUploadCourseRecordParam) uint32 {
 	database.UpdateCourseWorldRecord(param.DataID, client.PID(), param.Score)
 
 	rmcResponse := nex.NewRMCResponse(datastore_super_mario_maker.ProtocolID, callID)
@@ -28,4 +28,6 @@ func UploadCourseRecord(err error, client *nex.Client, callID uint32, param *dat
 	responsePacket.AddFlag(nex.FlagReliable)
 
 	globals.NEXServer.Send(responsePacket)
+
+	return 0
 }

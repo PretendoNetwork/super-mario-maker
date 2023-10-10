@@ -6,7 +6,7 @@ import (
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func GetDeletionReason(err error, client *nex.Client, callID uint32, dataIdLst []uint64) {
+func GetDeletionReason(err error, client *nex.Client, callID uint32, dataIdLst []uint64) uint32 {
 	// TODO: Complete this
 
 	pDeletionReasons := make([]uint32, 0)
@@ -40,4 +40,6 @@ func GetDeletionReason(err error, client *nex.Client, callID uint32, dataIdLst [
 	responsePacket.AddFlag(nex.FlagReliable)
 
 	globals.NEXServer.Send(responsePacket)
+
+	return 0
 }

@@ -5,14 +5,14 @@ import (
 	"os"
 
 	nex "github.com/PretendoNetwork/nex-go"
-	"github.com/PretendoNetwork/nex-protocols-go/datastore"
+	datastore "github.com/PretendoNetwork/nex-protocols-go/datastore"
 	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
 	"github.com/PretendoNetwork/super-mario-maker-secure/database"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 	"github.com/PretendoNetwork/super-mario-maker-secure/utility"
 )
 
-func GetMeta(err error, client *nex.Client, callID uint32, param *datastore_types.DataStoreGetMetaParam) {
+func GetMeta(err error, client *nex.Client, callID uint32, param *datastore_types.DataStoreGetMetaParam) uint32 {
 	switch param.DataID {
 	case 0: // Mii Data
 		getMetaMiiData(client, callID, param)
@@ -21,6 +21,8 @@ func GetMeta(err error, client *nex.Client, callID uint32, param *datastore_type
 	default:
 		fmt.Printf("[Warning] DataStoreProtocol::GetMeta Unsupported dataId: %v\n", param.DataID)
 	}
+
+	return 0
 }
 
 func getMetaMiiData(client *nex.Client, callID uint32, param *datastore_types.DataStoreGetMetaParam) {

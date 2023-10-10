@@ -8,7 +8,7 @@ import (
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func AddToBufferQueues(err error, client *nex.Client, callID uint32, params []*datastore_super_mario_maker_types.BufferQueueParam, buffers [][]byte) {
+func AddToBufferQueues(err error, client *nex.Client, callID uint32, params []*datastore_super_mario_maker_types.BufferQueueParam, buffers [][]byte) uint32 {
 	pResults := make([]uint32, 0)
 
 	for i := 0; i < len(params); i++ {
@@ -44,4 +44,6 @@ func AddToBufferQueues(err error, client *nex.Client, callID uint32, params []*d
 	responsePacket.AddFlag(nex.FlagReliable)
 
 	globals.NEXServer.Send(responsePacket)
+
+	return 0
 }

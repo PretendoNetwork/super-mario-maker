@@ -6,7 +6,7 @@ import (
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func DeliverMessage(err error, client *nex.Client, callID uint32, oUserMessage nex.StructureInterface) {
+func DeliverMessage(err error, client *nex.Client, callID uint32, oUserMessage nex.StructureInterface) uint32 {
 	rmcResponse := nex.NewRMCResponse(message_delivery.ProtocolID, callID)
 	rmcResponse.SetSuccess(message_delivery.MethodDeliverMessage, nil)
 
@@ -24,4 +24,6 @@ func DeliverMessage(err error, client *nex.Client, callID uint32, oUserMessage n
 	responsePacket.AddFlag(nex.FlagReliable)
 
 	globals.NEXServer.Send(responsePacket)
+
+	return 0
 }

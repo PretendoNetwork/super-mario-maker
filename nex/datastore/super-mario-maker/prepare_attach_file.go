@@ -16,7 +16,7 @@ import (
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func PrepareAttachFile(err error, client *nex.Client, callID uint32, dataStoreAttachFileParam *datastore_super_mario_maker_types.DataStoreAttachFileParam) {
+func PrepareAttachFile(err error, client *nex.Client, callID uint32, dataStoreAttachFileParam *datastore_super_mario_maker_types.DataStoreAttachFileParam) uint32 {
 	key := fmt.Sprintf("image/%d.jpg", dataStoreAttachFileParam.ReferDataID)
 	bucket := os.Getenv("S3_BUCKET_NAME")
 	date := strconv.Itoa(int(time.Now().Unix()))
@@ -24,7 +24,7 @@ func PrepareAttachFile(err error, client *nex.Client, callID uint32, dataStoreAt
 
 	data := pid + bucket + key + date
 
-	hmac := hmac.New(sha256.New, globals.HMACSecret)
+	hmac := hmac.New(sha256.New, []byte{})
 	hmac.Write([]byte(data))
 
 	signature := hex.EncodeToString(hmac.Sum(nil))
@@ -88,4 +88,6 @@ func PrepareAttachFile(err error, client *nex.Client, callID uint32, dataStoreAt
 	responsePacket.AddFlag(nex.FlagReliable)
 
 	globals.NEXServer.Send(responsePacket)
+
+	return 0
 }

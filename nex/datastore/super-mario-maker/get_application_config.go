@@ -10,7 +10,7 @@ import (
 
 var MAX_COURSE_UPLOADS uint32 = 0x64 // Nintendo has this set to 100, but we can change it if we want
 
-func GetApplicationConfig(err error, client *nex.Client, callID uint32, applicationID uint32) {
+func GetApplicationConfig(err error, client *nex.Client, callID uint32, applicationID uint32) uint32 {
 
 	config := make([]uint32, 0)
 
@@ -50,6 +50,8 @@ func GetApplicationConfig(err error, client *nex.Client, callID uint32, applicat
 	responsePacket.AddFlag(nex.FlagReliable)
 
 	globals.NEXServer.Send(responsePacket)
+
+	return 0
 }
 
 func getApplicationConfig_Unknown0() []uint32 {

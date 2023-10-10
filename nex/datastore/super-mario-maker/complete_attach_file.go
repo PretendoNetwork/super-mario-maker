@@ -10,7 +10,7 @@ import (
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func CompleteAttachFile(err error, client *nex.Client, callID uint32, dataStoreCompletePostParam *datastore_types.DataStoreCompletePostParam) {
+func CompleteAttachFile(err error, client *nex.Client, callID uint32, dataStoreCompletePostParam *datastore_types.DataStoreCompletePostParam) uint32 {
 	rmcResponseStream := nex.NewStreamOut(globals.NEXServer)
 
 	// TODO: complete this
@@ -36,4 +36,6 @@ func CompleteAttachFile(err error, client *nex.Client, callID uint32, dataStoreC
 	responsePacket.AddFlag(nex.FlagReliable)
 
 	globals.NEXServer.Send(responsePacket)
+
+	return 0
 }

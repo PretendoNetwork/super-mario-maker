@@ -8,7 +8,7 @@ import (
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func GetApplicationConfigString(err error, client *nex.Client, callID uint32, applicationID uint32) {
+func GetApplicationConfigString(err error, client *nex.Client, callID uint32, applicationID uint32) uint32 {
 	// Word blacklists?
 	config := make([]string, 0)
 
@@ -46,6 +46,8 @@ func GetApplicationConfigString(err error, client *nex.Client, callID uint32, ap
 	responsePacket.AddFlag(nex.FlagReliable)
 
 	globals.NEXServer.Send(responsePacket)
+
+	return 0
 }
 
 func getApplicationConfigString_WordBlacklist1() []string {

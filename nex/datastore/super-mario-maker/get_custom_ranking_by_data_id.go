@@ -9,7 +9,7 @@ import (
 	"github.com/PretendoNetwork/super-mario-maker-secure/utility"
 )
 
-func GetCustomRankingByDataID(err error, client *nex.Client, callID uint32, param *datastore_super_mario_maker_types.DataStoreGetCustomRankingByDataIDParam) {
+func GetCustomRankingByDataID(err error, client *nex.Client, callID uint32, param *datastore_super_mario_maker_types.DataStoreGetCustomRankingByDataIDParam) uint32 {
 	var pRankingResult []*datastore_super_mario_maker_types.DataStoreCustomRankingResult
 	var pResults []uint32
 
@@ -50,6 +50,8 @@ func GetCustomRankingByDataID(err error, client *nex.Client, callID uint32, para
 	responsePacket.AddFlag(nex.FlagReliable)
 
 	globals.NEXServer.Send(responsePacket)
+
+	return 0
 }
 
 func getCustomRankingByDataIdStarredCourses(pid uint32) ([]*datastore_super_mario_maker_types.DataStoreCustomRankingResult, []uint32) {

@@ -2,12 +2,12 @@ package nex_datastore
 
 import (
 	nex "github.com/PretendoNetwork/nex-go"
-	"github.com/PretendoNetwork/nex-protocols-go/datastore"
+	datastore "github.com/PretendoNetwork/nex-protocols-go/datastore"
 	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func ChangeMeta(err error, client *nex.Client, callID uint32, dataStoreChangeMetaParam *datastore_types.DataStoreChangeMetaParam) {
+func ChangeMeta(err error, client *nex.Client, callID uint32, dataStoreChangeMetaParam *datastore_types.DataStoreChangeMetaParam) uint32 {
 	// STUBBED
 	// TODO: DO SOMETHING WITH THE DATA
 	rmcResponse := nex.NewRMCResponse(datastore.ProtocolID, callID)
@@ -27,4 +27,6 @@ func ChangeMeta(err error, client *nex.Client, callID uint32, dataStoreChangeMet
 	responsePacket.AddFlag(nex.FlagReliable)
 
 	globals.NEXServer.Send(responsePacket)
+
+	return 0
 }

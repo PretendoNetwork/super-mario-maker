@@ -1,12 +1,17 @@
 package main
 
 import (
-	"io/ioutil"
+	"context"
 	"log"
+	"os"
 	"runtime"
 
 	"github.com/PretendoNetwork/super-mario-maker-secure/database"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/joho/godotenv"
 )
 
@@ -18,10 +23,31 @@ func init() {
 		log.Fatal("Error loading .env file")
 	}
 
-	globals.HMACSecret, err = ioutil.ReadFile("secret.key")
+	s3Endpoint := os.Getenv("PN_SMM_CONFIG_S3_ENDPOINT")
+	s3Region := os.Getenv("PN_SMM_CONFIG_S3_REGION")
+	s3AccessKey := os.Getenv("PN_SMM_CONFIG_S3_ACCESS_KEY")
+	s3AccessSecret := os.Getenv("PN_SMM_CONFIG_S3_ACCESS_SECRET")
+
+	staticCredentials := credentials.NewStaticCredentialsProvider(s3AccessKey, s3AccessSecret, "")
+
+	endpointResolver := aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+		return aws.Endpoint{
+			URL: s3Endpoint,
+		}, nil
+	})
+
+	cfg, err := config.LoadDefaultConfig(
+		context.TODO(),
+		config.WithRegion(s3Region),
+		config.WithCredentialsProvider(staticCredentials),
+		config.WithEndpointResolverWithOptions(endpointResolver),
+	)
+
 	if err != nil {
 		panic(err)
 	}
+
+	globals.S3Client = s3.NewFromConfig(cfg)
 
 	// Connect to and setup databases
 	database.ConnectAll()

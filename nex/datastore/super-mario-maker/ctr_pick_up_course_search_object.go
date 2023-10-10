@@ -12,7 +12,7 @@ import (
 
 // This is the same as DataStoreSMM::RecommendedCourseSearchObject
 // Not sure why they used a different method here?
-func CTRPickUpCourseSearchObject(err error, client *nex.Client, callID uint32, dataStoreSearchParam *datastore_types.DataStoreSearchParam, extraData []string) {
+func CTRPickUpCourseSearchObject(err error, client *nex.Client, callID uint32, dataStoreSearchParam *datastore_types.DataStoreSearchParam, extraData []string) uint32 {
 	pRankingResults := make([]*datastore_super_mario_maker_types.DataStoreCustomRankingResult, 0)
 
 	courseMetadatas := database.GetCourseMetadatasByLimit(100) // In PCAPs param.minimalRatingFrequency is 100 but is 0 here?
@@ -44,4 +44,6 @@ func CTRPickUpCourseSearchObject(err error, client *nex.Client, callID uint32, d
 	responsePacket.AddFlag(nex.FlagReliable)
 
 	globals.NEXServer.Send(responsePacket)
+
+	return 0
 }

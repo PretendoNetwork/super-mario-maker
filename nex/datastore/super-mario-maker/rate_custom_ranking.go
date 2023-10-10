@@ -8,7 +8,7 @@ import (
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func RateCustomRanking(err error, client *nex.Client, callID uint32, params []*datastore_super_mario_maker_types.DataStoreRateCustomRankingParam) {
+func RateCustomRanking(err error, client *nex.Client, callID uint32, params []*datastore_super_mario_maker_types.DataStoreRateCustomRankingParam) uint32 {
 
 	/*
 		This has to change. We need to figure out what DataStoreRateCustomRankingParam.applicationId means.
@@ -109,4 +109,6 @@ func RateCustomRanking(err error, client *nex.Client, callID uint32, params []*d
 	responsePacket.AddFlag(nex.FlagReliable)
 
 	globals.NEXServer.Send(responsePacket)
+
+	return 0
 }
