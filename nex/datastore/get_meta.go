@@ -55,7 +55,7 @@ func getMetaMiiData(client *nex.Client, callID uint32, param *datastore_types.Da
 }
 
 func getMetaEventCourseNewsData(client *nex.Client, callID uint32, param *datastore_types.DataStoreGetMetaParam) {
-	objectSize, _ := utility.S3ObjectSize(os.Getenv("S3_BUCKET_NAME"), "special/900000.bin")
+	objectSize, _ := utility.S3ObjectSize(os.Getenv("PN_SMM_CONFIG_S3_BUCKET"), "900000.bin")
 
 	pMetaInfo := datastore_types.NewDataStoreMetaInfo()
 	pMetaInfo.DataID = 900000

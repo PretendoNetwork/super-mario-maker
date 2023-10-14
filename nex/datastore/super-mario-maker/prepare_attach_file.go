@@ -1,12 +1,8 @@
 package nex_datastore_super_mario_maker
 
 import (
-	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/hex"
 	"fmt"
 	"os"
-	"strconv"
 	"time"
 
 	nex "github.com/PretendoNetwork/nex-go"
@@ -17,55 +13,29 @@ import (
 )
 
 func PrepareAttachFile(err error, client *nex.Client, callID uint32, dataStoreAttachFileParam *datastore_super_mario_maker_types.DataStoreAttachFileParam) uint32 {
-	key := fmt.Sprintf("image/%d.jpg", dataStoreAttachFileParam.ReferDataID)
-	bucket := os.Getenv("S3_BUCKET_NAME")
-	date := strconv.Itoa(int(time.Now().Unix()))
-	pid := strconv.Itoa(int(client.PID()))
+	dataID := dataStoreAttachFileParam.ReferDataID
+	bucket := os.Getenv("PN_SMM_CONFIG_S3_BUCKET")
+	key := fmt.Sprintf("%d.jpeg", dataID)
 
-	data := pid + bucket + key + date
-
-	hmac := hmac.New(sha256.New, []byte{})
-	hmac.Write([]byte(data))
-
-	signature := hex.EncodeToString(hmac.Sum(nil))
-
-	fieldBucket := datastore_types.NewDataStoreKeyValue()
-	fieldBucket.Key = "bucket"
-	fieldBucket.Value = bucket
-
-	fieldKey := datastore_types.NewDataStoreKeyValue()
-	fieldKey.Key = "key"
-	fieldKey.Value = key
-
-	fieldACL := datastore_types.NewDataStoreKeyValue()
-	fieldACL.Key = "acl"
-	fieldACL.Value = "public-read"
-
-	fieldContentType := datastore_types.NewDataStoreKeyValue()
-	fieldContentType.Key = "content-type"
-	fieldContentType.Value = "image/jpeg"
-
-	fieldPID := datastore_types.NewDataStoreKeyValue()
-	fieldPID.Key = "pid"
-	fieldPID.Value = pid
-
-	fieldDate := datastore_types.NewDataStoreKeyValue()
-	fieldDate.Key = "date"
-	fieldDate.Value = date
-
-	fieldSignature := datastore_types.NewDataStoreKeyValue()
-	fieldSignature.Key = "signature"
-	fieldSignature.Value = signature
-
-	rmcResponseStream := nex.NewStreamOut(globals.NEXServer)
+	URL, formData, _ := globals.Presigner.PostObject(bucket, key, time.Minute*15)
 
 	pReqPostInfo := datastore_types.NewDataStoreReqPostInfo()
 
-	pReqPostInfo.DataID = dataStoreAttachFileParam.ReferDataID
-	pReqPostInfo.URL = os.Getenv("DATASTORE_UPLOAD_URL")
+	pReqPostInfo.DataID = dataID
+	pReqPostInfo.URL = URL.String()
 	pReqPostInfo.RequestHeaders = []*datastore_types.DataStoreKeyValue{}
-	pReqPostInfo.FormFields = []*datastore_types.DataStoreKeyValue{fieldBucket, fieldKey, fieldACL, fieldContentType, fieldPID, fieldDate, fieldSignature}
+	pReqPostInfo.FormFields = make([]*datastore_types.DataStoreKeyValue, 0, len(formData))
 	pReqPostInfo.RootCACert = []byte{}
+
+	for key, value := range formData {
+		field := datastore_types.NewDataStoreKeyValue()
+		field.Key = key
+		field.Value = value
+
+		pReqPostInfo.FormFields = append(pReqPostInfo.FormFields, field)
+	}
+
+	rmcResponseStream := nex.NewStreamOut(globals.NEXServer)
 
 	rmcResponseStream.WriteStructure(pReqPostInfo)
 

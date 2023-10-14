@@ -15,7 +15,7 @@ func CompleteAttachFile(err error, client *nex.Client, callID uint32, dataStoreC
 
 	// TODO: complete this
 
-	rmcResponseStream.WriteString(fmt.Sprintf("http://%s.b-cdn.net/image/%d.jpg", os.Getenv("S3_BUCKET_NAME"), dataStoreCompletePostParam.DataID))
+	rmcResponseStream.WriteString(fmt.Sprintf("http://%s.b-cdn.net/image/%d.jpg", os.Getenv("PN_SMM_CONFIG_S3_BUCKET"), dataStoreCompletePostParam.DataID))
 
 	rmcResponseBody := rmcResponseStream.Bytes()
 

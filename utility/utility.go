@@ -11,7 +11,7 @@ import (
 	"github.com/PretendoNetwork/super-mario-maker-secure/database"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 	"github.com/PretendoNetwork/super-mario-maker-secure/types"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/minio/minio-go/v7"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -181,27 +181,15 @@ func UserNotOwnCourse(courseID uint64, pid uint32) bool {
 	return courseMetadata.OwnerPID != pid
 }
 
-func S3HeadRequest(bucket, key string) (*s3.HeadObjectOutput, error) {
-	input := &s3.HeadObjectInput{
-		Bucket: &bucket,
-		Key:    &key,
-	}
-
-	res, err := globals.S3Client.HeadObject(context.TODO(), input)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
+func S3StatObject(bucket, key string) (minio.ObjectInfo, error) {
+	return globals.MinIOClient.StatObject(context.TODO(), bucket, key, minio.StatObjectOptions{})
 }
 
 func S3ObjectSize(bucket, key string) (uint64, error) {
-	res, err := S3HeadRequest(bucket, key)
-
+	info, err := S3StatObject(bucket, key)
 	if err != nil {
 		return 0, err
 	}
 
-	return uint64(res.ContentLength), nil
+	return uint64(info.Size), nil
 }

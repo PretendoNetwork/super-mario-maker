@@ -1,18 +1,15 @@
 package main
 
 import (
-	"context"
 	"log"
 	"os"
 	"runtime"
 
 	"github.com/PretendoNetwork/super-mario-maker-secure/database"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/credentials"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/joho/godotenv"
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
 func init() {
@@ -24,30 +21,22 @@ func init() {
 	}
 
 	s3Endpoint := os.Getenv("PN_SMM_CONFIG_S3_ENDPOINT")
-	s3Region := os.Getenv("PN_SMM_CONFIG_S3_REGION")
+	//s3Region := os.Getenv("PN_SMM_CONFIG_S3_REGION")
 	s3AccessKey := os.Getenv("PN_SMM_CONFIG_S3_ACCESS_KEY")
 	s3AccessSecret := os.Getenv("PN_SMM_CONFIG_S3_ACCESS_SECRET")
 
-	staticCredentials := credentials.NewStaticCredentialsProvider(s3AccessKey, s3AccessSecret, "")
+	staticCredentials := credentials.NewStaticV4(s3AccessKey, s3AccessSecret, "")
 
-	endpointResolver := aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
-		return aws.Endpoint{
-			URL: s3Endpoint,
-		}, nil
+	minIOClient, err := minio.New(s3Endpoint, &minio.Options{
+		Creds:  staticCredentials,
+		Secure: true,
 	})
-
-	cfg, err := config.LoadDefaultConfig(
-		context.TODO(),
-		config.WithRegion(s3Region),
-		config.WithCredentialsProvider(staticCredentials),
-		config.WithEndpointResolverWithOptions(endpointResolver),
-	)
-
 	if err != nil {
 		panic(err)
 	}
 
-	globals.S3Client = s3.NewFromConfig(cfg)
+	globals.MinIOClient = minIOClient
+	globals.Presigner = globals.NewS3Presigner(globals.MinIOClient)
 
 	// Connect to and setup databases
 	database.ConnectAll()
