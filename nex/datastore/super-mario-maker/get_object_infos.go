@@ -3,6 +3,7 @@ package nex_datastore_super_mario_maker
 import (
 	"fmt"
 	"os"
+	"time"
 
 	nex "github.com/PretendoNetwork/nex-go"
 	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
@@ -18,10 +19,19 @@ func GetObjectInfos(err error, client *nex.Client, callID uint32, dataIDs []uint
 	courseMetadatas := database.GetCourseMetadataByDataIDs(dataIDs)
 
 	for _, courseMetadata := range courseMetadatas {
+		bucket := os.Getenv("PN_SMM_CONFIG_S3_BUCKET")
+		key := fmt.Sprintf("%d.bin", courseMetadata.DataID)
+
+		URL, err := globals.Presigner.GetObject(bucket, key, time.Minute*15)
+		if err != nil {
+			globals.Logger.Error(err.Error())
+			return nex.Errors.DataStore.OperationNotAllowed
+		}
+
 		info := datastore_super_mario_maker_types.NewDataStoreFileServerObjectInfo()
 		info.DataID = courseMetadata.DataID
 		info.GetInfo = datastore_types.NewDataStoreReqGetInfo()
-		info.GetInfo.URL = fmt.Sprintf("http://%s.b-cdn.net/course/%d.bin", os.Getenv("S3_BUCKET_NAME"), courseMetadata.DataID)
+		info.GetInfo.URL = URL.String()
 		info.GetInfo.RequestHeaders = []*datastore_types.DataStoreKeyValue{}
 		info.GetInfo.Size = courseMetadata.Size
 		info.GetInfo.RootCACert = []byte{}
