@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"time"
 
+	pb "github.com/PretendoNetwork/grpc-go/account"
 	"github.com/PretendoNetwork/nex-go"
 	datastore_super_mario_maker_types "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker/types"
 	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
@@ -12,7 +13,6 @@ import (
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 	"github.com/PretendoNetwork/super-mario-maker-secure/types"
 	"github.com/minio/minio-go/v7"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func CourseMetadataToDataStoreCustomRankingResult(courseMetadata *types.CourseMetadata) *datastore_super_mario_maker_types.DataStoreCustomRankingResult {
@@ -112,7 +112,7 @@ func CourseMetadataToDataStoreMetaInfo(courseMetadata *types.CourseMetadata) *da
 	return metaInfo
 }
 
-func UserMiiDataToDataStoreCustomRankingResult(ownerID uint32, miiInfo primitive.M) *datastore_super_mario_maker_types.DataStoreCustomRankingResult {
+func UserMiiDataToDataStoreCustomRankingResult(ownerID uint32, miiInfo *pb.Mii) *datastore_super_mario_maker_types.DataStoreCustomRankingResult {
 	rankingResult := datastore_super_mario_maker_types.NewDataStoreCustomRankingResult()
 
 	rankingResult.Order = 0
@@ -122,11 +122,11 @@ func UserMiiDataToDataStoreCustomRankingResult(ownerID uint32, miiInfo primitive
 	return rankingResult
 }
 
-func UserMiiDataToDataStoreMetaInfo(ownerID uint32, miiInfo primitive.M) *datastore_types.DataStoreMetaInfo {
-	encodedMiiData := miiInfo["data"].(string)
+func UserMiiDataToDataStoreMetaInfo(ownerID uint32, miiInfo *pb.Mii) *datastore_types.DataStoreMetaInfo {
+	encodedMiiData := miiInfo.Data
 	decodedMiiData, _ := base64.StdEncoding.DecodeString(encodedMiiData)
 
-	metaBinaryStream := nex.NewStreamOut(globals.NEXServer)
+	metaBinaryStream := nex.NewStreamOut(globals.SecureServer)
 	metaBinaryStream.Grow(140)
 	metaBinaryStream.WriteBytesNext([]byte{
 		0x42, 0x50, 0x46, 0x43, // BPFC magic
@@ -151,7 +151,7 @@ func UserMiiDataToDataStoreMetaInfo(ownerID uint32, miiInfo primitive.M) *datast
 	metaInfo.DataID = uint64(ownerID) // This isn;t actually a user PID in Nintendo's servers, but it makes it much easier for us to do it this way
 	metaInfo.OwnerID = ownerID
 	metaInfo.Size = 0
-	metaInfo.Name = miiInfo["name"].(string)
+	metaInfo.Name = miiInfo.Name
 	metaInfo.DataType = 1 // Mii data type?
 	metaInfo.MetaBinary = metaBinaryStream.Bytes()
 	metaInfo.Permission = datastore_types.NewDataStorePermission()
