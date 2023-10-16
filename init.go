@@ -129,7 +129,7 @@ func init() {
 }
 
 func createDataStoreIDGenerators() {
-	globals.DataStoreIDGenerators = make([]*database.DataStoreIDGenerator, 0)
+	globals.DataStoreIDGenerators = make([]*globals.DataStoreIDGenerator, 0)
 	regionID := 0 // USA
 
 	for corenum := 0; corenum < runtime.NumCPU(); corenum++ {
@@ -137,7 +137,7 @@ func createDataStoreIDGenerators() {
 
 		lastID := database.GetDataStoreIDGeneratorLastID(corenum)
 
-		generator := database.NewDataStoreIDGenerator(uint8(regionID), uint8(corenum), lastID)
+		generator := globals.NewDataStoreIDGenerator(uint8(regionID), uint8(corenum), lastID)
 		globals.DataStoreIDGenerators = append(globals.DataStoreIDGenerators, generator)
 	}
 }

@@ -11,4 +11,4 @@ var Logger = plogger.NewLogger()
 var NEXServer *nex.Server
 var MinIOClient *minio.Client
 var Presigner *S3Presigner
-var DataStoreIDGenerators []*database.DataStoreIDGenerator
+var DataStoreIDGenerators []*DataStoreIDGenerator

@@ -1,4 +1,4 @@
-package database
+package globals
 
 import (
 	"encoding/binary"
