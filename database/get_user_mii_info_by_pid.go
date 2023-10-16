@@ -3,23 +3,19 @@ package database
 import (
 	"context"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	pb "github.com/PretendoNetwork/grpc-go/account"
+	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
+	"google.golang.org/grpc/metadata"
 )
 
-func GetUserMiiInfoByPID(pid uint32) bson.M {
-	var result bson.M
+func GetUserMiiInfoByPID(pid uint32) *pb.Mii {
+	ctx := metadata.NewOutgoingContext(context.Background(), globals.GRPCAccountCommonMetadata)
 
-	err := mongoCollection.FindOne(context.TODO(), bson.D{{Key: "pid", Value: pid}}, options.FindOne()).Decode(&result)
-
+	response, err := globals.GRPCAccountClient.GetUserData(ctx, &pb.GetUserDataRequest{Pid: pid})
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return nil
-		}
-
-		panic(err)
+		globals.Logger.Error(err.Error())
+		return nil
 	}
 
-	return result["mii"].(bson.M)
+	return response.Mii
 }
