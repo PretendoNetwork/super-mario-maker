@@ -18,7 +18,7 @@ func CheckRateCustomRankingCounter(err error, client *nex.Client, callID uint32,
 		fmt.Printf("[Warning] DataStoreSMMProtocol::CheckRateCustomRankingCounter Unsupported applicationID: %v\n", applicationID)
 	}
 
-	rmcResponseStream := nex.NewStreamOut(globals.NEXServer)
+	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
 
 	rmcResponseStream.WriteUInt8(isBelowThreshold)
 
@@ -40,7 +40,7 @@ func CheckRateCustomRankingCounter(err error, client *nex.Client, callID uint32,
 	responsePacket.AddFlag(nex.FlagNeedsAck)
 	responsePacket.AddFlag(nex.FlagReliable)
 
-	globals.NEXServer.Send(responsePacket)
+	globals.SecureServer.Send(responsePacket)
 
 	return 0
 }

@@ -26,7 +26,7 @@ func GetCustomRankingByDataID(err error, client *nex.Client, callID uint32, para
 		pRankingResult, pResults = getCustomRankingByDataIdCourseMetadata(param)
 	}
 
-	rmcResponseStream := nex.NewStreamOut(globals.NEXServer)
+	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
 
 	rmcResponseStream.WriteListStructure(pRankingResult)
 	rmcResponseStream.WriteListUInt32LE(pResults)
@@ -49,7 +49,7 @@ func GetCustomRankingByDataID(err error, client *nex.Client, callID uint32, para
 	responsePacket.AddFlag(nex.FlagNeedsAck)
 	responsePacket.AddFlag(nex.FlagReliable)
 
-	globals.NEXServer.Send(responsePacket)
+	globals.SecureServer.Send(responsePacket)
 
 	return 0
 }

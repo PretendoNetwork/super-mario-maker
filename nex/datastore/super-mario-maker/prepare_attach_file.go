@@ -35,7 +35,7 @@ func PrepareAttachFile(err error, client *nex.Client, callID uint32, dataStoreAt
 		pReqPostInfo.FormFields = append(pReqPostInfo.FormFields, field)
 	}
 
-	rmcResponseStream := nex.NewStreamOut(globals.NEXServer)
+	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
 
 	rmcResponseStream.WriteStructure(pReqPostInfo)
 
@@ -57,7 +57,7 @@ func PrepareAttachFile(err error, client *nex.Client, callID uint32, dataStoreAt
 	responsePacket.AddFlag(nex.FlagNeedsAck)
 	responsePacket.AddFlag(nex.FlagReliable)
 
-	globals.NEXServer.Send(responsePacket)
+	globals.SecureServer.Send(responsePacket)
 
 	return 0
 }

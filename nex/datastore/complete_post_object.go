@@ -26,7 +26,7 @@ func CompletePostObject(err error, client *nex.Client, callID uint32, dataStoreC
 	responsePacket.AddFlag(nex.FlagNeedsAck)
 	responsePacket.AddFlag(nex.FlagReliable)
 
-	globals.NEXServer.Send(responsePacket)
+	globals.SecureServer.Send(responsePacket)
 
 	return 0
 }

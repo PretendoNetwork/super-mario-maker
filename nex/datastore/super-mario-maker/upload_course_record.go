@@ -27,7 +27,7 @@ func UploadCourseRecord(err error, client *nex.Client, callID uint32, param *dat
 	responsePacket.AddFlag(nex.FlagNeedsAck)
 	responsePacket.AddFlag(nex.FlagReliable)
 
-	globals.NEXServer.Send(responsePacket)
+	globals.SecureServer.Send(responsePacket)
 
 	return 0
 }

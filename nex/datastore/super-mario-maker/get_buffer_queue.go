@@ -13,7 +13,7 @@ import (
 func GetBufferQueue(err error, client *nex.Client, callID uint32, param *datastore_super_mario_maker_types.BufferQueueParam) uint32 {
 	// TODO: complete this
 
-	rmcResponseStream := nex.NewStreamOut(globals.NEXServer)
+	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
 
 	var pBufferQueue [][]byte
 
@@ -46,7 +46,7 @@ func GetBufferQueue(err error, client *nex.Client, callID uint32, param *datasto
 	responsePacket.AddFlag(nex.FlagNeedsAck)
 	responsePacket.AddFlag(nex.FlagReliable)
 
-	globals.NEXServer.Send(responsePacket)
+	globals.SecureServer.Send(responsePacket)
 
 	return 0
 }

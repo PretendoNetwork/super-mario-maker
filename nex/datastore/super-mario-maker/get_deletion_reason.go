@@ -17,7 +17,7 @@ func GetDeletionReason(err error, client *nex.Client, callID uint32, dataIdLst [
 		pDeletionReasons = append(pDeletionReasons, 0x690007)
 	}
 
-	rmcResponseStream := nex.NewStreamOut(globals.NEXServer)
+	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
 
 	rmcResponseStream.WriteListUInt32LE(pDeletionReasons)
 
@@ -39,7 +39,7 @@ func GetDeletionReason(err error, client *nex.Client, callID uint32, dataIdLst [
 	responsePacket.AddFlag(nex.FlagNeedsAck)
 	responsePacket.AddFlag(nex.FlagReliable)
 
-	globals.NEXServer.Send(responsePacket)
+	globals.SecureServer.Send(responsePacket)
 
 	return 0
 }

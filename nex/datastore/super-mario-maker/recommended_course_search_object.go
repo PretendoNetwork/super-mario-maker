@@ -27,7 +27,7 @@ func RecommendedCourseSearchObject(err error, client *nex.Client, callID uint32,
 		}
 	}
 
-	rmcResponseStream := nex.NewStreamOut(globals.NEXServer)
+	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
 
 	rmcResponseStream.WriteListStructure(pRankingResults)
 
@@ -49,7 +49,7 @@ func RecommendedCourseSearchObject(err error, client *nex.Client, callID uint32,
 	responsePacket.AddFlag(nex.FlagNeedsAck)
 	responsePacket.AddFlag(nex.FlagReliable)
 
-	globals.NEXServer.Send(responsePacket)
+	globals.SecureServer.Send(responsePacket)
 
 	return 0
 }

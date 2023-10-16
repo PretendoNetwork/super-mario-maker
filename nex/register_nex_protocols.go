@@ -8,7 +8,7 @@ import (
 )
 
 func registerNEXProtocols() {
-	datastoreSMMProtocol := datastore_super_mario_maker.NewProtocol(globals.NEXServer)
+	datastoreSMMProtocol := datastore_super_mario_maker.NewProtocol(globals.SecureServer)
 
 	datastoreSMMProtocol.GetMeta(nex_datastore.GetMeta)
 	datastoreSMMProtocol.PreparePostObject(nex_datastore.PreparePostObject)

@@ -3,7 +3,6 @@ package globals
 import (
 	"github.com/PretendoNetwork/nex-go"
 	"github.com/PretendoNetwork/plogger-go"
-	"github.com/PretendoNetwork/super-mario-maker-secure/database"
 	"github.com/minio/minio-go/v7"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -12,7 +11,9 @@ import (
 )
 
 var Logger = plogger.NewLogger()
-var NEXServer *nex.Server
+var KerberosPassword = "password" // * Default password
+var AuthenticationServer *nex.Server
+var SecureServer *nex.Server
 var MinIOClient *minio.Client
 var Presigner *S3Presigner
 var DataStoreIDGenerators []*DataStoreIDGenerator

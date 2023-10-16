@@ -30,7 +30,7 @@ func GetObjectInfos(err error, client *nex.Client, callID uint32, dataIDs []uint
 		pInfos = append(pInfos, info)
 	}
 
-	rmcResponseStream := nex.NewStreamOut(globals.NEXServer)
+	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
 
 	rmcResponseStream.WriteListStructure(pInfos)
 
@@ -52,7 +52,7 @@ func GetObjectInfos(err error, client *nex.Client, callID uint32, dataIDs []uint
 	responsePacket.AddFlag(nex.FlagNeedsAck)
 	responsePacket.AddFlag(nex.FlagReliable)
 
-	globals.NEXServer.Send(responsePacket)
+	globals.SecureServer.Send(responsePacket)
 
 	return 0
 }

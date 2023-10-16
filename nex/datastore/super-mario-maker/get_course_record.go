@@ -25,7 +25,7 @@ func GetCourseRecord(err error, client *nex.Client, callID uint32, param *datast
 		result.CreatedTime = worldRecord.CreatedTime
 		result.UpdatedTime = worldRecord.UpdatedTime
 
-		rmcResponseStream := nex.NewStreamOut(globals.NEXServer)
+		rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
 
 		rmcResponseStream.WriteStructure(result)
 
@@ -46,7 +46,7 @@ func GetCourseRecord(err error, client *nex.Client, callID uint32, param *datast
 	responsePacket.AddFlag(nex.FlagNeedsAck)
 	responsePacket.AddFlag(nex.FlagReliable)
 
-	globals.NEXServer.Send(responsePacket)
+	globals.SecureServer.Send(responsePacket)
 
 	return 0
 }

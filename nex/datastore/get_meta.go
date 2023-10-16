@@ -30,7 +30,7 @@ func getMetaMiiData(client *nex.Client, callID uint32, param *datastore_types.Da
 
 	pMetaInfo := utility.UserMiiDataToDataStoreMetaInfo(param.PersistenceTarget.OwnerID, miiInfo)
 
-	rmcResponseStream := nex.NewStreamOut(globals.NEXServer)
+	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
 	rmcResponseStream.WriteStructure(pMetaInfo)
 
 	rmcResponseBody := rmcResponseStream.Bytes()
@@ -51,7 +51,7 @@ func getMetaMiiData(client *nex.Client, callID uint32, param *datastore_types.Da
 	responsePacket.AddFlag(nex.FlagNeedsAck)
 	responsePacket.AddFlag(nex.FlagReliable)
 
-	globals.NEXServer.Send(responsePacket)
+	globals.SecureServer.Send(responsePacket)
 }
 
 func getMetaEventCourseNewsData(client *nex.Client, callID uint32, param *datastore_types.DataStoreGetMetaParam) {
@@ -82,7 +82,7 @@ func getMetaEventCourseNewsData(client *nex.Client, callID uint32, param *datast
 	pMetaInfo.Tags = []string{}                            // idk?
 	pMetaInfo.Ratings = []*datastore_types.DataStoreRatingInfoWithSlot{}
 
-	rmcResponseStream := nex.NewStreamOut(globals.NEXServer)
+	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
 	rmcResponseStream.WriteStructure(pMetaInfo)
 
 	rmcResponseBody := rmcResponseStream.Bytes()
@@ -103,5 +103,5 @@ func getMetaEventCourseNewsData(client *nex.Client, callID uint32, param *datast
 	responsePacket.AddFlag(nex.FlagNeedsAck)
 	responsePacket.AddFlag(nex.FlagReliable)
 
-	globals.NEXServer.Send(responsePacket)
+	globals.SecureServer.Send(responsePacket)
 }

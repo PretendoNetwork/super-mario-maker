@@ -41,7 +41,7 @@ func PrepareGetObject(err error, client *nex.Client, callID uint32, dataStorePre
 	pReqGetInfo.RootCACert = []byte{}
 	pReqGetInfo.DataID = dataStorePrepareGetParam.DataID
 
-	rmcResponseStream := nex.NewStreamOut(globals.NEXServer)
+	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
 
 	rmcResponseStream.WriteStructure(pReqGetInfo)
 
@@ -63,7 +63,7 @@ func PrepareGetObject(err error, client *nex.Client, callID uint32, dataStorePre
 	responsePacket.AddFlag(nex.FlagNeedsAck)
 	responsePacket.AddFlag(nex.FlagReliable)
 
-	globals.NEXServer.Send(responsePacket)
+	globals.SecureServer.Send(responsePacket)
 
 	return 0
 }

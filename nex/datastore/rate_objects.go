@@ -10,7 +10,7 @@ import (
 func RateObjects(err error, client *nex.Client, callID uint32, targets []*datastore_types.DataStoreRatingTarget, params []*datastore_types.DataStoreRateObjectParam, transactional bool, fetchRatings bool) uint32 {
 	// TODO: complete this
 
-	rmcResponseStream := nex.NewStreamOut(globals.NEXServer)
+	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
 
 	rmcResponseStream.WriteUInt32LE(0x00000000) // pRatings List length 0
 	rmcResponseStream.WriteUInt32LE(0x00000000) // pResults List length 0
@@ -33,7 +33,7 @@ func RateObjects(err error, client *nex.Client, callID uint32, targets []*datast
 	responsePacket.AddFlag(nex.FlagNeedsAck)
 	responsePacket.AddFlag(nex.FlagReliable)
 
-	globals.NEXServer.Send(responsePacket)
+	globals.SecureServer.Send(responsePacket)
 
 	return 0
 }
