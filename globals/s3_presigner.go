@@ -3,7 +3,6 @@ package globals
 import (
 	"context"
 	"net/url"
-	"os"
 	"time"
 
 	"github.com/minio/minio-go/v7"
@@ -25,12 +24,6 @@ func (p *S3Presigner) PostObject(bucket, key string, lifetime time.Duration) (*u
 	policy.SetBucket(bucket)
 	policy.SetKey(key)
 	policy.SetExpires(time.Now().UTC().Add(lifetime).UTC())
-
-	policy.SetCondition("eq", "$bucket", "pn-amaj-d1")
-	policy.SetCondition("eq", "$key", "17179869186.bin")
-	policy.SetCondition("eq", "$x-amz-algorithm", "AWS4-HMAC-SHA256")
-	policy.SetCondition("starts-with", "$x-amz-credential", os.Getenv("PN_SMM_CONFIG_S3_ACCESS_KEY"))
-	policy.SetCondition("starts-with", "$x-amz-date", time.Now().Format("2006-01-02"))
 
 	return p.minio.PresignedPostPolicy(context.Background(), policy)
 }
