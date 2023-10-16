@@ -6,7 +6,7 @@ require (
 	github.com/PretendoNetwork/aws-sdk-presigned-post-go v1.0.0
 	github.com/PretendoNetwork/nex-go v1.0.41
 	github.com/PretendoNetwork/nex-protocols-common-go v1.0.28
-	github.com/PretendoNetwork/nex-protocols-go v1.0.54
+	github.com/PretendoNetwork/nex-protocols-go v1.0.55
 	github.com/PretendoNetwork/plogger-go v1.0.4
 	github.com/aws/aws-sdk-go-v2 v1.21.1
 	github.com/aws/aws-sdk-go-v2/config v1.18.44
