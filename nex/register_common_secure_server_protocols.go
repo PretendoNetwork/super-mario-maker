@@ -5,6 +5,6 @@ import (
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func registerCommonProtocols() {
-	secureconnection.NewCommonSecureConnectionProtocol(globals.NEXServer)
+func registerCommonSecureProtocols() {
+	secureconnection.NewCommonSecureConnectionProtocol(globals.SecureServer)
 }
