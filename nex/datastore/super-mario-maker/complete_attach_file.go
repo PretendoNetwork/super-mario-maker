@@ -3,6 +3,7 @@ package nex_datastore_super_mario_maker
 import (
 	"fmt"
 	"os"
+	"time"
 
 	nex "github.com/PretendoNetwork/nex-go"
 	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
@@ -11,11 +12,19 @@ import (
 )
 
 func CompleteAttachFile(err error, client *nex.Client, callID uint32, dataStoreCompletePostParam *datastore_types.DataStoreCompletePostParam) uint32 {
-	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
-
 	// TODO: complete this
 
-	rmcResponseStream.WriteString(fmt.Sprintf("http://%s.b-cdn.net/image/%d.jpg", os.Getenv("PN_SMM_CONFIG_S3_BUCKET"), dataStoreCompletePostParam.DataID))
+	bucket := os.Getenv("PN_SMM_CONFIG_S3_BUCKET")
+	key := fmt.Sprintf("%d.bin", dataStoreCompletePostParam.DataID)
+	URL, err := globals.Presigner.GetObject(bucket, key, time.Minute*15)
+	if err != nil {
+		globals.Logger.Error(err.Error())
+		return nex.Errors.DataStore.OperationNotAllowed
+	}
+
+	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
+
+	rmcResponseStream.WriteString(URL.String())
 
 	rmcResponseBody := rmcResponseStream.Bytes()
 
