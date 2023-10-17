@@ -21,9 +21,20 @@ func (p *S3Presigner) GetObject(bucket, key string, lifetime time.Duration) (*ur
 func (p *S3Presigner) PostObject(bucket, key string, lifetime time.Duration) (*url.URL, map[string]string, error) {
 	policy := minio.NewPostPolicy()
 
-	policy.SetBucket(bucket)
-	policy.SetKey(key)
-	policy.SetExpires(time.Now().UTC().Add(lifetime).UTC())
+	err := policy.SetBucket(bucket)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	err = policy.SetKey(key)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	err = policy.SetExpires(time.Now().UTC().Add(lifetime).UTC())
+	if err != nil {
+		return nil, nil, err
+	}
 
 	return p.minio.PresignedPostPolicy(context.Background(), policy)
 }
