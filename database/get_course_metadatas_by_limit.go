@@ -1,47 +1,72 @@
 package database
 
 import (
+	"database/sql"
 	"log"
 
 	"github.com/PretendoNetwork/nex-go"
+	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 	"github.com/PretendoNetwork/super-mario-maker-secure/types"
 )
 
 func GetCourseMetadatasByLimit(limit uint32) []*types.CourseMetadata {
-	var sliceMap []map[string]interface{}
-	var err error
-
-	if sliceMap, err = cassandraClusterSession.Query(`SELECT data_id, owner_pid, size, name, meta_binary, flag, creation_date, update_date, data_type, period FROM pretendo_smm.courses LIMIT ?`, limit).Iter().SliceMap(); err != nil {
+	rows, err := Postgres.Query(`SELECT data_id, owner_pid, size, name, meta_binary, flag, creation_date, update_date, data_type, period FROM pretendo_smm.courses LIMIT $1`, limit)
+	if err != nil {
 		log.Fatal(err)
 	}
 
 	courseMetadatas := make([]*types.CourseMetadata, 0)
 
-	for _, course := range sliceMap {
-		dataID := uint64(course["data_id"].(int64))
+	for rows.Next() {
+		var dataID uint64
+		var ownerPID uint32
+		var size uint32
+		var name string
+		var metaBinary []byte
+		var flag uint32
+		var creationDate uint64
+		var updateDate uint64
+		var dataType uint16
+		var period uint16
+
+		err := rows.Scan(
+			&dataID,
+			&ownerPID,
+			&size,
+			&name,
+			&metaBinary,
+			&flag,
+			&creationDate,
+			&updateDate,
+			&dataType,
+			&period,
+		)
+		if err != nil && err != sql.ErrNoRows {
+			globals.Logger.Critical(err.Error())
+		}
 
 		var stars uint32
 		var attempts uint32
 		var failures uint32
 		var completions uint32
 
-		_ = cassandraClusterSession.Query(`SELECT stars, attempts, failures, completions FROM pretendo_smm.ratings WHERE data_id=?`, dataID).Scan(&stars, &attempts, &failures, &completions)
+		_ = Postgres.QueryRow(`SELECT stars, attempts, failures, completions FROM pretendo_smm.ratings WHERE data_id=$1`, dataID).Scan(&stars, &attempts, &failures, &completions)
 
 		courseMetadata := &types.CourseMetadata{
 			DataID:      dataID,
-			OwnerPID:    uint32(course["owner_pid"].(int)),
-			Size:        uint32(course["size"].(int)),
-			CreatedTime: nex.NewDateTime(uint64(course["creation_date"].(int64))),
-			UpdatedTime: nex.NewDateTime(uint64(course["update_date"].(int64))),
-			Name:        course["name"].(string),
-			MetaBinary:  course["meta_binary"].([]byte),
+			OwnerPID:    ownerPID,
+			Size:        size,
+			CreatedTime: nex.NewDateTime(creationDate),
+			UpdatedTime: nex.NewDateTime(updateDate),
+			Name:        name,
+			MetaBinary:  metaBinary,
 			Stars:       stars,
 			Attempts:    attempts,
 			Failures:    failures,
 			Completions: completions,
-			Flag:        uint32(course["flag"].(int)),
-			DataType:    uint16(course["data_type"].(int16)),
-			Period:      uint16(course["period"].(int16)),
+			Flag:        flag,
+			DataType:    dataType,
+			Period:      period,
 		}
 
 		courseMetadatas = append(courseMetadatas, courseMetadata)

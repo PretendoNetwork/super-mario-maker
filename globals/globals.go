@@ -16,7 +16,6 @@ var AuthenticationServer *nex.Server
 var SecureServer *nex.Server
 var MinIOClient *minio.Client
 var Presigner *S3Presigner
-var DataStoreIDGenerators []*DataStoreIDGenerator
 var GRPCAccountClientConnection *grpc.ClientConn
 var GRPCAccountClient pb.AccountClient
 var GRPCAccountCommonMetadata metadata.MD

@@ -1,11 +1,11 @@
 package database
 
 import (
+	"database/sql"
 	"log"
 
 	"github.com/PretendoNetwork/nex-go"
 	"github.com/PretendoNetwork/super-mario-maker-secure/types"
-	"github.com/gocql/gocql"
 )
 
 func GetCourseMetadataByDataID(dataID uint64) *types.CourseMetadata {
@@ -19,10 +19,9 @@ func GetCourseMetadataByDataID(dataID uint64) *types.CourseMetadata {
 	var dataType uint16
 	var period uint16
 
-	err := cassandraClusterSession.Query(`SELECT owner_pid, size, name, meta_binary, flag, creation_date, update_date, data_type, period FROM pretendo_smm.courses WHERE data_id=?`, dataID).Scan(&ownerPID, &size, &name, &metaBinary, &flag, &createdTime, &updatedTime, &dataType, &period)
-
+	err := Postgres.QueryRow(`SELECT owner_pid, size, name, meta_binary, flag, creation_date, update_date, data_type, period FROM pretendo_smm.courses WHERE data_id=$1`, dataID).Scan(&ownerPID, &size, &name, &metaBinary, &flag, &createdTime, &updatedTime, &dataType, &period)
 	if err != nil {
-		if err == gocql.ErrNotFound {
+		if err == sql.ErrNoRows {
 			return nil
 		} else {
 			log.Fatal(err)
@@ -34,7 +33,7 @@ func GetCourseMetadataByDataID(dataID uint64) *types.CourseMetadata {
 	var failures uint32
 	var completions uint32
 
-	_ = cassandraClusterSession.Query(`SELECT stars, attempts, failures, completions FROM pretendo_smm.ratings WHERE data_id=?`, dataID).Scan(&stars, &attempts, &failures, &completions)
+	_ = Postgres.QueryRow(`SELECT stars, attempts, failures, completions FROM pretendo_smm.ratings WHERE data_id=$1`, dataID).Scan(&stars, &attempts, &failures, &completions)
 
 	courseMetadata := &types.CourseMetadata{
 		DataID:      dataID,

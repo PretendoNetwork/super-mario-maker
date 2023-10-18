@@ -2,7 +2,6 @@ package nex_datastore
 
 import (
 	"fmt"
-	"math/rand"
 	"os"
 	"time"
 
@@ -14,14 +13,7 @@ import (
 )
 
 func PreparePostObject(err error, client *nex.Client, callID uint32, param *datastore_types.DataStorePreparePostParam) uint32 {
-	rand.Seed(time.Now().UnixNano())
-	nodeID := rand.Intn(len(globals.DataStoreIDGenerators))
-
-	dataStoreIDGenerator := globals.DataStoreIDGenerators[nodeID]
-
-	dataID := dataStoreIDGenerator.Next()
-	database.SetDataStoreIDGeneratorLastID(nodeID, dataStoreIDGenerator.Value)
-	database.InitializeCourseData(dataID, client.PID(), param.Size, param.Name, param.Flag, param.ExtraData, param.DataType, param.Period)
+	dataID := database.InitializeCourseData(client.PID(), param.Size, param.Name, param.Flag, param.ExtraData, param.DataType, param.Period)
 
 	if param.DataType != 1 { // 1 is Mii data, assume other values are course meta data
 		database.UpdateCourseMetaBinary(dataID, param.MetaBinary)

@@ -11,12 +11,14 @@ func UpdateCourseWorldRecord(courseID uint64, ownerPID uint32, score int32) {
 	now := datetime.Now()
 
 	if GetCourseWorldRecord(courseID) == nil {
-		if err := cassandraClusterSession.Query(`UPDATE pretendo_smm.courses SET world_record_first_pid=?, world_record_creation_date=? WHERE data_id=?`, ownerPID, now, courseID).Exec(); err != nil {
+		_, err := Postgres.Exec(`UPDATE pretendo_smm.courses SET world_record_first_pid=$1, world_record_creation_date=$2 WHERE data_id=$3`, ownerPID, now, courseID)
+		if err != nil {
 			log.Fatal(err)
 		}
 	}
 
-	if err := cassandraClusterSession.Query(`UPDATE pretendo_smm.courses SET world_record_pid=?, world_record_update_date=?, world_record=? WHERE data_id=?`, ownerPID, now, score, courseID).Exec(); err != nil {
+	_, err := Postgres.Exec(`UPDATE pretendo_smm.courses SET world_record_pid=$1, world_record_update_date=$2, world_record=$3 WHERE data_id=$4`, ownerPID, now, score, courseID)
+	if err != nil {
 		log.Fatal(err)
 	}
 }

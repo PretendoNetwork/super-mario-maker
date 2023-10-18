@@ -4,14 +4,15 @@ import (
 	"log"
 
 	"github.com/PretendoNetwork/nex-go"
+	"github.com/lib/pq"
 )
 
-func InitializeCourseData(courseID uint64, ownerPID uint32, size uint32, name string, flag uint32, extraData []string, dataType uint16, period uint16) {
+func InitializeCourseData(ownerPID uint32, size uint32, name string, flag uint32, extraData []string, dataType uint16, period uint16) uint64 {
 	datetime := nex.NewDateTime(0)
 	now := datetime.Now()
+	var dataID uint64
 
-	if err := cassandraClusterSession.Query(`INSERT INTO pretendo_smm.courses(
-		data_id,
+	err := Postgres.QueryRow(`INSERT INTO pretendo_smm.courses(
 		owner_pid,
 		size,
 		name,
@@ -29,28 +30,44 @@ func InitializeCourseData(courseID uint64, ownerPID uint32, size uint32, name st
 		period
 	)
 	VALUES (
-		?,
-		?,
-		?,
-		?,
-		?,
-		?,
+		$1,
+		$2,
+		$3,
+		$4,
+		$5,
 		false,
-		?,
-		?,
+		$6,
+		$7,
 		0,
 		0,
 		0,
 		0,
 		0,
-		?,
-		?
-	) IF NOT EXISTS`,
-		courseID, ownerPID, size, name, flag, extraData, now, now, dataType, period).Exec(); err != nil {
+		$8,
+		$9
+	) RETURNING data_id`, ownerPID, size, name, flag, pq.Array(extraData), now, now, dataType, period).Scan(&dataID)
+
+	if err != nil {
 		log.Fatal(err)
 	}
 
-	if err := cassandraClusterSession.Query(`UPDATE pretendo_smm.ratings SET stars=stars+0, attempts=attempts+0, failures=failures+0, completions=completions+0 WHERE data_id=?`, courseID).Exec(); err != nil {
+	_, err = Postgres.Exec(`INSERT INTO pretendo_smm.ratings (
+		data_id,
+		stars,
+		attempts,
+		failures,
+		completions
+	)
+	VALUES (
+		$1,
+		0,
+		0,
+		0,
+		0
+	)`, dataID)
+	if err != nil {
 		log.Fatal(err)
 	}
+
+	return dataID
 }

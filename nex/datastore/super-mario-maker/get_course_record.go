@@ -14,7 +14,7 @@ func GetCourseRecord(err error, client *nex.Client, callID uint32, param *datast
 	rmcResponse := nex.NewRMCResponse(datastore_super_mario_maker.ProtocolID, callID)
 
 	if worldRecord == nil {
-		rmcResponse.SetError(0x690004)
+		rmcResponse.SetError(nex.Errors.DataStore.NotFound)
 	} else {
 		result := datastore_super_mario_maker_types.NewDataStoreGetCourseRecordResult()
 		result.DataID = param.DataID

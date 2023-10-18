@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"runtime"
 	"strconv"
 	"strings"
 
@@ -28,10 +27,10 @@ func init() {
 	}
 
 	s3Endpoint := os.Getenv("PN_SMM_CONFIG_S3_ENDPOINT")
-	//s3Region := os.Getenv("PN_SMM_CONFIG_S3_REGION")
 	s3AccessKey := os.Getenv("PN_SMM_CONFIG_S3_ACCESS_KEY")
 	s3AccessSecret := os.Getenv("PN_SMM_CONFIG_S3_ACCESS_SECRET")
 
+	postgresURI := os.Getenv("PN_SMM_POSTGRES_URI")
 	kerberosPassword := os.Getenv("PN_SMM_KERBEROS_PASSWORD")
 	authenticationServerPort := os.Getenv("PN_SMM_AUTHENTICATION_SERVER_PORT")
 	secureServerHost := os.Getenv("PN_SMM_SECURE_SERVER_HOST")
@@ -39,6 +38,11 @@ func init() {
 	accountGRPCHost := os.Getenv("PN_SMM_ACCOUNT_GRPC_HOST")
 	accountGRPCPort := os.Getenv("PN_SMM_ACCOUNT_GRPC_PORT")
 	accountGRPCAPIKey := os.Getenv("PN_SMM_ACCOUNT_GRPC_API_KEY")
+
+	if strings.TrimSpace(postgresURI) == "" {
+		globals.Logger.Error("PN_SMM_POSTGRES_URI environment variable not set")
+		os.Exit(0)
+	}
 
 	if strings.TrimSpace(kerberosPassword) == "" {
 		globals.Logger.Warningf("PN_SMM_KERBEROS_PASSWORD environment variable not set. Using default password: %q", globals.KerberosPassword)
@@ -123,21 +127,6 @@ func init() {
 	globals.MinIOClient = minIOClient
 	globals.Presigner = globals.NewS3Presigner(globals.MinIOClient)
 
-	// Connect to and setup databases
-	database.ConnectAll()
-	createDataStoreIDGenerators()
-}
-
-func createDataStoreIDGenerators() {
-	globals.DataStoreIDGenerators = make([]*globals.DataStoreIDGenerator, 0)
-	regionID := 0 // USA
-
-	for corenum := 0; corenum < runtime.NumCPU(); corenum++ {
-		database.CreateDataStoreIDGeneratorRow(corenum)
-
-		lastID := database.GetDataStoreIDGeneratorLastID(corenum)
-
-		generator := globals.NewDataStoreIDGenerator(uint8(regionID), uint8(corenum), lastID)
-		globals.DataStoreIDGenerators = append(globals.DataStoreIDGenerators, generator)
-	}
+	// * Connect to and setup databases
+	database.ConnectPostgres()
 }

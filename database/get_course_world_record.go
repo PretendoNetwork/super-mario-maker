@@ -12,7 +12,7 @@ func GetCourseWorldRecord(dataID uint64) *types.CourseWorldRecord {
 	var worldRecordUpdatedTime uint64
 	var worldRecord int32
 
-	_ = cassandraClusterSession.Query(`SELECT world_record_first_pid, world_record_pid, world_record_creation_date, world_record_update_date, world_record FROM pretendo_smm.courses WHERE data_id=?`, dataID).Scan(&worldRecordFirstPID, &worldRecordPID, &worldRecordCreatedTime, &worldRecordUpdatedTime, &worldRecord)
+	_ = Postgres.QueryRow(`SELECT world_record_first_pid, world_record_pid, world_record_creation_date, world_record_update_date, world_record FROM pretendo_smm.courses WHERE data_id=$1`, dataID).Scan(&worldRecordFirstPID, &worldRecordPID, &worldRecordCreatedTime, &worldRecordUpdatedTime, &worldRecord)
 
 	if worldRecordFirstPID == 0 {
 		return nil
