@@ -2,9 +2,11 @@ package nex
 
 import (
 	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
+	message_delivery "github.com/PretendoNetwork/nex-protocols-go/message-delivery"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 	nex_datastore "github.com/PretendoNetwork/super-mario-maker-secure/nex/datastore"
 	nex_datastore_super_mario_maker "github.com/PretendoNetwork/super-mario-maker-secure/nex/datastore/super-mario-maker"
+	nex_message_delivery "github.com/PretendoNetwork/super-mario-maker-secure/nex/message-delivery"
 )
 
 func registerNEXProtocols() {
@@ -35,4 +37,8 @@ func registerNEXProtocols() {
 	datastoreSMMProtocol.GetMetasWithCourseRecord(nex_datastore_super_mario_maker.GetMetasWithCourseRecord)
 	datastoreSMMProtocol.CheckRateCustomRankingCounter(nex_datastore_super_mario_maker.CheckRateCustomRankingCounter)
 	datastoreSMMProtocol.CTRPickUpCourseSearchObject(nex_datastore_super_mario_maker.CTRPickUpCourseSearchObject)
+
+	messageDeliveryProtocol := message_delivery.NewProtocol(globals.SecureServer)
+
+	messageDeliveryProtocol.DeliverMessage(nex_message_delivery.DeliverMessage)
 }
