@@ -26,5 +26,3 @@ go.work.sum
 .env
 build
 log
-*.pem
-*.key

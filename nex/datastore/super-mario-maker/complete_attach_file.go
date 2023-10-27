@@ -8,15 +8,46 @@ import (
 	nex "github.com/PretendoNetwork/nex-go"
 	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
 	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
+	datastore_db "github.com/PretendoNetwork/super-mario-maker-secure/database/datastore"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func CompleteAttachFile(err error, client *nex.Client, callID uint32, dataStoreCompletePostParam *datastore_types.DataStoreCompletePostParam) uint32 {
-	// TODO: complete this
+func CompleteAttachFile(err error, client *nex.Client, callID uint32, param *datastore_types.DataStoreCompletePostParam) uint32 {
+	if err != nil {
+		globals.Logger.Error(err.Error())
+		return nex.Errors.DataStore.Unknown
+	}
+
+	// TODO - What is param.IsSuccess? Is this correct?
+	if !param.IsSuccess {
+		return nex.Errors.DataStore.InvalidArgument
+	}
 
 	bucket := os.Getenv("PN_SMM_CONFIG_S3_BUCKET")
-	key := fmt.Sprintf("%d.bin", dataStoreCompletePostParam.DataID)
-	URL, err := globals.Presigner.GetObject(bucket, key, time.Minute*15)
+	key := fmt.Sprintf("%d.jpg", param.DataID)
+
+	objectSizeS3, err := globals.S3ObjectSize(bucket, key)
+	if err != nil {
+		globals.Logger.Error(err.Error())
+		return nex.Errors.DataStore.NotFound
+	}
+
+	objectSizeDB, errCode := datastore_db.GetObjectSizeDataID(param.DataID)
+	if errCode != 0 {
+		return errCode
+	}
+
+	if objectSizeS3 != uint64(objectSizeDB) {
+		// TODO - Is this a good error?
+		return nex.Errors.DataStore.Unknown
+	}
+
+	errCode = datastore_db.UpdateObjectUploadCompletedByDataID(param.DataID, true)
+	if errCode != 0 {
+		return errCode
+	}
+
+	pURL, err := globals.Presigner.GetObject(bucket, key, time.Minute*15)
 	if err != nil {
 		globals.Logger.Error(err.Error())
 		return nex.Errors.DataStore.OperationNotAllowed
@@ -24,7 +55,7 @@ func CompleteAttachFile(err error, client *nex.Client, callID uint32, dataStoreC
 
 	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
 
-	rmcResponseStream.WriteString(URL.String())
+	rmcResponseStream.WriteString(pURL.String())
 
 	rmcResponseBody := rmcResponseStream.Bytes()
 

@@ -4,34 +4,29 @@ import (
 	nex "github.com/PretendoNetwork/nex-go"
 	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
 	datastore_super_mario_maker_types "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker/types"
-	"github.com/PretendoNetwork/super-mario-maker-secure/database"
+	datastore_smm_db "github.com/PretendoNetwork/super-mario-maker-secure/database/datastore/super-mario-maker"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
 func GetCourseRecord(err error, client *nex.Client, callID uint32, param *datastore_super_mario_maker_types.DataStoreGetCourseRecordParam) uint32 {
-	worldRecord := database.GetCourseWorldRecord(param.DataID)
+	if err != nil {
+		globals.Logger.Error(err.Error())
+		return nex.Errors.DataStore.Unknown
+	}
+
+	result, errCode := datastore_smm_db.GetCourseRecordByDataIDAndSlot(param.DataID, param.Slot)
+	if errCode != 0 {
+		return errCode
+	}
+
+	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
+
+	rmcResponseStream.WriteStructure(result)
+
+	rmcResponseBody := rmcResponseStream.Bytes()
 
 	rmcResponse := nex.NewRMCResponse(datastore_super_mario_maker.ProtocolID, callID)
-
-	if worldRecord == nil {
-		rmcResponse.SetError(nex.Errors.DataStore.NotFound)
-	} else {
-		result := datastore_super_mario_maker_types.NewDataStoreGetCourseRecordResult()
-		result.DataID = param.DataID
-		result.Slot = param.Slot
-		result.FirstPID = worldRecord.FirstPID
-		result.BestPID = worldRecord.BestPID
-		result.BestScore = worldRecord.Score
-		result.CreatedTime = worldRecord.CreatedTime
-		result.UpdatedTime = worldRecord.UpdatedTime
-
-		rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
-
-		rmcResponseStream.WriteStructure(result)
-
-		rmcResponseBody := rmcResponseStream.Bytes()
-		rmcResponse.SetSuccess(datastore_super_mario_maker.MethodGetCourseRecord, rmcResponseBody)
-	}
+	rmcResponse.SetSuccess(datastore_super_mario_maker.MethodGetCourseRecord, rmcResponseBody)
 
 	rmcResponseBytes := rmcResponse.Bytes()
 

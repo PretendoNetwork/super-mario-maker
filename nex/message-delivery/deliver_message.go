@@ -7,6 +7,13 @@ import (
 )
 
 func DeliverMessage(err error, client *nex.Client, callID uint32, oUserMessage *nex.DataHolder) uint32 {
+	if err != nil {
+		globals.Logger.Error(err.Error())
+		return nex.Errors.DataStore.Unknown
+	}
+
+	// TODO - See what this does
+
 	rmcResponse := nex.NewRMCResponse(message_delivery.ProtocolID, callID)
 	rmcResponse.SetSuccess(message_delivery.MethodDeliverMessage, nil)
 

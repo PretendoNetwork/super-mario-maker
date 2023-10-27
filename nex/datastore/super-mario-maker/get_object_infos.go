@@ -9,18 +9,26 @@ import (
 	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
 	datastore_super_mario_maker_types "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker/types"
 	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
-	"github.com/PretendoNetwork/super-mario-maker-secure/database"
+	datastore_db "github.com/PretendoNetwork/super-mario-maker-secure/database/datastore"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
 func GetObjectInfos(err error, client *nex.Client, callID uint32, dataIDs []uint64) uint32 {
+	if err != nil {
+		globals.Logger.Error(err.Error())
+		return nex.Errors.DataStore.Unknown
+	}
+
 	pInfos := make([]*datastore_super_mario_maker_types.DataStoreFileServerObjectInfo, 0)
 
-	courseMetadatas := database.GetCourseMetadataByDataIDs(dataIDs)
+	for _, dataID := range dataIDs {
+		objectInfo, errCode := datastore_db.GetObjectInfoByDataID(dataID)
+		if errCode != 0 {
+			return errCode
+		}
 
-	for _, courseMetadata := range courseMetadatas {
 		bucket := os.Getenv("PN_SMM_CONFIG_S3_BUCKET")
-		key := fmt.Sprintf("%d.bin", courseMetadata.DataID)
+		key := fmt.Sprintf("%d.bin", objectInfo.DataID)
 
 		URL, err := globals.Presigner.GetObject(bucket, key, time.Minute*15)
 		if err != nil {
@@ -29,13 +37,13 @@ func GetObjectInfos(err error, client *nex.Client, callID uint32, dataIDs []uint
 		}
 
 		info := datastore_super_mario_maker_types.NewDataStoreFileServerObjectInfo()
-		info.DataID = courseMetadata.DataID
+		info.DataID = objectInfo.DataID
 		info.GetInfo = datastore_types.NewDataStoreReqGetInfo()
 		info.GetInfo.URL = URL.String()
 		info.GetInfo.RequestHeaders = []*datastore_types.DataStoreKeyValue{}
-		info.GetInfo.Size = courseMetadata.Size
+		info.GetInfo.Size = objectInfo.Size
 		info.GetInfo.RootCACert = []byte{}
-		info.GetInfo.DataID = courseMetadata.DataID
+		info.GetInfo.DataID = objectInfo.DataID
 
 		pInfos = append(pInfos, info)
 	}

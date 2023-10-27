@@ -8,25 +8,27 @@ import (
 	nex "github.com/PretendoNetwork/nex-go"
 	datastore "github.com/PretendoNetwork/nex-protocols-go/datastore"
 	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
+	datastore_db "github.com/PretendoNetwork/super-mario-maker-secure/database/datastore"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
-	"github.com/PretendoNetwork/super-mario-maker-secure/utility"
 )
 
-func PrepareGetObject(err error, client *nex.Client, callID uint32, dataStorePrepareGetParam *datastore_types.DataStorePrepareGetParam) uint32 {
+func PrepareGetObject(err error, client *nex.Client, callID uint32, param *datastore_types.DataStorePrepareGetParam) uint32 {
 	if err != nil {
 		globals.Logger.Error(err.Error())
 		return nex.Errors.Core.Unknown
 	}
 
-	pReqGetInfo := datastore_types.NewDataStoreReqGetInfo()
-
 	bucket := os.Getenv("PN_SMM_CONFIG_S3_BUCKET")
-	key := fmt.Sprintf("%d.bin", dataStorePrepareGetParam.DataID)
+	key := fmt.Sprintf("%d.bin", param.DataID)
 
-	objectSize, err := utility.S3ObjectSize(bucket, key)
-	if err != nil {
-		globals.Logger.Error(err.Error())
-		return nex.Errors.DataStore.NotFound
+	objectInfo, errCode := datastore_db.GetObjectInfoByDataID(param.DataID)
+	if errCode != 0 {
+		return errCode
+	}
+
+	errCode = globals.VerifyObjectPermission(objectInfo.OwnerID, client.PID(), objectInfo.Permission)
+	if errCode != 0 {
+		return errCode
 	}
 
 	URL, err := globals.Presigner.GetObject(bucket, key, time.Minute*15)
@@ -35,11 +37,13 @@ func PrepareGetObject(err error, client *nex.Client, callID uint32, dataStorePre
 		return nex.Errors.DataStore.OperationNotAllowed
 	}
 
+	pReqGetInfo := datastore_types.NewDataStoreReqGetInfo()
+
 	pReqGetInfo.URL = URL.String()
 	pReqGetInfo.RequestHeaders = []*datastore_types.DataStoreKeyValue{}
-	pReqGetInfo.Size = uint32(objectSize)
+	pReqGetInfo.Size = objectInfo.Size
 	pReqGetInfo.RootCACert = []byte{}
-	pReqGetInfo.DataID = dataStorePrepareGetParam.DataID
+	pReqGetInfo.DataID = param.DataID
 
 	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
 

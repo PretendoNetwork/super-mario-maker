@@ -4,12 +4,20 @@ import (
 	nex "github.com/PretendoNetwork/nex-go"
 	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
 	datastore_super_mario_maker_types "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker/types"
-	"github.com/PretendoNetwork/super-mario-maker-secure/database"
+	datastore_smm_db "github.com/PretendoNetwork/super-mario-maker-secure/database/datastore/super-mario-maker"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
 func UploadCourseRecord(err error, client *nex.Client, callID uint32, param *datastore_super_mario_maker_types.DataStoreUploadCourseRecordParam) uint32 {
-	database.UpdateCourseWorldRecord(param.DataID, client.PID(), param.Score)
+	if err != nil {
+		globals.Logger.Error(err.Error())
+		return nex.Errors.DataStore.Unknown
+	}
+
+	errCode := datastore_smm_db.InsertOrUpdateCourseRecord(param.DataID, param.Slot, client.PID(), param.Score)
+	if errCode != 0 {
+		return errCode
+	}
 
 	rmcResponse := nex.NewRMCResponse(datastore_super_mario_maker.ProtocolID, callID)
 	rmcResponse.SetSuccess(datastore_super_mario_maker.MethodUploadCourseRecord, nil)

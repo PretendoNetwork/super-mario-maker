@@ -5,28 +5,37 @@ import (
 
 	nex "github.com/PretendoNetwork/nex-go"
 	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
-	datastore_super_mario_maker_types "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker/types"
 	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
-	"github.com/PretendoNetwork/super-mario-maker-secure/database"
+	datastore_smm_db "github.com/PretendoNetwork/super-mario-maker-secure/database/datastore/super-mario-maker"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
-	"github.com/PretendoNetwork/super-mario-maker-secure/utility"
 )
 
 func SuggestedCourseSearchObject(err error, client *nex.Client, callID uint32, param *datastore_types.DataStoreSearchParam, extraData []string) uint32 {
-	// TODO: complete this
-
-	courseID, _ := strconv.ParseUint(extraData[0], 0, 64)
-
-	if utility.UserNotOwnCourse(courseID, client.PID()) {
-		database.IncrementCourseAttemptCount(courseID) // We also know this is when a user attempts a course
+	if err != nil {
+		globals.Logger.Error(err.Error())
+		return nex.Errors.DataStore.Unknown
 	}
 
-	pRankingResults := make([]*datastore_super_mario_maker_types.DataStoreCustomRankingResult, 0)
+	// * This method is called when a course is completed
+	// * to show the scrolling courses at the bottom of the
+	// * screen. extraData[0] is the DataID of the current
+	// * course. extraData[1] and extraData[2] are usually
+	// * 2 and 6 respectively. extraData[3] and extraData[4]
+	// * are always 0? extraData seems to not have any
+	// * effect on the NUMBER of courses returned but likely
+	// * does act as a filter of some kind? Maybe it has to
+	// * do with difficulty? Or ratings?
 
-	courseMetadatas := database.GetCourseMetadatasByLimit(4) // In PCAPs param.minimalRatingFrequency is 4 but is 0 here?
+	_, err = strconv.ParseUint(extraData[0], 0, 64)
+	if err != nil {
+		globals.Logger.Error(err.Error())
+		return nex.Errors.DataStore.InvalidArgument
+	}
 
-	for _, courseMetadata := range courseMetadatas {
-		pRankingResults = append(pRankingResults, utility.CourseMetadataToDataStoreCustomRankingResult(courseMetadata))
+	// TODO - Use extraData for filtering
+	pRankingResults, errCode := datastore_smm_db.GetRandomCoursesWithLimit(int(param.ResultRange.Length))
+	if errCode != 0 {
+		return errCode
 	}
 
 	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)

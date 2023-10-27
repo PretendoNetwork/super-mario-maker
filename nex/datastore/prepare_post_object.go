@@ -8,15 +8,29 @@ import (
 	nex "github.com/PretendoNetwork/nex-go"
 	datastore "github.com/PretendoNetwork/nex-protocols-go/datastore"
 	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
-	"github.com/PretendoNetwork/super-mario-maker-secure/database"
+	datastore_db "github.com/PretendoNetwork/super-mario-maker-secure/database/datastore"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
 func PreparePostObject(err error, client *nex.Client, callID uint32, param *datastore_types.DataStorePreparePostParam) uint32 {
-	dataID := database.InitializeCourseData(client.PID(), param.Size, param.Name, param.Flag, param.ExtraData, param.DataType, param.Period)
+	if err != nil {
+		globals.Logger.Error(err.Error())
+		return nex.Errors.DataStore.Unknown
+	}
 
-	if param.DataType != 1 { // 1 is Mii data, assume other values are course meta data
-		database.UpdateCourseMetaBinary(dataID, param.MetaBinary)
+	dataID, errCode := datastore_db.InitializeObjectByPreparePostParam(client.PID(), param)
+	if errCode != 0 {
+		globals.Logger.Errorf("Error code %d on object init", errCode)
+		return errCode
+	}
+
+	// TODO - Should this be moved to InitializeObjectByPreparePostParam?
+	for _, ratingInitParamWithSlot := range param.RatingInitParams {
+		errCode = datastore_db.InitializeObjectRatingWithSlot(dataID, ratingInitParamWithSlot)
+		if errCode != 0 {
+			globals.Logger.Errorf("Error code %d on rating init", errCode)
+			return errCode
+		}
 	}
 
 	bucket := os.Getenv("PN_SMM_CONFIG_S3_BUCKET")

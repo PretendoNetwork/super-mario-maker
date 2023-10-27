@@ -3,22 +3,35 @@ package nex_datastore_super_mario_maker
 import (
 	nex "github.com/PretendoNetwork/nex-go"
 	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
-	datastore_super_mario_maker_types "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker/types"
 	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
-	"github.com/PretendoNetwork/super-mario-maker-secure/database"
+	datastore_smm_db "github.com/PretendoNetwork/super-mario-maker-secure/database/datastore/super-mario-maker"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
-	"github.com/PretendoNetwork/super-mario-maker-secure/utility"
 )
 
-// This is the same as DataStoreSMM::RecommendedCourseSearchObject
-// Not sure why they used a different method here?
-func CTRPickUpCourseSearchObject(err error, client *nex.Client, callID uint32, dataStoreSearchParam *datastore_types.DataStoreSearchParam, extraData []string) uint32 {
-	pRankingResults := make([]*datastore_super_mario_maker_types.DataStoreCustomRankingResult, 0)
+func CTRPickUpCourseSearchObject(err error, client *nex.Client, callID uint32, param *datastore_types.DataStoreSearchParam, extraData []string) uint32 {
+	if err != nil {
+		globals.Logger.Error(err.Error())
+		return nex.Errors.DataStore.Unknown
+	}
 
-	courseMetadatas := database.GetCourseMetadatasByLimit(100) // In PCAPs param.minimalRatingFrequency is 100 but is 0 here?
+	// * This method is only used by the 3DS version
+	// * of Super Mario Maker and is functionally
+	// * identical to the WiiU versions
+	// * DataStoreSMM::RecommendedCourseSearchObject
+	// * method. The 3DS version LIKELY uses this as
+	// * a way to filter out courses which use the
+	// * Mystery Mushroom powerup, since it's not
+	// * officially supported by the 3DS version. That
+	// * said, the Mystery Mushroom IS still in the
+	// * game and can be used somewhat normally, so
+	// * no filtering is done here to prevent that.
+	// * I'm not even sure how we would detect that
 
-	for _, courseMetadata := range courseMetadatas {
-		pRankingResults = append(pRankingResults, utility.CourseMetadataToDataStoreCustomRankingResult(courseMetadata))
+	// TODO - Research extraData
+	// TODO - Use the offet? Real client never uses it, but might be nice for completeness sake?
+	pRankingResults, errCode := datastore_smm_db.GetRandomCoursesWithLimit(int(param.ResultRange.Length))
+	if errCode != 0 {
+		return errCode
 	}
 
 	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)

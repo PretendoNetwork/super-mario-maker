@@ -1,31 +1,26 @@
 package nex_datastore_super_mario_maker
 
 import (
-	"fmt"
-
 	nex "github.com/PretendoNetwork/nex-go"
 	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
 	datastore_super_mario_maker_types "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker/types"
-	"github.com/PretendoNetwork/super-mario-maker-secure/database"
+	datastore_smm_db "github.com/PretendoNetwork/super-mario-maker-secure/database/datastore/super-mario-maker"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
 func GetBufferQueue(err error, client *nex.Client, callID uint32, param *datastore_super_mario_maker_types.BufferQueueParam) uint32 {
-	// TODO: complete this
-
-	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
-
-	var pBufferQueue [][]byte
-
-	switch param.Slot {
-	case 0: // unknown
-		pBufferQueue = make([][]byte, 0)
-	case 3: // death data
-		pBufferQueue = database.GetBufferQueueDeathData(param.DataID)
-	default:
-		fmt.Printf("[Warning] DataStoreSMMProtocol::GetBufferQueue Unsupported slot: %v\n", param.Slot)
+	if err != nil {
+		globals.Logger.Error(err.Error())
+		return nex.Errors.DataStore.Unknown
 	}
 
+	pBufferQueue, errCode := datastore_smm_db.GetBufferQueuesByDataIDAndSlot(param.DataID, param.Slot)
+	if errCode != 0 {
+		globals.Logger.Errorf("Error code %d for object %d", errCode, param.DataID)
+		return errCode
+	}
+
+	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
 	rmcResponseStream.WriteListQBuffer(pBufferQueue)
 
 	rmcResponseBody := rmcResponseStream.Bytes()

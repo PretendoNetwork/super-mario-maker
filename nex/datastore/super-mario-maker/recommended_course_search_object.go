@@ -3,28 +3,41 @@ package nex_datastore_super_mario_maker
 import (
 	nex "github.com/PretendoNetwork/nex-go"
 	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
-	datastore_super_mario_maker_types "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker/types"
 	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
-	"github.com/PretendoNetwork/super-mario-maker-secure/database"
+	datastore_smm_db "github.com/PretendoNetwork/super-mario-maker-secure/database/datastore/super-mario-maker"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
-	"github.com/PretendoNetwork/super-mario-maker-secure/utility"
 )
 
 func RecommendedCourseSearchObject(err error, client *nex.Client, callID uint32, param *datastore_types.DataStoreSearchParam, extraData []string) uint32 {
-	// TODO: complete this
+	if err != nil {
+		globals.Logger.Error(err.Error())
+		return nex.Errors.DataStore.Unknown
+	}
 
-	pRankingResults := make([]*datastore_super_mario_maker_types.DataStoreCustomRankingResult, 0)
+	// * This method is used in 100 Mario and Course World
+	// *
+	// * extraData seems to be a set of filters defining a
+	// * range for a courses success rate
+	// *
+	// * Course World (All)          ["",  "",   "",    "0", "0"]
+	// * Course World (Easy)         ["1", "0",  "34",  "0", "0"]
+	// * Course World (Normal)       ["1", "35", "74",  "0", "0"]
+	// * Course World (Expert)       ["1", "75", "95",  "0", "0"]
+	// * Course World (Super Expert) ["1", "96", "100", "0", "0"]
+	// *
+	// * Indexes 1 and 2 seem to be a min and max for the *failure*
+	// * rate of the courses. This is not taken into account yet,
+	// * as the SQL query for this would need to be rather complex.
+	// * The last 2 values always seem to be 0, and the first seems
+	// * to always be 1 besides filtering for "All"
+	// *
+	// ! All requests are treated as filtering for "All" right now
+	// TODO - Use these ranges to properly filter by difficulty
 
-	// TEMP FOR SHUTTER TO TEST THINGS
-	if client.PID() == 1049991375 {
-		courseMetadata := database.GetCourseMetadataByDataID(145) // specific course shutter wants
-		pRankingResults = append(pRankingResults, utility.CourseMetadataToDataStoreCustomRankingResult(courseMetadata))
-	} else {
-		courseMetadatas := database.GetCourseMetadatasByLimit(100) // In PCAPs param.minimalRatingFrequency is 100 but is 0 here?
-
-		for _, courseMetadata := range courseMetadatas {
-			pRankingResults = append(pRankingResults, utility.CourseMetadataToDataStoreCustomRankingResult(courseMetadata))
-		}
+	// TODO - Use the offet? Real client never uses it, but might be nice for completeness sake?
+	pRankingResults, errCode := datastore_smm_db.GetRandomCoursesWithLimit(int(param.ResultRange.Length))
+	if errCode != 0 {
+		return errCode
 	}
 
 	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
