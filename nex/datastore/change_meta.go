@@ -26,21 +26,21 @@ func ChangeMeta(err error, client *nex.Client, callID uint32, param *datastore_t
 	}
 
 	// TODO - Refactor this into a single query. Use a query builder like goqu?
-	if param.ModifiesFlag&0x08 == 0x08 {
+	if param.ModifiesFlag&0x08 != 0 {
 		errCode = datastore_db.UpdateObjectPeriodByDataIDWithPassword(param.DataID, param.Period, param.UpdatePassword)
 		if errCode != 0 {
 			return errCode
 		}
 	}
 
-	if param.ModifiesFlag&0x10 == 0x10 {
+	if param.ModifiesFlag&0x10 != 0 {
 		errCode = datastore_db.UpdateObjectMetaBinaryByDataIDWithPassword(param.DataID, param.MetaBinary, param.UpdatePassword)
 		if errCode != 0 {
 			return errCode
 		}
 	}
 
-	if param.ModifiesFlag&0x80 == 0x80 {
+	if param.ModifiesFlag&0x80 != 0 {
 		errCode = datastore_db.UpdateObjectDataTypeByDataIDWithPassword(param.DataID, param.DataType, param.UpdatePassword)
 		if errCode != 0 {
 			return errCode
