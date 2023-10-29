@@ -19,12 +19,24 @@ func GetCustomRankingsByDataIDs(applicationID uint32, dataIDs []uint64) []*datas
 	// * away here and not sent back to the client
 	results := make([]*datastore_super_mario_maker_types.DataStoreCustomRankingResult, 0, len(dataIDs))
 
-	rows, err := database.Postgres.Query(`SELECT
-		data_id,
-		value
-	FROM datastore.object_custom_rankings WHERE application_id=$1 AND data_id=ANY($2)`,
-		applicationID,
+	// * Using UNNEST and WITH ORDINALITY because the input
+	// * array may contain duplicate DataIDs. These duplicate
+	// * DataIDs should result in duplicate results, and this
+	// * was the most efficient way to do this as it doesn't
+	// * involve processing all rows or manually duplicating
+	// * rows
+	rows, err := database.Postgres.Query(`
+	SELECT
+		rankings.data_id,
+		rankings.value
+	FROM datastore.object_custom_rankings rankings
+	JOIN UNNEST($1::bigint[])
+	WITH ORDINALITY AS rows(data_id, ord)
+		ON rankings.data_id = rows.data_id
+		AND rankings.application_id = $2
+	ORDER BY rows.ord`,
 		pq.Array(dataIDs),
+		applicationID,
 	)
 
 	// * No rows is allowed
@@ -59,6 +71,36 @@ func GetCustomRankingsByDataIDs(applicationID uint32, dataIDs []uint64) []*datas
 
 		results = append(results, result)
 	}
+
+	/*
+		itemList := []int{1, 3, 2, 3, 2, 1}
+		data := []map[string]int{
+			{"id": 1},
+			{"id": 3},
+			{"id": 2},
+		}
+
+		itemMap := map[int]map[string]int{}
+		for _, v := range data {
+			itemMap[v["id"]] = map[string]int{
+				"id": v["id"],
+			}
+		}
+
+		output := []map[string]int{}
+		for _, v := range itemList {
+			output = append(output, itemMap[v])
+		}
+
+		fmt.Println(itemMap) // map[1:map[id:1] 2:map[id:2] 3:map[id:3]]
+		fmt.Println(output)  // [map[id:1] map[id:3] map[id:2] map[id:3] map[id:2] map[id:1]]
+	*/
+	// * This is done because the SQL query will remove duplicates,
+	// * meaning if a DataID is present more than once in the input
+	// * it will only appear once in the output. This is wrong, all
+	// * inputs, including duplicates, should appear in the output.
+	// *
+	// * This will create a map of all
 
 	return results
 }
