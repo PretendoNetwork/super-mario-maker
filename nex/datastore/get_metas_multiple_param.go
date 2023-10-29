@@ -87,7 +87,7 @@ func GetMetasMultipleParam(err error, client *nex.Client, callID uint32, params 
 
 				pResults = append(pResults, nex.NewResultError(errCode))
 			} else {
-				pResults = append(pResults, nex.NewResultSuccess(nex.Errors.Core.Unknown))
+				pResults = append(pResults, nex.NewResultSuccess(nex.Errors.DataStore.Unknown))
 			}
 
 			// * This is kind of backwards.
