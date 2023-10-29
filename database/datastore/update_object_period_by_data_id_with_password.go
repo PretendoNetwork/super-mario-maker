@@ -8,7 +8,7 @@ import (
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func UpdateObjectDataTypeByDataIDWithPassword(dataID uint64, period uint16, password uint64) uint32 {
+func UpdateObjectPeriodByDataIDWithPassword(dataID uint64, period uint16, password uint64) uint32 {
 	var updatePassword uint64
 	var underReview bool
 
