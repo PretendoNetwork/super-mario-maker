@@ -1,42 +1,13 @@
 package nex
 
 import (
-	"github.com/PretendoNetwork/nex-protocols-go/datastore"
-	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
+	message_delivery "github.com/PretendoNetwork/nex-protocols-go/message-delivery"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
-	nex_datastore "github.com/PretendoNetwork/super-mario-maker-secure/nex/datastore"
-	nex_datastore_super_mario_maker "github.com/PretendoNetwork/super-mario-maker-secure/nex/datastore/super-mario-maker"
+	nex_message_delivery "github.com/PretendoNetwork/super-mario-maker-secure/nex/message-delivery"
 )
 
 func registerNEXProtocols() {
-	datastoreProtocol := datastore.NewDataStoreProtocol(globals.NEXServer)
+	messageDeliveryProtocol := message_delivery.NewProtocol(globals.SecureServer)
 
-	datastoreProtocol.GetMeta(nex_datastore.GetMeta)
-	datastoreProtocol.PreparePostObject(nex_datastore.PreparePostObject)
-	datastoreProtocol.PrepareGetObject(nex_datastore.PrepareGetObject)
-	datastoreProtocol.CompletePostObject(nex_datastore.CompletePostObject)
-	datastoreProtocol.GetMetasMultipleParam(nex_datastore.GetMetasMultipleParam)
-	datastoreProtocol.ChangeMeta(nex_datastore.ChangeMeta)
-	datastoreProtocol.RateObjects(nex_datastore.RateObjects)
-
-	datastoreSMMProtocol := datastore_super_mario_maker.NewDataStoreSuperMarioMakerProtocol(globals.NEXServer)
-
-	datastoreSMMProtocol.GetObjectInfos(nex_datastore_super_mario_maker.GetObjectInfos)
-	datastoreSMMProtocol.RateCustomRanking(nex_datastore_super_mario_maker.RateCustomRanking)
-	datastoreSMMProtocol.GetCustomRankingByDataId(nex_datastore_super_mario_maker.GetCustomRankingByDataId)
-	datastoreSMMProtocol.AddToBufferQueues(nex_datastore_super_mario_maker.AddToBufferQueues)
-	datastoreSMMProtocol.GetBufferQueue(nex_datastore_super_mario_maker.GetBufferQueue)
-	datastoreSMMProtocol.CompleteAttachFile(nex_datastore_super_mario_maker.CompleteAttachFile)
-	datastoreSMMProtocol.PrepareAttachFile(nex_datastore_super_mario_maker.PrepareAttachFile)
-	datastoreSMMProtocol.GetApplicationConfig(nex_datastore_super_mario_maker.GetApplicationConfig)
-	datastoreSMMProtocol.FollowingsLatestCourseSearchObject(nex_datastore_super_mario_maker.FollowingsLatestCourseSearchObject)
-	datastoreSMMProtocol.RecommendedCourseSearchObject(nex_datastore_super_mario_maker.RecommendedCourseSearchObject)
-	datastoreSMMProtocol.SuggestedCourseSearchObject(nex_datastore_super_mario_maker.SuggestedCourseSearchObject)
-	datastoreSMMProtocol.UploadCourseRecord(nex_datastore_super_mario_maker.UploadCourseRecord)
-	datastoreSMMProtocol.GetCourseRecord(nex_datastore_super_mario_maker.GetCourseRecord)
-	datastoreSMMProtocol.GetApplicationConfigString(nex_datastore_super_mario_maker.GetApplicationConfigString)
-	datastoreSMMProtocol.GetDeletionReason(nex_datastore_super_mario_maker.GetDeletionReason)
-	datastoreSMMProtocol.GetMetasWithCourseRecord(nex_datastore_super_mario_maker.GetMetasWithCourseRecord)
-	datastoreSMMProtocol.CheckRateCustomRankingCounter(nex_datastore_super_mario_maker.CheckRateCustomRankingCounter)
-	datastoreSMMProtocol.CTRPickUpCourseSearchObject(nex_datastore_super_mario_maker.CTRPickUpCourseSearchObject)
+	messageDeliveryProtocol.DeliverMessage(nex_message_delivery.DeliverMessage)
 }

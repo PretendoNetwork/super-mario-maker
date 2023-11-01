@@ -8,8 +8,15 @@ import (
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func GetApplicationConfigString(err error, client *nex.Client, callID uint32, applicationID uint32) {
-	// Word blacklists?
+func GetApplicationConfigString(err error, packet nex.PacketInterface, callID uint32, applicationID uint32) uint32 {
+	if err != nil {
+		globals.Logger.Error(err.Error())
+		return nex.Errors.DataStore.Unknown
+	}
+
+	client := packet.Sender()
+
+	// * Word blacklists?
 	config := make([]string, 0)
 
 	switch applicationID {
@@ -23,7 +30,7 @@ func GetApplicationConfigString(err error, client *nex.Client, callID uint32, ap
 		fmt.Printf("[Warning] DataStoreSMMProtocol::GetApplicationConfigString Unsupported applicationID: %v\n", applicationID)
 	}
 
-	rmcResponseStream := nex.NewStreamOut(globals.NEXServer)
+	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
 
 	rmcResponseStream.WriteListString(config)
 
@@ -45,11 +52,14 @@ func GetApplicationConfigString(err error, client *nex.Client, callID uint32, ap
 	responsePacket.AddFlag(nex.FlagNeedsAck)
 	responsePacket.AddFlag(nex.FlagReliable)
 
-	globals.NEXServer.Send(responsePacket)
+	globals.SecureServer.Send(responsePacket)
+
+	return 0
 }
 
 func getApplicationConfigString_WordBlacklist1() []string {
-	// Just replaying data sent from Nintendo's servers
+	// * Just replaying data sent from Nintendo's servers
+	// * Please no cancel for swears/slurs ;-;
 	return []string{
 		"けされ", "消され", "削除され", "リセットされ",
 		"BANされ", "ＢＡＮされ", "キミのコース", "君のコース",
@@ -72,14 +82,16 @@ func getApplicationConfigString_WordBlacklist1() []string {
 }
 
 func getApplicationConfigString_WordBlacklist2() []string {
-	// Just replaying data sent from Nintendo's servers
+	// * Just replaying data sent from Nintendo's servers
+	// * Please no cancel for swears/slurs ;-;
 	return []string{
 		"ゼロから", "０から", "0から", "い　　い　　ね", "いい", "東日本", "大震",
 	}
 }
 
 func getApplicationConfigString_WordBlacklist3() []string {
-	// Just replaying data sent from Nintendo's servers
+	// * Just replaying data sent from Nintendo's servers
+	// * Please no cancel for swears/slurs ;-;
 	return []string{
 		"いいね", "下さい", "ください",
 		"押して", "おして", "返す",

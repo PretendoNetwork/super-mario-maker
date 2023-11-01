@@ -3,37 +3,64 @@ package nex_datastore_super_mario_maker
 import (
 	nex "github.com/PretendoNetwork/nex-go"
 	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
-	"github.com/PretendoNetwork/super-mario-maker-secure/database"
+	datastore_super_mario_maker_types "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker/types"
+	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
+	datastore_smm_db "github.com/PretendoNetwork/super-mario-maker-secure/database/datastore/super-mario-maker"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
-	"github.com/PretendoNetwork/super-mario-maker-secure/utility"
 )
 
-func GetCustomRankingByDataId(err error, client *nex.Client, callID uint32, param *datastore_super_mario_maker.DataStoreGetCustomRankingByDataIdParam) {
-	var pRankingResult []*datastore_super_mario_maker.DataStoreCustomRankingResult
-	var pResults []uint32
-
-	switch param.ApplicationId {
-	case 0:
-		if len(param.DataIdList) == 0 { // Starred courses
-			pRankingResult, pResults = getCustomRankingByDataIdStarredCourses(client.PID())
-		} else { // Played courses
-			pRankingResult, pResults = getCustomRankingByDataIdCourseMetadata(param)
-		}
-	case 300000000: // Mii data
-		pRankingResult, pResults = getCustomRankingByDataIdMiiData(param)
-	default: // Normal metadata
-		pRankingResult, pResults = getCustomRankingByDataIdCourseMetadata(param)
+func GetCustomRankingByDataID(err error, packet nex.PacketInterface, callID uint32, param *datastore_super_mario_maker_types.DataStoreGetCustomRankingByDataIDParam) uint32 {
+	if err != nil {
+		globals.Logger.Error(err.Error())
+		return nex.Errors.DataStore.Unknown
 	}
 
-	rmcResponseStream := nex.NewStreamOut(globals.NEXServer)
+	client := packet.Sender()
+
+	pRankingResult := datastore_smm_db.GetCustomRankingsByDataIDs(param.ApplicationID, param.DataIDList)
+	pResults := make([]*nex.Result, 0, len(param.DataIDList))
+
+	for _, rankingResult := range pRankingResult {
+		// * This is kind of backwards.
+		// * The database pulls this data
+		// * by default, so it can be done
+		// * in a single query. So instead
+		// * of checking if a flag *IS*
+		// * set, and conditionally *ADDING*
+		// * the fields, we check if a flag
+		// * is *NOT* set and conditionally
+		// * *REMOVE* the field
+		if param.ResultOption&0x1 == 0 {
+			rankingResult.MetaInfo.Tags = make([]string, 0)
+		}
+
+		if param.ResultOption&0x2 == 0 {
+			rankingResult.MetaInfo.Ratings = make([]*datastore_types.DataStoreRatingInfoWithSlot, 0)
+		}
+
+		if param.ResultOption&0x4 == 0 {
+			rankingResult.MetaInfo.MetaBinary = make([]byte, 0)
+		}
+
+		if param.ResultOption&0x20 == 0 {
+			rankingResult.Score = 0
+		}
+
+		// * Since all errors are thrown away in
+		// * datastore_smm_db.GetCustomRankingsByDataIDs
+		// * assume all objects returned were a success
+		pResults = append(pResults, nex.NewResultSuccess(nex.Errors.Core.Unknown))
+	}
+
+	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
 
 	rmcResponseStream.WriteListStructure(pRankingResult)
-	rmcResponseStream.WriteListUInt32LE(pResults)
+	rmcResponseStream.WriteListResult(pResults)
 
 	rmcResponseBody := rmcResponseStream.Bytes()
 
 	rmcResponse := nex.NewRMCResponse(datastore_super_mario_maker.ProtocolID, callID)
-	rmcResponse.SetSuccess(datastore_super_mario_maker.MethodGetCustomRankingByDataId, rmcResponseBody)
+	rmcResponse.SetSuccess(datastore_super_mario_maker.MethodGetCustomRankingByDataID, rmcResponseBody)
 
 	rmcResponseBytes := rmcResponse.Bytes()
 
@@ -48,50 +75,7 @@ func GetCustomRankingByDataId(err error, client *nex.Client, callID uint32, para
 	responsePacket.AddFlag(nex.FlagNeedsAck)
 	responsePacket.AddFlag(nex.FlagReliable)
 
-	globals.NEXServer.Send(responsePacket)
-}
+	globals.SecureServer.Send(responsePacket)
 
-func getCustomRankingByDataIdStarredCourses(pid uint32) ([]*datastore_super_mario_maker.DataStoreCustomRankingResult, []uint32) {
-	courseMetadatas := database.GetUserStarredCourses(pid)
-
-	pRankingResult := make([]*datastore_super_mario_maker.DataStoreCustomRankingResult, 0)
-	pResults := make([]uint32, 0)
-
-	for _, courseMetadata := range courseMetadatas {
-		pRankingResult = append(pRankingResult, utility.CourseMetadataToDataStoreCustomRankingResult(courseMetadata))
-		pResults = append(pResults, 0x690001)
-	}
-
-	return pRankingResult, pResults
-}
-
-func getCustomRankingByDataIdMiiData(param *datastore_super_mario_maker.DataStoreGetCustomRankingByDataIdParam) ([]*datastore_super_mario_maker.DataStoreCustomRankingResult, []uint32) {
-	pRankingResult := make([]*datastore_super_mario_maker.DataStoreCustomRankingResult, 0)
-	pResults := make([]uint32, 0)
-
-	for _, pid := range param.DataIdList {
-		pid := uint32(pid)
-		miiInfo := database.GetUserMiiInfoByPID(pid) // This isn't actually a PID when using the official servers! I set it as one to make this easier for me
-
-		if miiInfo != nil {
-			pRankingResult = append(pRankingResult, utility.UserMiiDataToDataStoreCustomRankingResult(pid, miiInfo))
-			pResults = append(pResults, 0x690001)
-		}
-	}
-
-	return pRankingResult, pResults
-}
-
-func getCustomRankingByDataIdCourseMetadata(param *datastore_super_mario_maker.DataStoreGetCustomRankingByDataIdParam) ([]*datastore_super_mario_maker.DataStoreCustomRankingResult, []uint32) {
-	courseMetadatas := database.GetCourseMetadataByDataIDs(param.DataIdList)
-
-	pRankingResult := make([]*datastore_super_mario_maker.DataStoreCustomRankingResult, 0)
-	pResults := make([]uint32, 0)
-
-	for _, courseMetadata := range courseMetadatas {
-		pRankingResult = append(pRankingResult, utility.CourseMetadataToDataStoreCustomRankingResult(courseMetadata))
-		pResults = append(pResults, 0x690001)
-	}
-
-	return pRankingResult, pResults
+	return 0
 }

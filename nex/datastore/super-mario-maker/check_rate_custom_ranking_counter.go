@@ -1,26 +1,33 @@
 package nex_datastore_super_mario_maker
 
 import (
-	"fmt"
-
 	nex "github.com/PretendoNetwork/nex-go"
 	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func CheckRateCustomRankingCounter(err error, client *nex.Client, callID uint32, applicationID uint32) {
-	var isBelowThreshold uint8
-
-	switch applicationID {
-	case 0: // unknown
-		isBelowThreshold = 1
-	default:
-		fmt.Printf("[Warning] DataStoreSMMProtocol::CheckRateCustomRankingCounter Unsupported applicationID: %v\n", applicationID)
+func CheckRateCustomRankingCounter(err error, packet nex.PacketInterface, callID uint32, applicationID uint32) uint32 {
+	if err != nil {
+		globals.Logger.Error(err.Error())
+		return nex.Errors.DataStore.Unknown
 	}
 
-	rmcResponseStream := nex.NewStreamOut(globals.NEXServer)
+	client := packet.Sender()
 
-	rmcResponseStream.WriteUInt8(isBelowThreshold)
+	// * No idea what this is. Only seen application ID 0
+	// * used, and it's always true? Unsure what this checks
+	isBelowThreshold := false
+
+	switch applicationID {
+	case 0: // * Unknown
+		isBelowThreshold = true
+	default:
+		globals.Logger.Warningf("Unsupported applicationID: %d", applicationID)
+	}
+
+	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
+
+	rmcResponseStream.WriteBool(isBelowThreshold)
 
 	rmcResponseBody := rmcResponseStream.Bytes()
 
@@ -40,5 +47,7 @@ func CheckRateCustomRankingCounter(err error, client *nex.Client, callID uint32,
 	responsePacket.AddFlag(nex.FlagNeedsAck)
 	responsePacket.AddFlag(nex.FlagReliable)
 
-	globals.NEXServer.Send(responsePacket)
+	globals.SecureServer.Send(responsePacket)
+
+	return 0
 }

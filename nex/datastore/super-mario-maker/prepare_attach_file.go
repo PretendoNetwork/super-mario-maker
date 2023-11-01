@@ -1,70 +1,74 @@
 package nex_datastore_super_mario_maker
 
 import (
-	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/hex"
 	"fmt"
 	"os"
-	"strconv"
 	"time"
 
 	nex "github.com/PretendoNetwork/nex-go"
-	"github.com/PretendoNetwork/nex-protocols-go/datastore"
 	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
+	datastore_super_mario_maker_types "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker/types"
+	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
+	datastore_db "github.com/PretendoNetwork/super-mario-maker-secure/database/datastore"
+	datastore_smm_db "github.com/PretendoNetwork/super-mario-maker-secure/database/datastore/super-mario-maker"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func PrepareAttachFile(err error, client *nex.Client, callID uint32, dataStoreAttachFileParam *datastore_super_mario_maker.DataStoreAttachFileParam) {
-	key := fmt.Sprintf("image/%d.jpg", dataStoreAttachFileParam.ReferDataID)
-	bucket := os.Getenv("S3_BUCKET_NAME")
-	date := strconv.Itoa(int(time.Now().Unix()))
-	pid := strconv.Itoa(int(client.PID()))
+func PrepareAttachFile(err error, packet nex.PacketInterface, callID uint32, param *datastore_super_mario_maker_types.DataStoreAttachFileParam) uint32 {
+	if err != nil {
+		globals.Logger.Error(err.Error())
+		return nex.Errors.DataStore.Unknown
+	}
 
-	data := pid + bucket + key + date
+	client := packet.Sender()
 
-	hmac := hmac.New(sha256.New, globals.HMACSecret)
-	hmac.Write([]byte(data))
+	// * This method seems to be only used at "attach"
+	// * a file to an existing object. In practice,
+	// * SMM will use this to upload a courses preview
+	// * image after uploading the course.
+	// * param.ReferDataID is the courses object DataID
 
-	signature := hex.EncodeToString(hmac.Sum(nil))
+	dataID, errCode := datastore_smm_db.InitializeObjectByAttachFileParam(client.PID(), param)
+	if errCode != 0 {
+		globals.Logger.Errorf("Error code %d on object init", errCode)
+		return errCode
+	}
 
-	fieldBucket := datastore.NewDataStoreKeyValue()
-	fieldBucket.Key = "bucket"
-	fieldBucket.Value = bucket
+	// TODO - Should this be moved to InitializeObjectByAttachFileParam?
+	// * This never seems to have any values during normal gameplay,
+	// * but just in case
+	for _, ratingInitParamWithSlot := range param.PostParam.RatingInitParams {
+		errCode = datastore_db.InitializeObjectRatingWithSlot(dataID, ratingInitParamWithSlot)
+		if errCode != 0 {
+			globals.Logger.Errorf("Error code %d on rating init", errCode)
+			return errCode
+		}
+	}
 
-	fieldKey := datastore.NewDataStoreKeyValue()
-	fieldKey.Key = "key"
-	fieldKey.Value = key
+	// TODO - Check param.ContentType? Always seems to be "image/jpeg" but just in case?
+	bucket := os.Getenv("PN_SMM_CONFIG_S3_BUCKET")
+	key := fmt.Sprintf("%d.jpg", dataID)
 
-	fieldACL := datastore.NewDataStoreKeyValue()
-	fieldACL.Key = "acl"
-	fieldACL.Value = "public-read"
+	// TODO - Should this also take in the param.ContentType? To add it to the policy?
+	URL, formData, _ := globals.Presigner.PostObject(bucket, key, time.Minute*15)
 
-	fieldContentType := datastore.NewDataStoreKeyValue()
-	fieldContentType.Key = "content-type"
-	fieldContentType.Value = "image/jpeg"
+	pReqPostInfo := datastore_types.NewDataStoreReqPostInfo()
 
-	fieldPID := datastore.NewDataStoreKeyValue()
-	fieldPID.Key = "pid"
-	fieldPID.Value = pid
-
-	fieldDate := datastore.NewDataStoreKeyValue()
-	fieldDate.Key = "date"
-	fieldDate.Value = date
-
-	fieldSignature := datastore.NewDataStoreKeyValue()
-	fieldSignature.Key = "signature"
-	fieldSignature.Value = signature
-
-	rmcResponseStream := nex.NewStreamOut(globals.NEXServer)
-
-	pReqPostInfo := datastore.NewDataStoreReqPostInfo()
-
-	pReqPostInfo.DataID = dataStoreAttachFileParam.ReferDataID
-	pReqPostInfo.URL = os.Getenv("DATASTORE_UPLOAD_URL")
-	pReqPostInfo.RequestHeaders = []*datastore.DataStoreKeyValue{}
-	pReqPostInfo.FormFields = []*datastore.DataStoreKeyValue{fieldBucket, fieldKey, fieldACL, fieldContentType, fieldPID, fieldDate, fieldSignature}
+	pReqPostInfo.DataID = dataID
+	pReqPostInfo.URL = URL.String()
+	pReqPostInfo.RequestHeaders = []*datastore_types.DataStoreKeyValue{}
+	pReqPostInfo.FormFields = make([]*datastore_types.DataStoreKeyValue, 0, len(formData))
 	pReqPostInfo.RootCACert = []byte{}
+
+	for key, value := range formData {
+		field := datastore_types.NewDataStoreKeyValue()
+		field.Key = key
+		field.Value = value
+
+		pReqPostInfo.FormFields = append(pReqPostInfo.FormFields, field)
+	}
+
+	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
 
 	rmcResponseStream.WriteStructure(pReqPostInfo)
 
@@ -86,5 +90,7 @@ func PrepareAttachFile(err error, client *nex.Client, callID uint32, dataStoreAt
 	responsePacket.AddFlag(nex.FlagNeedsAck)
 	responsePacket.AddFlag(nex.FlagReliable)
 
-	globals.NEXServer.Send(responsePacket)
+	globals.SecureServer.Send(responsePacket)
+
+	return 0
 }

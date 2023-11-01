@@ -1,30 +1,28 @@
 package nex_datastore_super_mario_maker
 
 import (
-	"fmt"
-
 	nex "github.com/PretendoNetwork/nex-go"
 	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
-	"github.com/PretendoNetwork/super-mario-maker-secure/database"
+	datastore_super_mario_maker_types "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker/types"
+	datastore_smm_db "github.com/PretendoNetwork/super-mario-maker-secure/database/datastore/super-mario-maker"
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func GetBufferQueue(err error, client *nex.Client, callID uint32, param *datastore_super_mario_maker.BufferQueueParam) {
-	// TODO: complete this
-
-	rmcResponseStream := nex.NewStreamOut(globals.NEXServer)
-
-	var pBufferQueue [][]byte
-
-	switch param.Slot {
-	case 0: // unknown
-		pBufferQueue = make([][]byte, 0)
-	case 3: // death data
-		pBufferQueue = database.GetBufferQueueDeathData(param.DataID)
-	default:
-		fmt.Printf("[Warning] DataStoreSMMProtocol::GetBufferQueue Unsupported slot: %v\n", param.Slot)
+func GetBufferQueue(err error, packet nex.PacketInterface, callID uint32, param *datastore_super_mario_maker_types.BufferQueueParam) uint32 {
+	if err != nil {
+		globals.Logger.Error(err.Error())
+		return nex.Errors.DataStore.Unknown
 	}
 
+	client := packet.Sender()
+
+	pBufferQueue, errCode := datastore_smm_db.GetBufferQueuesByDataIDAndSlot(param.DataID, param.Slot)
+	if errCode != 0 {
+		globals.Logger.Errorf("Error code %d for object %d", errCode, param.DataID)
+		return errCode
+	}
+
+	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
 	rmcResponseStream.WriteListQBuffer(pBufferQueue)
 
 	rmcResponseBody := rmcResponseStream.Bytes()
@@ -45,5 +43,7 @@ func GetBufferQueue(err error, client *nex.Client, callID uint32, param *datasto
 	responsePacket.AddFlag(nex.FlagNeedsAck)
 	responsePacket.AddFlag(nex.FlagReliable)
 
-	globals.NEXServer.Send(responsePacket)
+	globals.SecureServer.Send(responsePacket)
+
+	return 0
 }
