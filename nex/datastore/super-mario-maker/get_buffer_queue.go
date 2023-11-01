@@ -8,11 +8,13 @@ import (
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func GetBufferQueue(err error, client *nex.Client, callID uint32, param *datastore_super_mario_maker_types.BufferQueueParam) uint32 {
+func GetBufferQueue(err error, packet nex.PacketInterface, callID uint32, param *datastore_super_mario_maker_types.BufferQueueParam) uint32 {
 	if err != nil {
 		globals.Logger.Error(err.Error())
 		return nex.Errors.DataStore.Unknown
 	}
+
+	client := packet.Sender()
 
 	pBufferQueue, errCode := datastore_smm_db.GetBufferQueuesByDataIDAndSlot(param.DataID, param.Slot)
 	if errCode != 0 {

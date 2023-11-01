@@ -10,11 +10,13 @@ import (
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func GetMetasWithCourseRecord(err error, client *nex.Client, callID uint32, params []*datastore_super_mario_maker_types.DataStoreGetCourseRecordParam, metaParam *datastore_types.DataStoreGetMetaParam) uint32 {
+func GetMetasWithCourseRecord(err error, packet nex.PacketInterface, callID uint32, params []*datastore_super_mario_maker_types.DataStoreGetCourseRecordParam, metaParam *datastore_types.DataStoreGetMetaParam) uint32 {
 	if err != nil {
 		globals.Logger.Error(err.Error())
 		return nex.Errors.DataStore.Unknown
 	}
+
+	client := packet.Sender()
 
 	// * The functionality here is largely a guess
 	// * based on how GetCourseRecord works and

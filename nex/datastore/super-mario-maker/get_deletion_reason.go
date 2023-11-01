@@ -6,11 +6,13 @@ import (
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func GetDeletionReason(err error, client *nex.Client, callID uint32, dataIDLst []uint64) uint32 {
+func GetDeletionReason(err error, packet nex.PacketInterface, callID uint32, dataIDLst []uint64) uint32 {
 	if err != nil {
 		globals.Logger.Error(err.Error())
 		return nex.Errors.DataStore.Unknown
 	}
+
+	client := packet.Sender()
 
 	// TODO - Complete this
 	// * It's not actually known what the

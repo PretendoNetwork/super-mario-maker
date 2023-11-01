@@ -14,7 +14,7 @@ func StartAuthenticationServer() {
 	globals.AuthenticationServer = nex.NewServer()
 	globals.AuthenticationServer.SetPRUDPVersion(1)
 	globals.AuthenticationServer.SetPRUDPProtocolMinorVersion(2)
-	globals.AuthenticationServer.SetDefaultNEXVersion(nex.NewNEXVersion(3, 8, 3))
+	globals.AuthenticationServer.SetDefaultNEXVersion(nex.NewPatchedNEXVersion(3, 8, 3, "AMAJ"))
 	globals.AuthenticationServer.SetKerberosPassword(globals.KerberosPassword)
 	globals.AuthenticationServer.SetAccessKey("9f2b4678")
 

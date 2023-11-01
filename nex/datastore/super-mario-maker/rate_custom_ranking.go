@@ -8,11 +8,13 @@ import (
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func RateCustomRanking(err error, client *nex.Client, callID uint32, params []*datastore_super_mario_maker_types.DataStoreRateCustomRankingParam) uint32 {
+func RateCustomRanking(err error, packet nex.PacketInterface, callID uint32, params []*datastore_super_mario_maker_types.DataStoreRateCustomRankingParam) uint32 {
 	if err != nil {
 		globals.Logger.Error(err.Error())
 		return nex.Errors.DataStore.Unknown
 	}
+
+	client := packet.Sender()
 
 	// TODO - Check the period. The real server does check this, just unsure what it means or what the check is
 	for _, param := range params {

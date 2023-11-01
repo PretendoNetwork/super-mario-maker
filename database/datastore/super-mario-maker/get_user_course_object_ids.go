@@ -39,7 +39,6 @@ func GetUserCourseObjectIDs(ownerPID uint32) ([]uint64, uint32) {
 
 		errCode := datastore_db.IsObjectAvailable(dataID)
 		if errCode != 0 {
-			globals.Logger.Errorf("Got error code %d for object %d", errCode, dataID)
 			continue
 		}
 

@@ -8,11 +8,13 @@ import (
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func GetApplicationConfigString(err error, client *nex.Client, callID uint32, applicationID uint32) uint32 {
+func GetApplicationConfigString(err error, packet nex.PacketInterface, callID uint32, applicationID uint32) uint32 {
 	if err != nil {
 		globals.Logger.Error(err.Error())
 		return nex.Errors.DataStore.Unknown
 	}
+
+	client := packet.Sender()
 
 	// * Word blacklists?
 	config := make([]string, 0)

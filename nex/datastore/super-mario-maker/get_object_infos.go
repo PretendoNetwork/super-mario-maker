@@ -13,11 +13,13 @@ import (
 	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
 )
 
-func GetObjectInfos(err error, client *nex.Client, callID uint32, dataIDs []uint64) uint32 {
+func GetObjectInfos(err error, packet nex.PacketInterface, callID uint32, dataIDs []uint64) uint32 {
 	if err != nil {
 		globals.Logger.Error(err.Error())
 		return nex.Errors.DataStore.Unknown
 	}
+
+	client := packet.Sender()
 
 	pInfos := make([]*datastore_super_mario_maker_types.DataStoreFileServerObjectInfo, 0)
 

@@ -5,8 +5,8 @@ go 1.21
 require (
 	github.com/PretendoNetwork/grpc-go v1.0.2
 	github.com/PretendoNetwork/nex-go v1.0.41
-	github.com/PretendoNetwork/nex-protocols-common-go v1.0.29
-	github.com/PretendoNetwork/nex-protocols-go v1.0.55
+	github.com/PretendoNetwork/nex-protocols-common-go v1.0.30
+	github.com/PretendoNetwork/nex-protocols-go v1.0.58
 	github.com/PretendoNetwork/plogger-go v1.0.4
 	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.10.9
@@ -39,7 +39,7 @@ require (
 	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/term v0.13.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20231016165738-49dd2c1f3d0b // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20231030173426-d783a09b4405 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 )

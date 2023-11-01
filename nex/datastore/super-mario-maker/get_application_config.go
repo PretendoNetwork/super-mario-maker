@@ -16,11 +16,13 @@ import (
 // * more, but 100 is fine tbh
 var MAX_COURSE_UPLOADS uint32 = 100
 
-func GetApplicationConfig(err error, client *nex.Client, callID uint32, applicationID uint32) uint32 {
+func GetApplicationConfig(err error, packet nex.PacketInterface, callID uint32, applicationID uint32) uint32 {
 	if err != nil {
 		globals.Logger.Error(err.Error())
 		return nex.Errors.DataStore.Unknown
 	}
+
+	client := packet.Sender()
 
 	config := make([]uint32, 0)
 
