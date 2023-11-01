@@ -72,35 +72,5 @@ func GetCustomRankingsByDataIDs(applicationID uint32, dataIDs []uint64) []*datas
 		results = append(results, result)
 	}
 
-	/*
-		itemList := []int{1, 3, 2, 3, 2, 1}
-		data := []map[string]int{
-			{"id": 1},
-			{"id": 3},
-			{"id": 2},
-		}
-
-		itemMap := map[int]map[string]int{}
-		for _, v := range data {
-			itemMap[v["id"]] = map[string]int{
-				"id": v["id"],
-			}
-		}
-
-		output := []map[string]int{}
-		for _, v := range itemList {
-			output = append(output, itemMap[v])
-		}
-
-		fmt.Println(itemMap) // map[1:map[id:1] 2:map[id:2] 3:map[id:3]]
-		fmt.Println(output)  // [map[id:1] map[id:3] map[id:2] map[id:3] map[id:2] map[id:1]]
-	*/
-	// * This is done because the SQL query will remove duplicates,
-	// * meaning if a DataID is present more than once in the input
-	// * it will only appear once in the output. This is wrong, all
-	// * inputs, including duplicates, should appear in the output.
-	// *
-	// * This will create a map of all
-
 	return results
 }
