@@ -29,6 +29,7 @@ func init() {
 	s3Endpoint := os.Getenv("PN_SMM_CONFIG_S3_ENDPOINT")
 	s3AccessKey := os.Getenv("PN_SMM_CONFIG_S3_ACCESS_KEY")
 	s3AccessSecret := os.Getenv("PN_SMM_CONFIG_S3_ACCESS_SECRET")
+	s3SecureEnv := os.Getenv("PN_SMM_CONFIG_S3_SECURE")
 
 	postgresURI := os.Getenv("PN_SMM_POSTGRES_URI")
 	kerberosPassword := os.Getenv("PN_SMM_KERBEROS_PASSWORD")
@@ -116,9 +117,15 @@ func init() {
 
 	staticCredentials := credentials.NewStaticV4(s3AccessKey, s3AccessSecret, "")
 
+	s3Secure, err := strconv.ParseBool(s3SecureEnv)
+	if err != nil {
+		globals.Logger.Warningf("PN_SMM_CONFIG_S3_SECURE environment variable not set. Using default value: %t", true)
+		s3Secure = true
+	}
+
 	minIOClient, err := minio.New(s3Endpoint, &minio.Options{
 		Creds:  staticCredentials,
-		Secure: true,
+		Secure: s3Secure,
 	})
 	if err != nil {
 		panic(err)
