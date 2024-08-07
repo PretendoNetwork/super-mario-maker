@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -23,7 +22,7 @@ func init() {
 
 	err = godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		globals.Logger.Warning("Error loading .env file")
 	}
 
 	s3Endpoint := os.Getenv("PN_SMM_CONFIG_S3_ENDPOINT")
