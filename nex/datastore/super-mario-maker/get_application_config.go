@@ -73,36 +73,36 @@ func getApplicationConfig_PlayerConfig() []uint32 {
 	// * sent here. No idea what anything else
 	// * means
 	return []uint32{
-		0x01000000, 0x32000000, 0x96000000, 0x2c010000, 0xf4010000,
-		0x20030000, 0x14050000, 0xd0070000, 0xb80b0000, 0x88130000,
-		MAX_COURSE_UPLOADS, 0x14000000, 0x1e000000, 0x28000000, 0x32000000,
-		0x3c000000, 0x46000000, 0x50000000, 0x5a000000, 0x64000000,
-		0x23000000, 0x4b000000, 0x23000000, 0x4b000000, 0x32000000,
-		0x00000000, 0x03000000, 0x03000000, 0x64000000, 0x06000000,
-		0x01000000, 0x60000000, 0x05000000, 0x60000000, 0x00000000,
-		0xe4070000, 0x01000000, 0x01000000, 0x0c000000, 0x00000000,
+		0x00000001, 0x00000032, 0x00000096, 0x0000012c, 0x000001f4,
+		0x00000320, 0x00000514, 0x000007d0, 0x00000bb8, 0x00001388,
+		MAX_COURSE_UPLOADS, 0x00000014, 0x0000001e, 0x00000028, 0x00000032,
+		0x0000003c, 0x00000046, 0x00000050, 0x0000005a, 0x00000064,
+		0x00000023, 0x0000004b, 0x00000023, 0x0000004b, 0x00000032,
+		0x00000000, 0x00000003, 0x00000003, 0x00000064, 0x00000006,
+		0x00000001, 0x00000060, 0x00000005, 0x00000060, 0x00000000,
+		0x000007e4, 0x00000001, 0x00000001, 0x0000000c, 0x00000000,
 	}
 }
 
 func getApplicationConfig_OfficialMakers() []uint32 {
 	// * Used as the PIDs for the "Official" makers in the "MAKERS" section
 	return []uint32{
-		0x02000000, // * 2 (not a real user PID, this translates to the internal Quazal Rendez-Vous user used by NEX)
-		0x70cc8269, // * 1770179696 (official_player0 on NN, need to make PN versions)
-		0x50cc8269, // * 1770179664 (official_player1 on NN, need to make PN versions)
-		0x38cc8269, // * 1770179640 (official_player2 on NN, need to make PN versions)
-		0xdbd08269, // * 1770180827 (official_player3 on NN, need to make PN versions)
-		0xa9d08269, // * 1770180777 (official_player4 on NN, need to make PN versions)
-		0x89d08269, // * 1770180745 (official_player5 on NN, need to make PN versions)
-		0x59c48269, // * 1770177625 (official_player6 on NN, need to make PN versions)
-		0x36c48269, // * 1770177590 (official_player7 on NN, need to make PN versions)
+		2, // * Not a real user PID, this translates to the internal Quazal Rendez-Vous user used by NEX
+		1770179696, // * "official_player0" on NN, need to make PN versions
+		1770179664, // * "official_player1" on NN, need to make PN versions
+		1770179640, // * "official_player2" on NN, need to make PN versions
+		1770180827, // * "official_player3" on NN, need to make PN versions
+		1770180777, // * "official_player4" on NN, need to make PN versions
+		1770180745, // * "official_player5" on NN, need to make PN versions
+		1770177625, // * "official_player6" on NN, need to make PN versions
+		1770177590, // * "official_player7" on NN, need to make PN versions
 	}
 }
 
 func getApplicationConfig_Unknown2() []uint32 {
 	// * I have no idea what this is
 	// * Just replaying data sent from the real server
-	return []uint32{0xdf070000, 0x0c000000, 0x16000000, 0x05000000, 0x00000000}
+	return []uint32{0x000007df, 0x0000000c, 0x00000016, 0x00000005, 0x00000000}
 }
 
 func getApplicationConfig_Unknown10() []uint32 {
