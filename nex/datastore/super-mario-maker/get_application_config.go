@@ -87,15 +87,15 @@ func getApplicationConfig_PlayerConfig() []uint32 {
 func getApplicationConfig_OfficialMakers() []uint32 {
 	// * Used as the PIDs for the "Official" makers in the "MAKERS" section
 	return []uint32{
-		2, // * 2 (not a real user PID, this translates to the internal Quazal Rendez-Vous user used by NEX)
-		1770179696, // * 1770179696 (official_player0 on NN, need to make PN versions)
-		1770179664, // * 1770179664 (official_player1 on NN, need to make PN versions)
-		1770179640, // * 1770179640 (official_player2 on NN, need to make PN versions)
-		1770180827, // * 1770180827 (official_player3 on NN, need to make PN versions)
-		1770180777, // * 1770180777 (official_player4 on NN, need to make PN versions)
-		1770180745, // * 1770180745 (official_player5 on NN, need to make PN versions)
-		1770177625, // * 1770177625 (official_player6 on NN, need to make PN versions)
-		1770177590, // * 1770177590 (official_player7 on NN, need to make PN versions)
+		2, // * Not a real user PID, this translates to the internal Quazal Rendez-Vous user used by NEX
+		1770179696, // * "official_player0" on NN, need to make PN versions
+		1770179664, // * "official_player1" on NN, need to make PN versions
+		1770179640, // * "official_player2" on NN, need to make PN versions
+		1770180827, // * "official_player3" on NN, need to make PN versions
+		1770180777, // * "official_player4" on NN, need to make PN versions
+		1770180745, // * "official_player5" on NN, need to make PN versions
+		1770177625, // * "official_player6" on NN, need to make PN versions
+		1770177590, // * "official_player7" on NN, need to make PN versions
 	}
 }
 
