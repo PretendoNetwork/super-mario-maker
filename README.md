@@ -1,3 +1,4 @@
+
 # Super Mario Maker replacement server
 Includes both the authentication and secure servers. Works on both WiiU and 3DS
 
