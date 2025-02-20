@@ -1,38 +1,24 @@
 package nex_message_delivery
 
 import (
-	nex "github.com/PretendoNetwork/nex-go"
-	message_delivery "github.com/PretendoNetwork/nex-protocols-go/message-delivery"
-	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
+	nex "github.com/PretendoNetwork/nex-go/v2"
+	"github.com/PretendoNetwork/nex-go/v2/types"
+	message_delivery "github.com/PretendoNetwork/nex-protocols-go/v2/message-delivery"
+	"github.com/PretendoNetwork/super-mario-maker/globals"
 )
 
-func DeliverMessage(err error, packet nex.PacketInterface, callID uint32, oUserMessage *nex.DataHolder) uint32 {
+func DeliverMessage(err error, packet nex.PacketInterface, callID uint32, oUserMessage types.DataHolder) (*nex.RMCMessage, *nex.Error) {
 	if err != nil {
 		globals.Logger.Error(err.Error())
-		return nex.Errors.DataStore.Unknown
+		return nil, nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 	}
-
-	client := packet.Sender()
 
 	// TODO - See what this does
 
-	rmcResponse := nex.NewRMCResponse(message_delivery.ProtocolID, callID)
-	rmcResponse.SetSuccess(message_delivery.MethodDeliverMessage, nil)
+	rmcResponse := nex.NewRMCSuccess(globals.SecureEndpoint, nil)
+	rmcResponse.ProtocolID = message_delivery.ProtocolID
+	rmcResponse.MethodID = message_delivery.MethodDeliverMessage
+	rmcResponse.CallID = callID
 
-	rmcResponseBytes := rmcResponse.Bytes()
-
-	responsePacket, _ := nex.NewPacketV1(client, nil)
-
-	responsePacket.SetVersion(1)
-	responsePacket.SetSource(0xA1)
-	responsePacket.SetDestination(0xAF)
-	responsePacket.SetType(nex.DataPacket)
-	responsePacket.SetPayload(rmcResponseBytes)
-
-	responsePacket.AddFlag(nex.FlagNeedsAck)
-	responsePacket.AddFlag(nex.FlagReliable)
-
-	globals.SecureServer.Send(responsePacket)
-
-	return 0
+	return rmcResponse, nil
 }

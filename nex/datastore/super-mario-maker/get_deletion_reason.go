@@ -1,56 +1,40 @@
 package nex_datastore_super_mario_maker
 
 import (
-	nex "github.com/PretendoNetwork/nex-go"
-	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
-	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
+	"github.com/PretendoNetwork/nex-go/v2"
+	"github.com/PretendoNetwork/nex-go/v2/types"
+	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/v2/datastore/super-mario-maker"
+	"github.com/PretendoNetwork/super-mario-maker/globals"
 )
 
-func GetDeletionReason(err error, packet nex.PacketInterface, callID uint32, dataIDLst []uint64) uint32 {
+func GetDeletionReason(err error, packet nex.PacketInterface, callID uint32, dataIDLst types.List[types.UInt64]) (*nex.RMCMessage, *nex.Error) {
 	if err != nil {
 		globals.Logger.Error(err.Error())
-		return nex.Errors.DataStore.Unknown
+		return nil, nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 	}
-
-	client := packet.Sender()
 
 	// TODO - Complete this
 	// * It's not actually known what the
 	// * real "deletion reason" values are.
 	// * This is stubbed until we figure
 	// * that out
-	pDeletionReasons := make([]uint32, 0)
+	pDeletionReasons := make(types.List[types.UInt32], 0)
 
 	for range dataIDLst {
 		// * Every course I've checked has had this
 		// * set to 0, even if the course is not
 		// * deleted
-		pDeletionReasons = append(pDeletionReasons, 0)
+		pDeletionReasons = append(pDeletionReasons, types.NewUInt32(0))
 	}
 
-	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
+	rmcResponseStream := nex.NewByteStreamOut(globals.SecureServer.LibraryVersions, globals.SecureServer.ByteStreamSettings)
 
-	rmcResponseStream.WriteListUInt32LE(pDeletionReasons)
+	pDeletionReasons.WriteTo(rmcResponseStream)
 
-	rmcResponseBody := rmcResponseStream.Bytes()
+	rmcResponse := nex.NewRMCSuccess(globals.SecureEndpoint, rmcResponseStream.Bytes())
+	rmcResponse.ProtocolID = datastore_super_mario_maker.ProtocolID
+	rmcResponse.MethodID = datastore_super_mario_maker.MethodGetDeletionReason
+	rmcResponse.CallID = callID
 
-	rmcResponse := nex.NewRMCResponse(datastore_super_mario_maker.ProtocolID, callID)
-	rmcResponse.SetSuccess(datastore_super_mario_maker.MethodGetDeletionReason, rmcResponseBody)
-
-	rmcResponseBytes := rmcResponse.Bytes()
-
-	responsePacket, _ := nex.NewPacketV1(client, nil)
-
-	responsePacket.SetVersion(1)
-	responsePacket.SetSource(0xA1)
-	responsePacket.SetDestination(0xAF)
-	responsePacket.SetType(nex.DataPacket)
-	responsePacket.SetPayload(rmcResponseBytes)
-
-	responsePacket.AddFlag(nex.FlagNeedsAck)
-	responsePacket.AddFlag(nex.FlagReliable)
-
-	globals.SecureServer.Send(responsePacket)
-
-	return 0
+	return rmcResponse, nil
 }

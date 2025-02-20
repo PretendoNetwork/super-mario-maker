@@ -1,23 +1,24 @@
 package nex_datastore_super_mario_maker
 
 import (
-	nex "github.com/PretendoNetwork/nex-go"
-	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
-	datastore_super_mario_maker_types "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker/types"
-	datastore_db "github.com/PretendoNetwork/super-mario-maker-secure/database/datastore"
-	datastore_smm_db "github.com/PretendoNetwork/super-mario-maker-secure/database/datastore/super-mario-maker"
-	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
+	"github.com/PretendoNetwork/nex-go/v2"
+	"github.com/PretendoNetwork/nex-go/v2/types"
+	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/v2/datastore/super-mario-maker"
+	datastore_super_mario_maker_types "github.com/PretendoNetwork/nex-protocols-go/v2/datastore/super-mario-maker/types"
+	datastore_db "github.com/PretendoNetwork/super-mario-maker/database/datastore"
+	datastore_smm_db "github.com/PretendoNetwork/super-mario-maker/database/datastore/super-mario-maker"
+	"github.com/PretendoNetwork/super-mario-maker/globals"
 )
 
-func AddToBufferQueues(err error, packet nex.PacketInterface, callID uint32, params []*datastore_super_mario_maker_types.BufferQueueParam, buffers [][]byte) uint32 {
+func AddToBufferQueues(err error, packet nex.PacketInterface, callID uint32, params types.List[datastore_super_mario_maker_types.BufferQueueParam], buffers types.List[types.QBuffer]) (*nex.RMCMessage, *nex.Error) {
 	if err != nil {
 		globals.Logger.Error(err.Error())
-		return nex.Errors.DataStore.Unknown
+		return nil, nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 	}
 
 	client := packet.Sender()
 
-	pResults := make([]*nex.Result, 0)
+	pResults := make(types.List[types.QResult], 0)
 
 	// * The number of params and buffers CAN be allowed
 	// * to differ, though this doesn't appear to happen
@@ -31,9 +32,9 @@ func AddToBufferQueues(err error, packet nex.PacketInterface, callID uint32, par
 		buffer := buffers[i]
 
 		if param.Slot == 0 {
-			objectInfo, errCode := datastore_db.GetObjectInfoByDataID(param.DataID)
-			if errCode != 0 {
-				return errCode
+			objectInfo, nexError := datastore_db.GetObjectInfoByDataID(param.DataID)
+			if nexError != nil {
+				return nil, nexError
 			}
 
 			// * Objects with DataType 1 are "maker" objects. When adding
@@ -44,41 +45,26 @@ func AddToBufferQueues(err error, packet nex.PacketInterface, callID uint32, par
 			// * "Starred Courses" lists, we have to verify the requesting
 			// * client owns the maker object
 			if objectInfo.DataType == 1 && objectInfo.OwnerID != client.PID() {
-				return nex.Errors.DataStore.PermissionDenied
+				return nil, nex.NewError(nex.ResultCodes.DataStore.PermissionDenied, "Permission denied")
 			}
 		}
 
-		errCode := datastore_smm_db.InsertOrUpdateBufferQueueData(param.DataID, param.Slot, buffer)
-		if errCode != 0 {
-			return errCode
+		nexError := datastore_smm_db.InsertOrUpdateBufferQueueData(param.DataID, param.Slot, buffer)
+		if nexError != nil {
+			return nil, nexError
 		}
 
-		pResults = append(pResults, nex.NewResultSuccess(nex.Errors.Core.Unknown)) // * Seems to ALWAYS be a success?
+		pResults = append(pResults, types.NewQResultSuccess(nex.ResultCodes.Core.Unknown)) // * Seems to ALWAYS be a success?
 	}
 
-	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
+	rmcResponseStream := nex.NewByteStreamOut(globals.SecureServer.LibraryVersions, globals.SecureServer.ByteStreamSettings)
 
-	rmcResponseStream.WriteListResult(pResults)
+	pResults.WriteTo(rmcResponseStream)
 
-	rmcResponseBody := rmcResponseStream.Bytes()
+	rmcResponse := nex.NewRMCSuccess(globals.SecureEndpoint, rmcResponseStream.Bytes())
+	rmcResponse.ProtocolID = datastore_super_mario_maker.ProtocolID
+	rmcResponse.MethodID = datastore_super_mario_maker.MethodAddToBufferQueues
+	rmcResponse.CallID = callID
 
-	rmcResponse := nex.NewRMCResponse(datastore_super_mario_maker.ProtocolID, callID)
-	rmcResponse.SetSuccess(datastore_super_mario_maker.MethodAddToBufferQueues, rmcResponseBody)
-
-	rmcResponseBytes := rmcResponse.Bytes()
-
-	responsePacket, _ := nex.NewPacketV1(client, nil)
-
-	responsePacket.SetVersion(1)
-	responsePacket.SetSource(0xA1)
-	responsePacket.SetDestination(0xAF)
-	responsePacket.SetType(nex.DataPacket)
-	responsePacket.SetPayload(rmcResponseBytes)
-
-	responsePacket.AddFlag(nex.FlagNeedsAck)
-	responsePacket.AddFlag(nex.FlagReliable)
-
-	globals.SecureServer.Send(responsePacket)
-
-	return 0
+	return rmcResponse, nil
 }

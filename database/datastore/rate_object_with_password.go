@@ -3,16 +3,17 @@ package datastore_db
 import (
 	"database/sql"
 
-	"github.com/PretendoNetwork/nex-go"
-	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
-	"github.com/PretendoNetwork/super-mario-maker-secure/database"
-	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
+	"github.com/PretendoNetwork/nex-go/v2"
+	"github.com/PretendoNetwork/nex-go/v2/types"
+	datastore_types "github.com/PretendoNetwork/nex-protocols-go/v2/datastore/types"
+	"github.com/PretendoNetwork/super-mario-maker/database"
+	"github.com/PretendoNetwork/super-mario-maker/globals"
 )
 
-func RateObjectWithPassword(dataID uint64, slot uint8, ratingValue int32, accessPassword uint64) (*datastore_types.DataStoreRatingInfo, uint32) {
-	errCode := IsObjectAvailableWithPassword(dataID, accessPassword)
-	if errCode != 0 {
-		return nil, errCode
+func RateObjectWithPassword(dataID types.UInt64, slot types.UInt8, ratingValue types.Int32, accessPassword types.UInt64) (datastore_types.DataStoreRatingInfo, *nex.Error) {
+	nexError := IsObjectAvailableWithPassword(dataID, accessPassword)
+	if nexError != nil {
+		return datastore_types.NewDataStoreRatingInfo(), nexError
 	}
 
 	rating := datastore_types.NewDataStoreRatingInfo()
@@ -34,13 +35,13 @@ func RateObjectWithPassword(dataID uint64, slot uint8, ratingValue int32, access
 		// * to the check at the start of the function.
 		// * This is an invalid argument
 		if err == sql.ErrNoRows {
-			return nil, nex.Errors.DataStore.InvalidArgument
+			return datastore_types.NewDataStoreRatingInfo(), nex.NewError(nex.ResultCodes.DataStore.InvalidArgument, "Invalid argument")
 		}
 
 		globals.Logger.Error(err.Error())
 		// TODO - Send more specific errors?
-		return nil, nex.Errors.DataStore.Unknown
+		return datastore_types.NewDataStoreRatingInfo(), nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 	}
 
-	return rating, 0
+	return rating, nil
 }

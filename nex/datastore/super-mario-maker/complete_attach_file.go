@@ -5,24 +5,23 @@ import (
 	"os"
 	"time"
 
-	nex "github.com/PretendoNetwork/nex-go"
-	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
-	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
-	datastore_db "github.com/PretendoNetwork/super-mario-maker-secure/database/datastore"
-	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
+	"github.com/PretendoNetwork/nex-go/v2"
+	"github.com/PretendoNetwork/nex-go/v2/types"
+	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/v2/datastore/super-mario-maker"
+	datastore_types "github.com/PretendoNetwork/nex-protocols-go/v2/datastore/types"
+	datastore_db "github.com/PretendoNetwork/super-mario-maker/database/datastore"
+	"github.com/PretendoNetwork/super-mario-maker/globals"
 )
 
-func CompleteAttachFile(err error, packet nex.PacketInterface, callID uint32, param *datastore_types.DataStoreCompletePostParam) uint32 {
+func CompleteAttachFile(err error, packet nex.PacketInterface, callID uint32, param datastore_types.DataStoreCompletePostParam) (*nex.RMCMessage, *nex.Error) {
 	if err != nil {
 		globals.Logger.Error(err.Error())
-		return nex.Errors.DataStore.Unknown
+		return nil, nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 	}
-
-	client := packet.Sender()
 
 	// TODO - What is param.IsSuccess? Is this correct?
 	if !param.IsSuccess {
-		return nex.Errors.DataStore.InvalidArgument
+		return nil, nex.NewError(nex.ResultCodes.DataStore.InvalidArgument, "Invalid argument")
 	}
 
 	bucket := os.Getenv("PN_SMM_CONFIG_S3_BUCKET")
@@ -31,53 +30,38 @@ func CompleteAttachFile(err error, packet nex.PacketInterface, callID uint32, pa
 	objectSizeS3, err := globals.S3ObjectSize(bucket, key)
 	if err != nil {
 		globals.Logger.Error(err.Error())
-		return nex.Errors.DataStore.NotFound
+		return nil, nex.NewError(nex.ResultCodes.DataStore.NotFound, "Object not found")
 	}
 
-	objectSizeDB, errCode := datastore_db.GetObjectSizeDataID(param.DataID)
-	if errCode != 0 {
-		return errCode
+	objectSizeDB, nexError := datastore_db.GetObjectSizeByDataID(param.DataID)
+	if nexError != nil {
+		return nil, nexError
 	}
 
 	if objectSizeS3 != uint64(objectSizeDB) {
 		// TODO - Is this a good error?
-		return nex.Errors.DataStore.Unknown
+		return nil, nex.NewError(nex.ResultCodes.DataStore.Unknown, "")
 	}
 
-	errCode = datastore_db.UpdateObjectUploadCompletedByDataID(param.DataID, true)
-	if errCode != 0 {
-		return errCode
+	nexError = datastore_db.UpdateObjectUploadCompletedByDataID(param.DataID, true)
+	if nexError != nil {
+		return nil, nexError
 	}
 
 	pURL, err := globals.Presigner.GetObject(bucket, key, time.Minute*15)
 	if err != nil {
 		globals.Logger.Error(err.Error())
-		return nex.Errors.DataStore.OperationNotAllowed
+		return nil, nex.NewError(nex.ResultCodes.DataStore.OperationNotAllowed, "Operation not allowed")
 	}
 
-	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
+	rmcResponseStream := nex.NewByteStreamOut(globals.SecureServer.LibraryVersions, globals.SecureServer.ByteStreamSettings)
 
-	rmcResponseStream.WriteString(pURL.String())
+	types.NewString(pURL.String()).WriteTo(rmcResponseStream)
 
-	rmcResponseBody := rmcResponseStream.Bytes()
+	rmcResponse := nex.NewRMCSuccess(globals.SecureEndpoint, rmcResponseStream.Bytes())
+	rmcResponse.ProtocolID = datastore_super_mario_maker.ProtocolID
+	rmcResponse.MethodID = datastore_super_mario_maker.MethodCompleteAttachFile
+	rmcResponse.CallID = callID
 
-	rmcResponse := nex.NewRMCResponse(datastore_super_mario_maker.ProtocolID, callID)
-	rmcResponse.SetSuccess(datastore_super_mario_maker.MethodCompleteAttachFile, rmcResponseBody)
-
-	rmcResponseBytes := rmcResponse.Bytes()
-
-	responsePacket, _ := nex.NewPacketV1(client, nil)
-
-	responsePacket.SetVersion(1)
-	responsePacket.SetSource(0xA1)
-	responsePacket.SetDestination(0xAF)
-	responsePacket.SetType(nex.DataPacket)
-	responsePacket.SetPayload(rmcResponseBytes)
-
-	responsePacket.AddFlag(nex.FlagNeedsAck)
-	responsePacket.AddFlag(nex.FlagReliable)
-
-	globals.SecureServer.Send(responsePacket)
-
-	return 0
+	return rmcResponse, nil
 }

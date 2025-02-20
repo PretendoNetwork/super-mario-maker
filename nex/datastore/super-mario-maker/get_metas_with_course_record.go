@@ -1,22 +1,21 @@
 package nex_datastore_super_mario_maker
 
 import (
-	nex "github.com/PretendoNetwork/nex-go"
-	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
-	datastore_super_mario_maker_types "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker/types"
-	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
-	datastore_db "github.com/PretendoNetwork/super-mario-maker-secure/database/datastore"
-	datastore_smm_db "github.com/PretendoNetwork/super-mario-maker-secure/database/datastore/super-mario-maker"
-	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
+	"github.com/PretendoNetwork/nex-go/v2"
+	"github.com/PretendoNetwork/nex-go/v2/types"
+	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/v2/datastore/super-mario-maker"
+	datastore_super_mario_maker_types "github.com/PretendoNetwork/nex-protocols-go/v2/datastore/super-mario-maker/types"
+	datastore_types "github.com/PretendoNetwork/nex-protocols-go/v2/datastore/types"
+	datastore_db "github.com/PretendoNetwork/super-mario-maker/database/datastore"
+	datastore_smm_db "github.com/PretendoNetwork/super-mario-maker/database/datastore/super-mario-maker"
+	"github.com/PretendoNetwork/super-mario-maker/globals"
 )
 
-func GetMetasWithCourseRecord(err error, packet nex.PacketInterface, callID uint32, params []*datastore_super_mario_maker_types.DataStoreGetCourseRecordParam, metaParam *datastore_types.DataStoreGetMetaParam) uint32 {
+func GetMetasWithCourseRecord(err error, packet nex.PacketInterface, callID uint32, params types.List[datastore_super_mario_maker_types.DataStoreGetCourseRecordParam], metaParam datastore_types.DataStoreGetMetaParam) (*nex.RMCMessage, *nex.Error) {
 	if err != nil {
 		globals.Logger.Error(err.Error())
-		return nex.Errors.DataStore.Unknown
+		return nil, nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 	}
-
-	client := packet.Sender()
 
 	// * The functionality here is largely a guess
 	// * based on how GetCourseRecord works and
@@ -25,9 +24,9 @@ func GetMetasWithCourseRecord(err error, packet nex.PacketInterface, callID uint
 	// * seems to send any parameters, though if a
 	// * custom client is used it IS functional
 
-	pMetaInfo := make([]*datastore_types.DataStoreMetaInfo, 0, len(params))
-	pCourseResults := make([]*datastore_super_mario_maker_types.DataStoreGetCourseRecordResult, 0, len(params))
-	pResults := make([]*nex.Result, 0, len(params))
+	pMetaInfo := make(types.List[datastore_types.DataStoreMetaInfo], 0, len(params))
+	pCourseResults := make(types.List[datastore_super_mario_maker_types.DataStoreGetCourseRecordResult], 0, len(params))
+	pResults := make(types.List[types.QResult], 0, len(params))
 
 	for _, param := range params {
 		// * metaParam has a password, but it's always set to 0.
@@ -35,60 +34,13 @@ func GetMetasWithCourseRecord(err error, packet nex.PacketInterface, callID uint
 		// * to be used for all objects being requested here. So
 		// * just assume metaParam is ONLY used for the resultOption
 		// * field?
-		objectInfo, errCode := datastore_db.GetObjectInfoByDataID(param.DataID)
-		if errCode != 0 {
-			// TODO - Maybe this should be broken out into a util function in globals?
+		objectInfo, nexError := datastore_db.GetObjectInfoByDataID(param.DataID)
+		if nexError != nil {
 			objectInfo = datastore_types.NewDataStoreMetaInfo()
-			objectInfo.DataID = 0
-			objectInfo.OwnerID = 0
-			objectInfo.Size = 0
-			objectInfo.Name = ""
-			objectInfo.DataType = 0
-			objectInfo.MetaBinary = []byte{}
-			objectInfo.Permission = datastore_types.NewDataStorePermission()
-			objectInfo.Permission.Permission = 0
-			objectInfo.Permission.RecipientIDs = []uint32{}
-			objectInfo.DelPermission = datastore_types.NewDataStorePermission()
-			objectInfo.DelPermission.Permission = 0
-			objectInfo.DelPermission.RecipientIDs = []uint32{}
-			objectInfo.CreatedTime = nex.NewDateTime(0)
-			objectInfo.UpdatedTime = nex.NewDateTime(0)
-			objectInfo.Period = 0
-			objectInfo.Status = 0
-			objectInfo.ReferredCnt = 0
-			objectInfo.ReferDataID = 0
-			objectInfo.Flag = 0
-			objectInfo.ReferredTime = nex.NewDateTime(0)
-			objectInfo.ExpireTime = nex.NewDateTime(0)
-			objectInfo.Tags = []string{}
-			objectInfo.Ratings = []*datastore_types.DataStoreRatingInfoWithSlot{}
 		} else {
-			errCode = globals.VerifyObjectPermission(objectInfo.OwnerID, client.PID(), objectInfo.Permission)
-			if errCode != 0 {
+			nexError = globals.DatastoreCommon.VerifyObjectPermission(objectInfo.OwnerID, packet.Sender().PID(), objectInfo.Permission)
+			if nexError != nil {
 				objectInfo = datastore_types.NewDataStoreMetaInfo()
-				objectInfo.DataID = 0
-				objectInfo.OwnerID = 0
-				objectInfo.Size = 0
-				objectInfo.Name = ""
-				objectInfo.DataType = 0
-				objectInfo.MetaBinary = []byte{}
-				objectInfo.Permission = datastore_types.NewDataStorePermission()
-				objectInfo.Permission.Permission = 0
-				objectInfo.Permission.RecipientIDs = []uint32{}
-				objectInfo.DelPermission = datastore_types.NewDataStorePermission()
-				objectInfo.DelPermission.Permission = 0
-				objectInfo.DelPermission.RecipientIDs = []uint32{}
-				objectInfo.CreatedTime = nex.NewDateTime(0)
-				objectInfo.UpdatedTime = nex.NewDateTime(0)
-				objectInfo.Period = 0
-				objectInfo.Status = 0
-				objectInfo.ReferredCnt = 0
-				objectInfo.ReferDataID = 0
-				objectInfo.Flag = 0
-				objectInfo.ReferredTime = nex.NewDateTime(0)
-				objectInfo.ExpireTime = nex.NewDateTime(0)
-				objectInfo.Tags = []string{}
-				objectInfo.Ratings = []*datastore_types.DataStoreRatingInfoWithSlot{}
 			}
 
 			// * This is kind of backwards.
@@ -101,61 +53,39 @@ func GetMetasWithCourseRecord(err error, packet nex.PacketInterface, callID uint
 			// * is *NOT* set and conditionally
 			// * *REMOVE* the field
 			if metaParam.ResultOption&0x1 == 0 {
-				objectInfo.Tags = make([]string, 0)
+				objectInfo.Tags = types.NewList[types.String]()
 			}
 
 			if metaParam.ResultOption&0x2 == 0 {
-				objectInfo.Ratings = make([]*datastore_types.DataStoreRatingInfoWithSlot, 0)
+				objectInfo.Ratings = types.NewList[datastore_types.DataStoreRatingInfoWithSlot]()
 			}
 
 			if metaParam.ResultOption&0x4 == 0 {
-				objectInfo.MetaBinary = make([]byte, 0)
+				objectInfo.MetaBinary = types.NewQBuffer(nil)
 			}
 		}
 
 		// * Ignore errors, real server sends empty struct if can't be found
-		courseRecord, errCode := datastore_smm_db.GetCourseRecordByDataIDAndSlot(param.DataID, param.Slot)
-		if errCode != 0 || objectInfo.DataID == 0 { // * DataID == 0 means could not be found or accessed
+		courseRecord, nexError := datastore_smm_db.GetCourseRecordByDataIDAndSlot(param.DataID, param.Slot)
+		if nexError != nil || objectInfo.DataID == 0 { // * DataID == 0 means could not be found or accessed
 			courseRecord = datastore_super_mario_maker_types.NewDataStoreGetCourseRecordResult()
-			courseRecord.DataID = 0
-			courseRecord.Slot = 0
-			courseRecord.FirstPID = 0
-			courseRecord.BestPID = 0
-			courseRecord.BestScore = 0
-			courseRecord.CreatedTime = nex.NewDateTime(0)
-			courseRecord.UpdatedTime = nex.NewDateTime(0)
 		}
 
 		pMetaInfo = append(pMetaInfo, objectInfo)
 		pCourseResults = append(pCourseResults, courseRecord)
-		pResults = append(pResults, nex.NewResultSuccess(nex.Errors.Core.Unknown)) // * Real server ALWAYS returns a success
+		pResults = append(pResults, types.NewQResultSuccess(nex.ResultCodes.Core.Unknown)) // * Real server ALWAYS returns a success
 	}
 
-	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
+	rmcResponseStream := nex.NewByteStreamOut(globals.SecureServer.LibraryVersions, globals.SecureServer.ByteStreamSettings)
 
-	rmcResponseStream.WriteListStructure(pMetaInfo)
-	rmcResponseStream.WriteListStructure(pCourseResults)
-	rmcResponseStream.WriteListResult(pResults)
+	pMetaInfo.WriteTo(rmcResponseStream)
+	pCourseResults.WriteTo(rmcResponseStream)
+	pResults.WriteTo(rmcResponseStream)
 
-	rmcResponseBody := rmcResponseStream.Bytes()
+	rmcResponse := nex.NewRMCSuccess(globals.SecureEndpoint, rmcResponseStream.Bytes())
+	rmcResponse.ProtocolID = datastore_super_mario_maker.ProtocolID
+	rmcResponse.MethodID = datastore_super_mario_maker.MethodGetMetasWithCourseRecord
+	rmcResponse.CallID = callID
 
-	rmcResponse := nex.NewRMCResponse(datastore_super_mario_maker.ProtocolID, callID)
-	rmcResponse.SetSuccess(datastore_super_mario_maker.MethodGetMetasWithCourseRecord, rmcResponseBody)
-
-	rmcResponseBytes := rmcResponse.Bytes()
-
-	responsePacket, _ := nex.NewPacketV1(client, nil)
-
-	responsePacket.SetVersion(1)
-	responsePacket.SetSource(0xA1)
-	responsePacket.SetDestination(0xAF)
-	responsePacket.SetType(nex.DataPacket)
-	responsePacket.SetPayload(rmcResponseBytes)
-
-	responsePacket.AddFlag(nex.FlagNeedsAck)
-	responsePacket.AddFlag(nex.FlagReliable)
-
-	globals.SecureServer.Send(responsePacket)
-
-	return 0
+	return rmcResponse, nil
 }

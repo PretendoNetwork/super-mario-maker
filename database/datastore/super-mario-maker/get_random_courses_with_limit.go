@@ -4,17 +4,18 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/PretendoNetwork/nex-go"
-	datastore_super_mario_maker_types "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker/types"
-	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
-	"github.com/PretendoNetwork/super-mario-maker-secure/database"
-	datastore_db "github.com/PretendoNetwork/super-mario-maker-secure/database/datastore"
-	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
+	"github.com/PretendoNetwork/nex-go/v2"
+	"github.com/PretendoNetwork/nex-go/v2/types"
+	datastore_super_mario_maker_types "github.com/PretendoNetwork/nex-protocols-go/v2/datastore/super-mario-maker/types"
+	datastore_types "github.com/PretendoNetwork/nex-protocols-go/v2/datastore/types"
+	"github.com/PretendoNetwork/super-mario-maker/database"
+	datastore_db "github.com/PretendoNetwork/super-mario-maker/database/datastore"
+	"github.com/PretendoNetwork/super-mario-maker/globals"
 	"github.com/lib/pq"
 )
 
-func GetRandomCoursesWithLimit(limit int) ([]*datastore_super_mario_maker_types.DataStoreCustomRankingResult, uint32) {
-	courses := make([]*datastore_super_mario_maker_types.DataStoreCustomRankingResult, 0)
+func GetRandomCoursesWithLimit(limit int) (types.List[datastore_super_mario_maker_types.DataStoreCustomRankingResult], *nex.Error) {
+	courses := make(types.List[datastore_super_mario_maker_types.DataStoreCustomRankingResult], 0)
 
 	rows, err := database.Postgres.Query(`
 		SELECT
@@ -49,12 +50,12 @@ func GetRandomCoursesWithLimit(limit int) ([]*datastore_super_mario_maker_types.
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, nex.Errors.DataStore.NotFound
+			return nil, nex.NewError(nex.ResultCodes.DataStore.NotFound, "Object not found")
 		}
 
 		globals.Logger.Error(err.Error())
 		// TODO - Send more specific errors?
-		return nil, nex.Errors.DataStore.Unknown
+		return nil, nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 	}
 
 	defer rows.Close()
@@ -65,11 +66,8 @@ func GetRandomCoursesWithLimit(limit int) ([]*datastore_super_mario_maker_types.
 		course.MetaInfo = datastore_types.NewDataStoreMetaInfo()
 		course.MetaInfo.Permission = datastore_types.NewDataStorePermission()
 		course.MetaInfo.DelPermission = datastore_types.NewDataStorePermission()
-		course.MetaInfo.CreatedTime = nex.NewDateTime(0)
-		course.MetaInfo.UpdatedTime = nex.NewDateTime(0)
-		course.MetaInfo.ReferredTime = nex.NewDateTime(0)
-		course.MetaInfo.ExpireTime = nex.NewDateTime(0x9C3f3E0000) // * 9999-12-31T00:00:00.000Z. This is what the real server sends
-		course.MetaInfo.Ratings = make([]*datastore_types.DataStoreRatingInfoWithSlot, 0)
+		course.MetaInfo.ExpireTime = types.NewDateTime(0x9C3F3E0000) // * 9999-12-31T00:00:00.000Z. This is what the real server sends
+		course.MetaInfo.Ratings = make(types.List[datastore_types.DataStoreRatingInfoWithSlot], 0)
 
 		var createdDate time.Time
 		var updatedDate time.Time
@@ -98,9 +96,9 @@ func GetRandomCoursesWithLimit(limit int) ([]*datastore_super_mario_maker_types.
 			continue
 		}
 
-		ratings, errCode := datastore_db.GetObjectRatingsWithSlotByDataID(course.MetaInfo.DataID)
-		if errCode != 0 {
-			return nil, errCode
+		ratings, nexError := datastore_db.GetObjectRatingsWithSlotByDataID(course.MetaInfo.DataID)
+		if nexError != nil {
+			return nil, nexError
 		}
 
 		course.MetaInfo.Ratings = ratings
@@ -112,5 +110,5 @@ func GetRandomCoursesWithLimit(limit int) ([]*datastore_super_mario_maker_types.
 		courses = append(courses, course)
 	}
 
-	return courses, 0
+	return courses, nil
 }

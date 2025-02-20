@@ -3,7 +3,7 @@ package main
 import (
 	"sync"
 
-	"github.com/PretendoNetwork/super-mario-maker-secure/nex"
+	"github.com/PretendoNetwork/super-mario-maker/nex"
 )
 
 var wg sync.WaitGroup

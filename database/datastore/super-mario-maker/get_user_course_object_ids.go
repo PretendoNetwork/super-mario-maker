@@ -3,14 +3,15 @@ package datastore_smm_db
 import (
 	"database/sql"
 
-	"github.com/PretendoNetwork/nex-go"
-	"github.com/PretendoNetwork/super-mario-maker-secure/database"
-	datastore_db "github.com/PretendoNetwork/super-mario-maker-secure/database/datastore"
-	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
+	"github.com/PretendoNetwork/nex-go/v2"
+	"github.com/PretendoNetwork/nex-go/v2/types"
+	"github.com/PretendoNetwork/super-mario-maker/database"
+	datastore_db "github.com/PretendoNetwork/super-mario-maker/database/datastore"
+	"github.com/PretendoNetwork/super-mario-maker/globals"
 )
 
-func GetUserCourseObjectIDs(ownerPID uint32) ([]uint64, uint32) {
-	courseObjectIDs := make([]uint64, 0)
+func GetUserCourseObjectIDs(ownerPID types.PID) (types.List[types.UInt64], *nex.Error) {
+	courseObjectIDs := make(types.List[types.UInt64], 0)
 
 	// * Course objects seem to have data types > 2 and < 50.
 	// * Data type 1 seems to be reserved for "maker" objects.
@@ -23,13 +24,13 @@ func GetUserCourseObjectIDs(ownerPID uint32) ([]uint64, uint32) {
 	// * No rows is allowed
 	if err != nil && err != sql.ErrNoRows {
 		globals.Logger.Error(err.Error())
-		return nil, nex.Errors.DataStore.Unknown
+		return nil, nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 	}
 
 	defer rows.Close()
 
 	for rows.Next() {
-		var dataID uint64
+		var dataID types.UInt64
 
 		err := rows.Scan(&dataID)
 		if err != nil {
@@ -37,8 +38,8 @@ func GetUserCourseObjectIDs(ownerPID uint32) ([]uint64, uint32) {
 			continue
 		}
 
-		errCode := datastore_db.IsObjectAvailable(dataID)
-		if errCode != 0 {
+		nexError := datastore_db.IsObjectAvailable(dataID)
+		if nexError != nil {
 			continue
 		}
 
@@ -47,8 +48,8 @@ func GetUserCourseObjectIDs(ownerPID uint32) ([]uint64, uint32) {
 
 	if err := rows.Err(); err != nil {
 		// TODO - Send more specific errors?
-		return nil, nex.Errors.DataStore.Unknown
+		return nil, nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 	}
 
-	return courseObjectIDs, 0
+	return courseObjectIDs, nil
 }

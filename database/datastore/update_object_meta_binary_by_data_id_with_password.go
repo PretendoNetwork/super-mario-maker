@@ -3,13 +3,14 @@ package datastore_db
 import (
 	"database/sql"
 
-	"github.com/PretendoNetwork/nex-go"
-	"github.com/PretendoNetwork/super-mario-maker-secure/database"
-	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
+	"github.com/PretendoNetwork/nex-go/v2"
+	"github.com/PretendoNetwork/nex-go/v2/types"
+	"github.com/PretendoNetwork/super-mario-maker/database"
+	"github.com/PretendoNetwork/super-mario-maker/globals"
 )
 
-func UpdateObjectMetaBinaryByDataIDWithPassword(dataID uint64, metaBinary []byte, password uint64) uint32 {
-	var updatePassword uint64
+func UpdateObjectMetaBinaryByDataIDWithPassword(dataID types.UInt64, metaBinary types.QBuffer, password types.UInt64) *nex.Error {
+	var updatePassword types.UInt64
 	var underReview bool
 
 	err := database.Postgres.QueryRow(`SELECT update_password, under_review FROM datastore.objects WHERE data_id=$1 AND upload_completed=TRUE AND deleted=FALSE`, dataID).Scan(
@@ -19,29 +20,29 @@ func UpdateObjectMetaBinaryByDataIDWithPassword(dataID uint64, metaBinary []byte
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nex.Errors.DataStore.NotFound
+			return nex.NewError(nex.ResultCodes.DataStore.NotFound, "Object not found")
 		}
 
 		globals.Logger.Error(err.Error())
 
 		// TODO - Send more specific errors?
-		return nex.Errors.DataStore.Unknown
+		return nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 	}
 
 	if updatePassword != 0 && updatePassword != password {
-		return nex.Errors.DataStore.InvalidPassword
+		return nex.NewError(nex.ResultCodes.DataStore.InvalidPassword, "Invalid password")
 	}
 
 	if underReview {
-		return nex.Errors.DataStore.UnderReviewing
+		return nex.NewError(nex.ResultCodes.DataStore.UnderReviewing, "This object is under review")
 	}
 
 	_, err = database.Postgres.Exec(`UPDATE datastore.objects SET meta_binary=$1 WHERE data_id=$2`, metaBinary, dataID)
 	if err != nil {
 		globals.Logger.Error(err.Error())
 		// TODO - Send more specific errors?
-		return nex.Errors.DataStore.Unknown
+		return nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 	}
 
-	return 0
+	return nil
 }

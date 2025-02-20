@@ -4,7 +4,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
+	"github.com/PretendoNetwork/super-mario-maker/globals"
 	"github.com/lib/pq"
 )
 

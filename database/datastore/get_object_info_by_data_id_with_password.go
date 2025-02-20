@@ -4,27 +4,25 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/PretendoNetwork/nex-go"
-	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
-	"github.com/PretendoNetwork/super-mario-maker-secure/database"
-	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
+	"github.com/PretendoNetwork/nex-go/v2"
+	"github.com/PretendoNetwork/nex-go/v2/types"
+	datastore_types "github.com/PretendoNetwork/nex-protocols-go/v2/datastore/types"
+	"github.com/PretendoNetwork/super-mario-maker/database"
+	"github.com/PretendoNetwork/super-mario-maker/globals"
 	"github.com/lib/pq"
 )
 
-func GetObjectInfoByDataIDWithPassword(dataID uint64, password uint64) (*datastore_types.DataStoreMetaInfo, uint32) {
-	errCode := IsObjectAvailableWithPassword(dataID, password)
-	if errCode != 0 {
-		return nil, errCode
+func GetObjectInfoByDataIDWithPassword(dataID, password types.UInt64) (datastore_types.DataStoreMetaInfo, *nex.Error) {
+	nexError := IsObjectAvailableWithPassword(dataID, password)
+	if nexError != nil {
+		return datastore_types.NewDataStoreMetaInfo(), nexError
 	}
 
 	metaInfo := datastore_types.NewDataStoreMetaInfo()
 	metaInfo.Permission = datastore_types.NewDataStorePermission()
 	metaInfo.DelPermission = datastore_types.NewDataStorePermission()
-	metaInfo.CreatedTime = nex.NewDateTime(0)
-	metaInfo.UpdatedTime = nex.NewDateTime(0)
-	metaInfo.ReferredTime = nex.NewDateTime(0)
-	metaInfo.ExpireTime = nex.NewDateTime(0x9C3f3E0000) // * 9999-12-31T00:00:00.000Z. This is what the real server sends
-	metaInfo.Ratings = make([]*datastore_types.DataStoreRatingInfoWithSlot, 0)
+	metaInfo.ExpireTime = types.NewDateTime(0x9C3F3E0000) // * 9999-12-31T00:00:00.000Z. This is what the real server sends
+	metaInfo.Ratings = make([]datastore_types.DataStoreRatingInfoWithSlot, 0)
 
 	var createdDate time.Time
 	var updatedDate time.Time
@@ -67,17 +65,17 @@ func GetObjectInfoByDataIDWithPassword(dataID uint64, password uint64) (*datasto
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, nex.Errors.DataStore.NotFound
+			return datastore_types.NewDataStoreMetaInfo(), nex.NewError(nex.ResultCodes.DataStore.NotFound, err.Error())
 		}
 
 		globals.Logger.Error(err.Error())
 		// TODO - Send more specific errors?
-		return nil, nex.Errors.DataStore.Unknown
+		return datastore_types.NewDataStoreMetaInfo(), nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 	}
 
-	ratings, errCode := GetObjectRatingsWithSlotByDataIDWithPassword(metaInfo.DataID, password)
-	if errCode != 0 {
-		return nil, errCode
+	ratings, nexError := GetObjectRatingsWithSlotByDataIDWithPassword(metaInfo.DataID, password)
+	if nexError != nil {
+		return datastore_types.NewDataStoreMetaInfo(), nexError
 	}
 
 	metaInfo.Ratings = ratings
@@ -86,5 +84,5 @@ func GetObjectInfoByDataIDWithPassword(dataID uint64, password uint64) (*datasto
 	metaInfo.UpdatedTime.FromTimestamp(updatedDate)
 	metaInfo.ReferredTime.FromTimestamp(createdDate) // * This is what the real server does
 
-	return metaInfo, 0
+	return metaInfo, nil
 }

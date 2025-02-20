@@ -3,17 +3,18 @@ package datastore_smm_db
 import (
 	"time"
 
-	"github.com/PretendoNetwork/nex-go"
-	datastore_smm_types "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker/types"
-	"github.com/PretendoNetwork/super-mario-maker-secure/database"
-	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
+	"github.com/PretendoNetwork/nex-go/v2"
+	"github.com/PretendoNetwork/nex-go/v2/types"
+	datastore_smm_types "github.com/PretendoNetwork/nex-protocols-go/v2/datastore/super-mario-maker/types"
+	"github.com/PretendoNetwork/super-mario-maker/database"
+	"github.com/PretendoNetwork/super-mario-maker/globals"
 	"github.com/lib/pq"
 )
 
-func InitializeObjectByAttachFileParam(ownerPID uint32, param *datastore_smm_types.DataStoreAttachFileParam) (uint64, uint32) {
+func InitializeObjectByAttachFileParam(ownerPID types.PID, param datastore_smm_types.DataStoreAttachFileParam) (types.UInt64, *nex.Error) {
 	now := time.Now()
 
-	var dataID uint64
+	var dataID types.UInt64
 
 	err := database.Postgres.QueryRow(`INSERT INTO datastore.objects (
 		owner,
@@ -74,8 +75,8 @@ func InitializeObjectByAttachFileParam(ownerPID uint32, param *datastore_smm_typ
 	if err != nil {
 		globals.Logger.Error(err.Error())
 		// TODO - Send more specific errors?
-		return 0, nex.Errors.DataStore.Unknown
+		return types.NewUInt64(0), nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 	}
 
-	return dataID, 0
+	return dataID, nil
 }

@@ -3,30 +3,31 @@ package datastore_db
 import (
 	"database/sql"
 
-	"github.com/PretendoNetwork/nex-go"
-	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
-	"github.com/PretendoNetwork/super-mario-maker-secure/database"
-	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
+	"github.com/PretendoNetwork/nex-go/v2"
+	"github.com/PretendoNetwork/nex-go/v2/types"
+	datastore_types "github.com/PretendoNetwork/nex-protocols-go/v2/datastore/types"
+	"github.com/PretendoNetwork/super-mario-maker/database"
+	"github.com/PretendoNetwork/super-mario-maker/globals"
 )
 
-func GetObjectRatingsWithSlotByDataIDWithPassword(dataID uint64, password uint64) ([]*datastore_types.DataStoreRatingInfoWithSlot, uint32) {
-	errCode := IsObjectAvailableWithPassword(dataID, password)
-	if errCode != 0 {
-		return nil, errCode
+func GetObjectRatingsWithSlotByDataIDWithPassword(dataID, password types.UInt64) ([]datastore_types.DataStoreRatingInfoWithSlot, *nex.Error) {
+	nexError := IsObjectAvailableWithPassword(dataID, password)
+	if nexError != nil {
+		return nil, nexError
 	}
 
-	ratings := make([]*datastore_types.DataStoreRatingInfoWithSlot, 0)
+	ratings := make([]datastore_types.DataStoreRatingInfoWithSlot, 0)
 
 	rows, err := database.Postgres.Query(`SELECT slot, total_value, count, initial_value FROM datastore.object_ratings WHERE data_id=$1`, dataID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, nex.Errors.DataStore.NotFound
+			return nil, nex.NewError(nex.ResultCodes.DataStore.NotFound, "Object not found")
 		}
 
 		globals.Logger.Error(err.Error())
 
 		// TODO - Send more specific errors?
-		return nil, nex.Errors.DataStore.Unknown
+		return nil, nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 	}
 
 	defer rows.Close()
@@ -40,7 +41,7 @@ func GetObjectRatingsWithSlotByDataIDWithPassword(dataID uint64, password uint64
 		if err != nil {
 			globals.Logger.Error(err.Error())
 			// TODO - Send more specific errors?
-			return nil, nex.Errors.DataStore.Unknown
+			return nil, nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 		}
 
 		ratings = append(ratings, rating)
@@ -49,8 +50,8 @@ func GetObjectRatingsWithSlotByDataIDWithPassword(dataID uint64, password uint64
 	if err := rows.Err(); err != nil {
 		globals.Logger.Error(err.Error())
 		// TODO - Send more specific errors?
-		return nil, nex.Errors.DataStore.Unknown
+		return nil, nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 	}
 
-	return ratings, 0
+	return ratings, nil
 }

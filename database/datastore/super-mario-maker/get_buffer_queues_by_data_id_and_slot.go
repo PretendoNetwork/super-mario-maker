@@ -3,36 +3,37 @@ package datastore_smm_db
 import (
 	"database/sql"
 
-	"github.com/PretendoNetwork/nex-go"
-	"github.com/PretendoNetwork/super-mario-maker-secure/database"
-	datastore_db "github.com/PretendoNetwork/super-mario-maker-secure/database/datastore"
+	"github.com/PretendoNetwork/nex-go/v2"
+	"github.com/PretendoNetwork/nex-go/v2/types"
+	"github.com/PretendoNetwork/super-mario-maker/database"
+	datastore_db "github.com/PretendoNetwork/super-mario-maker/database/datastore"
 )
 
-func GetBufferQueuesByDataIDAndSlot(dataID uint64, slot uint32) ([][]byte, uint32) {
-	errCode := datastore_db.IsObjectAvailable(dataID)
-	if errCode != 0 {
-		return nil, errCode
+func GetBufferQueuesByDataIDAndSlot(dataID types.UInt64, slot types.UInt32) (types.List[types.QBuffer], *nex.Error) {
+	nexError := datastore_db.IsObjectAvailable(dataID)
+	if nexError != nil {
+		return nil, nexError
 	}
 
-	bufferQueues := make([][]byte, 0)
+	bufferQueues := make(types.List[types.QBuffer], 0)
 
 	rows, err := database.Postgres.Query(`SELECT buffer FROM datastore.buffer_queues WHERE data_id=$1 AND slot=$2 ORDER BY creation_date`, dataID, slot)
 
 	// * No rows is allowed
 	if err != nil && err != sql.ErrNoRows {
 		// TODO - Send more specific errors?
-		return nil, nex.Errors.DataStore.Unknown
+		return nil, nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 	}
 
 	defer rows.Close()
 
 	for rows.Next() {
-		var buffer []byte
+		var buffer types.QBuffer
 
 		err := rows.Scan(&buffer)
 		if err != nil {
 			// TODO - Send more specific errors?
-			return nil, nex.Errors.DataStore.Unknown
+			return nil, nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 		}
 
 		bufferQueues = append(bufferQueues, buffer)
@@ -40,8 +41,8 @@ func GetBufferQueuesByDataIDAndSlot(dataID uint64, slot uint32) ([][]byte, uint3
 
 	if err := rows.Err(); err != nil {
 		// TODO - Send more specific errors?
-		return nil, nex.Errors.DataStore.Unknown
+		return nil, nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 	}
 
-	return bufferQueues, 0
+	return bufferQueues, nil
 }

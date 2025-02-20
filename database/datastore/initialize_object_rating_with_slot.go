@@ -1,13 +1,13 @@
 package datastore_db
 
 import (
-	"github.com/PretendoNetwork/nex-go"
-	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
-	"github.com/PretendoNetwork/super-mario-maker-secure/database"
-	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
+	"github.com/PretendoNetwork/nex-go/v2"
+	datastore_types "github.com/PretendoNetwork/nex-protocols-go/v2/datastore/types"
+	"github.com/PretendoNetwork/super-mario-maker/database"
+	"github.com/PretendoNetwork/super-mario-maker/globals"
 )
 
-func InitializeObjectRatingWithSlot(dataID uint64, param *datastore_types.DataStoreRatingInitParamWithSlot) uint32 {
+func InitializeObjectRatingWithSlot(dataID uint64, param datastore_types.DataStoreRatingInitParamWithSlot) *nex.Error {
 	_, err := database.Postgres.Exec(`INSERT INTO datastore.object_ratings (
 		data_id,
 		slot,
@@ -49,8 +49,8 @@ func InitializeObjectRatingWithSlot(dataID uint64, param *datastore_types.DataSt
 	if err != nil {
 		globals.Logger.Error(err.Error())
 		// TODO - Send more specific errors?
-		return nex.Errors.DataStore.Unknown
+		return nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 	}
 
-	return 0
+	return nil
 }
