@@ -16,7 +16,7 @@ func GetApplicationConfigString(err error, packet nex.PacketInterface, callID ui
 	}
 
 	// * Word blacklists?
-	config := make([]string, 0)
+	var config []string
 
 	switch applicationID {
 	case 128:

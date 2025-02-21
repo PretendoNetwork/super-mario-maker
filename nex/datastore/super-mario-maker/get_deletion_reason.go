@@ -18,7 +18,7 @@ func GetDeletionReason(err error, packet nex.PacketInterface, callID uint32, dat
 	// * real "deletion reason" values are.
 	// * This is stubbed until we figure
 	// * that out
-	pDeletionReasons := make(types.List[types.UInt32], 0)
+	pDeletionReasons := types.NewList[types.UInt32]()
 
 	for range dataIDLst {
 		// * Every course I've checked has had this

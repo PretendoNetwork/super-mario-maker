@@ -17,7 +17,7 @@ func GetObjectInfoByPersistenceTargetWithPassword(persistenceTarget datastore_ty
 	metaInfo.Permission = datastore_types.NewDataStorePermission()
 	metaInfo.DelPermission = datastore_types.NewDataStorePermission()
 	metaInfo.ExpireTime = types.NewDateTime(0x9C3F3E0000) // * 9999-12-31T00:00:00.000Z. This is what the real server sends
-	metaInfo.Ratings = make([]datastore_types.DataStoreRatingInfoWithSlot, 0)
+	metaInfo.Ratings = types.NewList[datastore_types.DataStoreRatingInfoWithSlot]()
 
 	var accessPassword types.UInt64
 	var underReview bool

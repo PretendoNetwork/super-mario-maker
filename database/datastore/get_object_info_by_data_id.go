@@ -22,7 +22,7 @@ func GetObjectInfoByDataID(dataID types.UInt64) (datastore_types.DataStoreMetaIn
 	metaInfo.Permission = datastore_types.NewDataStorePermission()
 	metaInfo.DelPermission = datastore_types.NewDataStorePermission()
 	metaInfo.ExpireTime = types.NewDateTime(0x9C3F3E0000) // * 9999-12-31T00:00:00.000Z. This is what the real server sends
-	metaInfo.Ratings = make([]datastore_types.DataStoreRatingInfoWithSlot, 0)
+	metaInfo.Ratings = types.NewList[datastore_types.DataStoreRatingInfoWithSlot]()
 
 	var createdDate time.Time
 	var updatedDate time.Time

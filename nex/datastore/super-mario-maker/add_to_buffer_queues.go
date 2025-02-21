@@ -18,7 +18,7 @@ func AddToBufferQueues(err error, packet nex.PacketInterface, callID uint32, par
 
 	client := packet.Sender()
 
-	pResults := make(types.List[types.QResult], 0)
+	pResults := types.NewList[types.QResult]()
 
 	// * The number of params and buffers CAN be allowed
 	// * to differ, though this doesn't appear to happen

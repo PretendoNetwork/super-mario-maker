@@ -11,7 +11,7 @@ import (
 )
 
 func GetUserCourseObjectIDs(ownerPID types.PID) (types.List[types.UInt64], *nex.Error) {
-	courseObjectIDs := make(types.List[types.UInt64], 0)
+	courseObjectIDs := types.NewList[types.UInt64]()
 
 	// * Course objects seem to have data types > 2 and < 50.
 	// * Data type 1 seems to be reserved for "maker" objects.

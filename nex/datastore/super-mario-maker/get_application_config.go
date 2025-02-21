@@ -23,7 +23,7 @@ func GetApplicationConfig(err error, packet nex.PacketInterface, callID uint32, 
 		return nil, nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 	}
 
-	config := make([]uint32, 0)
+	var config []uint32
 
 	switch applicationID {
 	case 0: // * Player config?

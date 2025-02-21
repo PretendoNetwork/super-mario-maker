@@ -16,7 +16,7 @@ func GetObjectRatingsWithSlotByDataIDWithPassword(dataID, password types.UInt64)
 		return nil, nexError
 	}
 
-	ratings := make([]datastore_types.DataStoreRatingInfoWithSlot, 0)
+	ratings := types.NewList[datastore_types.DataStoreRatingInfoWithSlot]()
 
 	rows, err := database.Postgres.Query(`SELECT slot, total_value, count, initial_value FROM datastore.object_ratings WHERE data_id=$1`, dataID)
 	if err != nil {

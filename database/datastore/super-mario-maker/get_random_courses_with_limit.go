@@ -15,7 +15,7 @@ import (
 )
 
 func GetRandomCoursesWithLimit(limit int) (types.List[datastore_super_mario_maker_types.DataStoreCustomRankingResult], *nex.Error) {
-	courses := make(types.List[datastore_super_mario_maker_types.DataStoreCustomRankingResult], 0)
+	courses := types.NewList[datastore_super_mario_maker_types.DataStoreCustomRankingResult]()
 
 	rows, err := database.Postgres.Query(`
 		SELECT
@@ -67,7 +67,7 @@ func GetRandomCoursesWithLimit(limit int) (types.List[datastore_super_mario_make
 		course.MetaInfo.Permission = datastore_types.NewDataStorePermission()
 		course.MetaInfo.DelPermission = datastore_types.NewDataStorePermission()
 		course.MetaInfo.ExpireTime = types.NewDateTime(0x9C3F3E0000) // * 9999-12-31T00:00:00.000Z. This is what the real server sends
-		course.MetaInfo.Ratings = make(types.List[datastore_types.DataStoreRatingInfoWithSlot], 0)
+		course.MetaInfo.Ratings = types.NewList[datastore_types.DataStoreRatingInfoWithSlot]()
 
 		var createdDate time.Time
 		var updatedDate time.Time

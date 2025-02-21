@@ -16,7 +16,7 @@ func FollowingsLatestCourseSearchObject(err error, packet nex.PacketInterface, c
 		return nil, nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 	}
 
-	pRankingResults := make(types.List[datastore_super_mario_maker_types.DataStoreCustomRankingResult], 0)
+	pRankingResults := types.NewList[datastore_super_mario_maker_types.DataStoreCustomRankingResult]()
 
 	// * This seems to ONLY be used to get rankings for course objects
 	// * uploaded by the users in param.OwnerIDs? If param.ResultOption
