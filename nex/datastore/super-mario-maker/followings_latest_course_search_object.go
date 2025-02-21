@@ -24,8 +24,8 @@ func FollowingsLatestCourseSearchObject(err error, packet nex.PacketInterface, c
 	// * does some kind of check over extraData. It's unknown what this
 	// * check is, so it's not done here. All other data in param seems
 	// * to be unused here.
-	for _, pid := range param.OwnerIDs {
-		courseObjectIDs, nexError := datastore_smm_db.GetUserCourseObjectIDs(pid)
+	for i := range param.OwnerIDs {
+		courseObjectIDs, nexError := datastore_smm_db.GetUserCourseObjectIDs(param.OwnerIDs[i])
 		if nexError != nil {
 			return nil, nexError
 		}
@@ -33,7 +33,7 @@ func FollowingsLatestCourseSearchObject(err error, packet nex.PacketInterface, c
 		// * This method seems to always use slot 0?
 		results := datastore_smm_db.GetCustomRankingsByDataIDs(types.NewUInt32(0), courseObjectIDs)
 
-		for _, rankingResult := range results {
+		for j := range results {
 			// * This is kind of backwards.
 			// * The database pulls this data
 			// * by default, so it can be done
@@ -44,23 +44,23 @@ func FollowingsLatestCourseSearchObject(err error, packet nex.PacketInterface, c
 			// * is *NOT* set and conditionally
 			// * *REMOVE* the field
 			if param.ResultOption&0x1 == 0 {
-				rankingResult.MetaInfo.Tags = types.NewList[types.String]()
+				results[j].MetaInfo.Tags = types.NewList[types.String]()
 			}
 
 			if param.ResultOption&0x2 == 0 {
-				rankingResult.MetaInfo.Ratings = types.NewList[datastore_types.DataStoreRatingInfoWithSlot]()
+				results[j].MetaInfo.Ratings = types.NewList[datastore_types.DataStoreRatingInfoWithSlot]()
 			}
 
 			if param.ResultOption&0x4 == 0 {
-				rankingResult.MetaInfo.MetaBinary = types.NewQBuffer(nil)
+				results[j].MetaInfo.MetaBinary = types.NewQBuffer(nil)
 			}
 
 			// TODO - If this flag is set, extraData is checked somehow
 			if param.ResultOption&0x20 == 0 {
-				rankingResult.Score = 0
+				results[j].Score = 0
 			}
 
-			pRankingResults = append(pRankingResults, rankingResult)
+			pRankingResults = append(pRankingResults, results[j])
 		}
 	}
 

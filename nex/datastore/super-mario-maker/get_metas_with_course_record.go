@@ -28,13 +28,13 @@ func GetMetasWithCourseRecord(err error, packet nex.PacketInterface, callID uint
 	pCourseResults := make(types.List[datastore_super_mario_maker_types.DataStoreGetCourseRecordResult], 0, len(params))
 	pResults := make(types.List[types.QResult], 0, len(params))
 
-	for _, param := range params {
+	for i := range params {
 		// * metaParam has a password, but it's always set to 0.
 		// * It also wouldn't make much sense for the same password
 		// * to be used for all objects being requested here. So
 		// * just assume metaParam is ONLY used for the resultOption
 		// * field?
-		objectInfo, nexError := datastore_db.GetObjectInfoByDataID(param.DataID)
+		objectInfo, nexError := datastore_db.GetObjectInfoByDataID(params[i].DataID)
 		if nexError != nil {
 			objectInfo = datastore_types.NewDataStoreMetaInfo()
 		} else {
@@ -66,7 +66,7 @@ func GetMetasWithCourseRecord(err error, packet nex.PacketInterface, callID uint
 		}
 
 		// * Ignore errors, real server sends empty struct if can't be found
-		courseRecord, nexError := datastore_smm_db.GetCourseRecordByDataIDAndSlot(param.DataID, param.Slot)
+		courseRecord, nexError := datastore_smm_db.GetCourseRecordByDataIDAndSlot(params[i].DataID, params[i].Slot)
 		if nexError != nil || objectInfo.DataID == 0 { // * DataID == 0 means could not be found or accessed
 			courseRecord = datastore_super_mario_maker_types.NewDataStoreGetCourseRecordResult()
 		}

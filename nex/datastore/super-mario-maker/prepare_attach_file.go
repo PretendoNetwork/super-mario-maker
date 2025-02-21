@@ -36,8 +36,8 @@ func PrepareAttachFile(err error, packet nex.PacketInterface, callID uint32, par
 	// TODO - Should this be moved to InitializeObjectByAttachFileParam?
 	// * This never seems to have any values during normal gameplay,
 	// * but just in case
-	for _, ratingInitParamWithSlot := range param.PostParam.RatingInitParams {
-		nexError = datastore_db.InitializeObjectRatingWithSlot(uint64(dataID), ratingInitParamWithSlot)
+	for i := range param.PostParam.RatingInitParams {
+		nexError = datastore_db.InitializeObjectRatingWithSlot(uint64(dataID), param.PostParam.RatingInitParams[i])
 		if nexError != nil {
 			globals.Logger.Errorf("Error code %d on rating init", nexError.ResultCode)
 			return nil, nexError

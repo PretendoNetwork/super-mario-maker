@@ -16,8 +16,8 @@ func RateCustomRanking(err error, packet nex.PacketInterface, callID uint32, par
 	}
 
 	// TODO - Check the period. The real server does check this, just unsure what it means or what the check is
-	for _, param := range params {
-		datastore_smm_db.InsertOrUpdateCustomRanking(param.DataID, param.ApplicationID, param.Score)
+	for i := range params {
+		datastore_smm_db.InsertOrUpdateCustomRanking(params[i].DataID, params[i].ApplicationID, params[i].Score)
 	}
 
 	rmcResponse := nex.NewRMCSuccess(globals.SecureEndpoint, nil)
