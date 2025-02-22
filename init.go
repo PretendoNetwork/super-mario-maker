@@ -53,6 +53,8 @@ func init() {
 
 	globals.KerberosPassword = string(kerberosPassword)
 
+	globals.InitAccounts()
+
 	if strings.TrimSpace(authenticationServerPort) == "" {
 		globals.Logger.Error("PN_SMM_AUTHENTICATION_SERVER_PORT environment variable not set")
 		os.Exit(0)
