@@ -19,7 +19,7 @@ func StartSecureServer() {
 	globals.SecureEndpoint.AccountDetailsByPID = globals.AccountDetailsByPID
 	globals.SecureEndpoint.AccountDetailsByUsername = globals.AccountDetailsByUsername
 	globals.SecureServer.BindPRUDPEndPoint(globals.SecureEndpoint)
-	globals.SecureServer.ByteStreamSettings.UseStructureHeader = false
+	globals.SecureServer.ByteStreamSettings.UseStructureHeader = true
 
 	globals.SecureServer.LibraryVersions.SetDefault(nex.NewLibraryVersion(3, 8, 3))
 	globals.SecureServer.AccessKey = "9f2b4678"
