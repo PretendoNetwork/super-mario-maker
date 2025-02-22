@@ -3,18 +3,18 @@ package datastore_db
 import (
 	"time"
 
-	"github.com/PretendoNetwork/nex-go"
-	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
-	"github.com/PretendoNetwork/super-mario-maker-secure/database"
-	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
+	"github.com/PretendoNetwork/nex-go/v2"
+	"github.com/PretendoNetwork/nex-go/v2/types"
+	datastore_types "github.com/PretendoNetwork/nex-protocols-go/v2/datastore/types"
+	"github.com/PretendoNetwork/super-mario-maker/database"
+	"github.com/PretendoNetwork/super-mario-maker/globals"
 	"github.com/lib/pq"
 )
 
-func InitializeObjectByPreparePostParam(ownerPID uint32, param *datastore_types.DataStorePreparePostParam) (uint64, uint32) {
-	now := time.Now()
-
+func InitializeObjectByPreparePostParam(ownerPID types.PID, param datastore_types.DataStorePreparePostParam) (uint64, *nex.Error) {
 	var dataID uint64
 
+	now := time.Now()
 	err := database.Postgres.QueryRow(`INSERT INTO datastore.objects (
 		owner,
 		size,
@@ -74,8 +74,8 @@ func InitializeObjectByPreparePostParam(ownerPID uint32, param *datastore_types.
 	if err != nil {
 		globals.Logger.Error(err.Error())
 		// TODO - Send more specific errors?
-		return 0, nex.Errors.DataStore.Unknown
+		return 0, nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 	}
 
-	return dataID, 0
+	return dataID, nil
 }

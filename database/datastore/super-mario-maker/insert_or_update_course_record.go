@@ -3,17 +3,18 @@ package datastore_smm_db
 import (
 	"time"
 
-	"github.com/PretendoNetwork/nex-go"
-	"github.com/PretendoNetwork/super-mario-maker-secure/database"
-	datastore_db "github.com/PretendoNetwork/super-mario-maker-secure/database/datastore"
-	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
+	"github.com/PretendoNetwork/nex-go/v2"
+	"github.com/PretendoNetwork/nex-go/v2/types"
+	"github.com/PretendoNetwork/super-mario-maker/database"
+	datastore_db "github.com/PretendoNetwork/super-mario-maker/database/datastore"
+	"github.com/PretendoNetwork/super-mario-maker/globals"
 )
 
-func InsertOrUpdateCourseRecord(dataID uint64, slot uint8, pid uint32, score int32) uint32 {
-	errCode := datastore_db.IsObjectAvailable(dataID)
-	if errCode != 0 {
-		globals.Logger.Errorf("Error code %d", errCode)
-		return errCode
+func InsertOrUpdateCourseRecord(dataID types.UInt64, slot types.UInt8, pid types.PID, score types.Int32) *nex.Error {
+	nexError := datastore_db.IsObjectAvailable(dataID)
+	if nexError != nil {
+		globals.Logger.Errorf("Error code %d", nexError.ResultCode)
+		return nexError
 	}
 
 	now := time.Now()
@@ -50,8 +51,8 @@ func InsertOrUpdateCourseRecord(dataID uint64, slot uint8, pid uint32, score int
 	if err != nil {
 		globals.Logger.Error(err.Error())
 		// TODO - Send more specific errors?
-		return nex.Errors.DataStore.Unknown
+		return nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 	}
 
-	return 0
+	return nil
 }

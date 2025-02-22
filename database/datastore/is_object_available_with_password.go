@@ -3,14 +3,15 @@ package datastore_db
 import (
 	"database/sql"
 
-	"github.com/PretendoNetwork/nex-go"
-	"github.com/PretendoNetwork/super-mario-maker-secure/database"
-	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
+	"github.com/PretendoNetwork/nex-go/v2"
+	"github.com/PretendoNetwork/nex-go/v2/types"
+	"github.com/PretendoNetwork/super-mario-maker/database"
+	"github.com/PretendoNetwork/super-mario-maker/globals"
 )
 
-func IsObjectAvailableWithPassword(dataID, password uint64) uint32 {
+func IsObjectAvailableWithPassword(dataID, password types.UInt64) *nex.Error {
 	var underReview bool
-	var accessPassword uint64
+	var accessPassword types.UInt64
 
 	err := database.Postgres.QueryRow(`SELECT
 		under_review,
@@ -22,21 +23,21 @@ func IsObjectAvailableWithPassword(dataID, password uint64) uint32 {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nex.Errors.DataStore.NotFound
+			return nex.NewError(nex.ResultCodes.DataStore.NotFound, "Object not found")
 		}
 
 		globals.Logger.Error(err.Error())
 		// TODO - Send more specific errors?
-		return nex.Errors.DataStore.Unknown
+		return nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 	}
 
 	if accessPassword != 0 && accessPassword != password {
-		return nex.Errors.DataStore.InvalidPassword
+		return nex.NewError(nex.ResultCodes.DataStore.InvalidPassword, "Invalid password")
 	}
 
 	if underReview {
-		return nex.Errors.DataStore.UnderReviewing
+		return nex.NewError(nex.ResultCodes.DataStore.UnderReviewing, "This object is currently under review")
 	}
 
-	return 0
+	return nil
 }

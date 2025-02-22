@@ -3,9 +3,10 @@ package nex_datastore_super_mario_maker
 import (
 	"fmt"
 
-	nex "github.com/PretendoNetwork/nex-go"
-	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
-	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
+	"github.com/PretendoNetwork/nex-go/v2"
+	"github.com/PretendoNetwork/nex-go/v2/types"
+	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/v2/datastore/super-mario-maker"
+	"github.com/PretendoNetwork/super-mario-maker/globals"
 )
 
 // * Nintendo sets this to 10 by default
@@ -16,15 +17,13 @@ import (
 // * more, but 100 is fine tbh
 var MAX_COURSE_UPLOADS uint32 = 100
 
-func GetApplicationConfig(err error, packet nex.PacketInterface, callID uint32, applicationID uint32) uint32 {
+func GetApplicationConfig(err error, packet nex.PacketInterface, callID uint32, applicationID types.UInt32) (*nex.RMCMessage, *nex.Error) {
 	if err != nil {
 		globals.Logger.Error(err.Error())
-		return nex.Errors.DataStore.Unknown
+		return nil, nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 	}
 
-	client := packet.Sender()
-
-	config := make([]uint32, 0)
+	var config []uint32
 
 	switch applicationID {
 	case 0: // * Player config?
@@ -39,31 +38,21 @@ func GetApplicationConfig(err error, packet nex.PacketInterface, callID uint32, 
 		fmt.Printf("[Warning] DataStoreSMMProtocol::GetApplicationConfig Unsupported applicationID: %v\n", applicationID)
 	}
 
-	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
+	configNative := make(types.List[types.UInt32], 0, len(config))
+	for i := range config {
+		configNative = append(configNative, types.NewUInt32(config[i]))
+	}
 
-	rmcResponseStream.WriteListUInt32LE(config)
+	rmcResponseStream := nex.NewByteStreamOut(globals.SecureServer.LibraryVersions, globals.SecureServer.ByteStreamSettings)
 
-	rmcResponseBody := rmcResponseStream.Bytes()
+	configNative.WriteTo(rmcResponseStream)
 
-	rmcResponse := nex.NewRMCResponse(datastore_super_mario_maker.ProtocolID, callID)
-	rmcResponse.SetSuccess(datastore_super_mario_maker.MethodGetApplicationConfig, rmcResponseBody)
+	rmcResponse := nex.NewRMCSuccess(globals.SecureEndpoint, rmcResponseStream.Bytes())
+	rmcResponse.ProtocolID = datastore_super_mario_maker.ProtocolID
+	rmcResponse.MethodID = datastore_super_mario_maker.MethodGetApplicationConfig
+	rmcResponse.CallID = callID
 
-	rmcResponseBytes := rmcResponse.Bytes()
-
-	responsePacket, _ := nex.NewPacketV1(client, nil)
-
-	responsePacket.SetVersion(1)
-	responsePacket.SetSource(0xA1)
-	responsePacket.SetDestination(0xAF)
-	responsePacket.SetType(nex.DataPacket)
-	responsePacket.SetPayload(rmcResponseBytes)
-
-	responsePacket.AddFlag(nex.FlagNeedsAck)
-	responsePacket.AddFlag(nex.FlagReliable)
-
-	globals.SecureServer.Send(responsePacket)
-
-	return 0
+	return rmcResponse, nil
 }
 
 func getApplicationConfig_PlayerConfig() []uint32 {
@@ -87,7 +76,7 @@ func getApplicationConfig_PlayerConfig() []uint32 {
 func getApplicationConfig_OfficialMakers() []uint32 {
 	// * Used as the PIDs for the "Official" makers in the "MAKERS" section
 	return []uint32{
-		2, // * Not a real user PID, this translates to the internal Quazal Rendez-Vous user used by NEX
+		2,          // * Not a real user PID, this translates to the internal Quazal Rendez-Vous user used by NEX
 		1770179696, // * "official_player0" on NN, need to make PN versions
 		1770179664, // * "official_player1" on NN, need to make PN versions
 		1770179640, // * "official_player2" on NN, need to make PN versions

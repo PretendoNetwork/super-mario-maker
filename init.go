@@ -1,14 +1,15 @@
 package main
 
 import (
+	"crypto/rand"
 	"fmt"
 	"os"
 	"strconv"
 	"strings"
 
-	pb "github.com/PretendoNetwork/grpc-go/account"
-	"github.com/PretendoNetwork/super-mario-maker-secure/database"
-	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
+	pb "github.com/PretendoNetwork/grpc/go/account"
+	"github.com/PretendoNetwork/super-mario-maker/database"
+	"github.com/PretendoNetwork/super-mario-maker/globals"
 	"github.com/joho/godotenv"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -31,7 +32,6 @@ func init() {
 	s3SecureEnv := os.Getenv("PN_SMM_CONFIG_S3_SECURE")
 
 	postgresURI := os.Getenv("PN_SMM_POSTGRES_URI")
-	kerberosPassword := os.Getenv("PN_SMM_KERBEROS_PASSWORD")
 	authenticationServerPort := os.Getenv("PN_SMM_AUTHENTICATION_SERVER_PORT")
 	secureServerHost := os.Getenv("PN_SMM_SECURE_SERVER_HOST")
 	secureServerPort := os.Getenv("PN_SMM_SECURE_SERVER_PORT")
@@ -44,11 +44,14 @@ func init() {
 		os.Exit(0)
 	}
 
-	if strings.TrimSpace(kerberosPassword) == "" {
-		globals.Logger.Warningf("PN_SMM_KERBEROS_PASSWORD environment variable not set. Using default password: %q", globals.KerberosPassword)
-	} else {
-		globals.KerberosPassword = kerberosPassword
+	kerberosPassword := make([]byte, 0x10)
+	_, err = rand.Read(kerberosPassword)
+	if err != nil {
+		globals.Logger.Error("Error generating Kerberos password")
+		os.Exit(0)
 	}
+
+	globals.KerberosPassword = string(kerberosPassword)
 
 	if strings.TrimSpace(authenticationServerPort) == "" {
 		globals.Logger.Error("PN_SMM_AUTHENTICATION_SERVER_PORT environment variable not set")

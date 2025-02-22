@@ -3,21 +3,22 @@ package datastore_smm_db
 import (
 	"database/sql"
 
-	datastore_super_mario_maker_types "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker/types"
-	"github.com/PretendoNetwork/super-mario-maker-secure/database"
-	datastore_db "github.com/PretendoNetwork/super-mario-maker-secure/database/datastore"
-	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
+	"github.com/PretendoNetwork/nex-go/v2/types"
+	datastore_super_mario_maker_types "github.com/PretendoNetwork/nex-protocols-go/v2/datastore/super-mario-maker/types"
+	"github.com/PretendoNetwork/super-mario-maker/database"
+	datastore_db "github.com/PretendoNetwork/super-mario-maker/database/datastore"
+	"github.com/PretendoNetwork/super-mario-maker/globals"
 	"github.com/lib/pq"
 )
 
-func GetCustomRankingsByDataIDs(applicationID uint32, dataIDs []uint64) []*datastore_super_mario_maker_types.DataStoreCustomRankingResult {
+func GetCustomRankingsByDataIDs(applicationID types.UInt32, dataIDs types.List[types.UInt64]) types.List[datastore_super_mario_maker_types.DataStoreCustomRankingResult] {
 	// * Unlike other methods which query for multiple objects,
 	// * DataStoreSMM::GetCustomRankingByDataID *OMITS* objects
 	// * from it's response if they could not be found, rather
 	// * than using a zero-ed object and DataStore::NotFound as
 	// * the Result. Because of this, all errors are just thrown
 	// * away here and not sent back to the client
-	results := make([]*datastore_super_mario_maker_types.DataStoreCustomRankingResult, 0, len(dataIDs))
+	results := make(types.List[datastore_super_mario_maker_types.DataStoreCustomRankingResult], 0, len(dataIDs))
 
 	// * Using UNNEST and WITH ORDINALITY because the input
 	// * array may contain duplicate DataIDs. These duplicate
@@ -48,8 +49,8 @@ func GetCustomRankingsByDataIDs(applicationID uint32, dataIDs []uint64) []*datas
 	defer rows.Close()
 
 	for rows.Next() {
-		var dataID uint64
-		var value uint32
+		var dataID types.UInt64
+		var value types.UInt32
 
 		err := rows.Scan(&dataID, &value)
 		if err != nil {
@@ -57,9 +58,9 @@ func GetCustomRankingsByDataIDs(applicationID uint32, dataIDs []uint64) []*datas
 			continue
 		}
 
-		objectInfo, errCode := datastore_db.GetObjectInfoByDataID(dataID)
-		if errCode != 0 {
-			globals.Logger.Errorf("Got error code %d for object %d", errCode, dataID)
+		objectInfo, nexError := datastore_db.GetObjectInfoByDataID(dataID)
+		if nexError != nil {
+			globals.Logger.Errorf("Got error code %d for object %d", nexError.ResultCode, dataID)
 			continue
 		}
 

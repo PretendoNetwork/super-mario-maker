@@ -1,26 +1,25 @@
 package nex_datastore_super_mario_maker
 
 import (
-	nex "github.com/PretendoNetwork/nex-go"
-	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
-	datastore_super_mario_maker_types "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker/types"
-	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
-	datastore_smm_db "github.com/PretendoNetwork/super-mario-maker-secure/database/datastore/super-mario-maker"
-	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
+	"github.com/PretendoNetwork/nex-go/v2"
+	"github.com/PretendoNetwork/nex-go/v2/types"
+	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/v2/datastore/super-mario-maker"
+	datastore_super_mario_maker_types "github.com/PretendoNetwork/nex-protocols-go/v2/datastore/super-mario-maker/types"
+	datastore_types "github.com/PretendoNetwork/nex-protocols-go/v2/datastore/types"
+	datastore_smm_db "github.com/PretendoNetwork/super-mario-maker/database/datastore/super-mario-maker"
+	"github.com/PretendoNetwork/super-mario-maker/globals"
 )
 
-func GetCustomRankingByDataID(err error, packet nex.PacketInterface, callID uint32, param *datastore_super_mario_maker_types.DataStoreGetCustomRankingByDataIDParam) uint32 {
+func GetCustomRankingByDataID(err error, packet nex.PacketInterface, callID uint32, param datastore_super_mario_maker_types.DataStoreGetCustomRankingByDataIDParam) (*nex.RMCMessage, *nex.Error) {
 	if err != nil {
 		globals.Logger.Error(err.Error())
-		return nex.Errors.DataStore.Unknown
+		return nil, nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 	}
 
-	client := packet.Sender()
-
 	pRankingResult := datastore_smm_db.GetCustomRankingsByDataIDs(param.ApplicationID, param.DataIDList)
-	pResults := make([]*nex.Result, 0, len(param.DataIDList))
+	pResults := make(types.List[types.QResult], 0, len(param.DataIDList))
 
-	for _, rankingResult := range pRankingResult {
+	for i := range pRankingResult {
 		// * This is kind of backwards.
 		// * The database pulls this data
 		// * by default, so it can be done
@@ -31,51 +30,36 @@ func GetCustomRankingByDataID(err error, packet nex.PacketInterface, callID uint
 		// * is *NOT* set and conditionally
 		// * *REMOVE* the field
 		if param.ResultOption&0x1 == 0 {
-			rankingResult.MetaInfo.Tags = make([]string, 0)
+			pRankingResult[i].MetaInfo.Tags = types.NewList[types.String]()
 		}
 
 		if param.ResultOption&0x2 == 0 {
-			rankingResult.MetaInfo.Ratings = make([]*datastore_types.DataStoreRatingInfoWithSlot, 0)
+			pRankingResult[i].MetaInfo.Ratings = types.NewList[datastore_types.DataStoreRatingInfoWithSlot]()
 		}
 
 		if param.ResultOption&0x4 == 0 {
-			rankingResult.MetaInfo.MetaBinary = make([]byte, 0)
+			pRankingResult[i].MetaInfo.MetaBinary = types.NewQBuffer(nil)
 		}
 
 		if param.ResultOption&0x20 == 0 {
-			rankingResult.Score = 0
+			pRankingResult[i].Score = 0
 		}
 
 		// * Since all errors are thrown away in
 		// * datastore_smm_db.GetCustomRankingsByDataIDs
 		// * assume all objects returned were a success
-		pResults = append(pResults, nex.NewResultSuccess(nex.Errors.Core.Unknown))
+		pResults = append(pResults, types.NewQResultSuccess(nex.ResultCodes.Core.Unknown))
 	}
 
-	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
+	rmcResponseStream := nex.NewByteStreamOut(globals.SecureServer.LibraryVersions, globals.SecureServer.ByteStreamSettings)
 
-	rmcResponseStream.WriteListStructure(pRankingResult)
-	rmcResponseStream.WriteListResult(pResults)
+	pRankingResult.WriteTo(rmcResponseStream)
+	pResults.WriteTo(rmcResponseStream)
 
-	rmcResponseBody := rmcResponseStream.Bytes()
+	rmcResponse := nex.NewRMCSuccess(globals.SecureEndpoint, rmcResponseStream.Bytes())
+	rmcResponse.ProtocolID = datastore_super_mario_maker.ProtocolID
+	rmcResponse.MethodID = datastore_super_mario_maker.MethodGetCustomRankingByDataID
+	rmcResponse.CallID = callID
 
-	rmcResponse := nex.NewRMCResponse(datastore_super_mario_maker.ProtocolID, callID)
-	rmcResponse.SetSuccess(datastore_super_mario_maker.MethodGetCustomRankingByDataID, rmcResponseBody)
-
-	rmcResponseBytes := rmcResponse.Bytes()
-
-	responsePacket, _ := nex.NewPacketV1(client, nil)
-
-	responsePacket.SetVersion(1)
-	responsePacket.SetSource(0xA1)
-	responsePacket.SetDestination(0xAF)
-	responsePacket.SetType(nex.DataPacket)
-	responsePacket.SetPayload(rmcResponseBytes)
-
-	responsePacket.AddFlag(nex.FlagNeedsAck)
-	responsePacket.AddFlag(nex.FlagReliable)
-
-	globals.SecureServer.Send(responsePacket)
-
-	return 0
+	return rmcResponse, nil
 }

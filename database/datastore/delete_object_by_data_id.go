@@ -1,23 +1,24 @@
 package datastore_db
 
 import (
-	"github.com/PretendoNetwork/nex-go"
-	"github.com/PretendoNetwork/super-mario-maker-secure/database"
-	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
+	"github.com/PretendoNetwork/nex-go/v2"
+	"github.com/PretendoNetwork/nex-go/v2/types"
+	"github.com/PretendoNetwork/super-mario-maker/database"
+	"github.com/PretendoNetwork/super-mario-maker/globals"
 )
 
-func DeleteObjectByDataID(dataID uint64) uint32 {
-	errCode := IsObjectAvailable(dataID)
-	if errCode != 0 {
-		return errCode
+func DeleteObjectByDataID(dataID types.UInt64) *nex.Error {
+	nexError := IsObjectAvailable(dataID)
+	if nexError != nil {
+		return nexError
 	}
 
 	_, err := database.Postgres.Exec(`UPDATE datastore.objects SET deleted=TRUE WHERE data_id=$1`, dataID)
 	if err != nil {
 		globals.Logger.Error(err.Error())
 		// TODO - Send more specific errors?
-		return nex.Errors.DataStore.Unknown
+		return nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 	}
 
-	return 0
+	return nil
 }

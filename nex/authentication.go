@@ -3,33 +3,41 @@ package nex
 import (
 	"fmt"
 	"os"
+	"strconv"
 
-	nex "github.com/PretendoNetwork/nex-go"
-	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
+	nex "github.com/PretendoNetwork/nex-go/v2"
+	"github.com/PretendoNetwork/super-mario-maker/globals"
 )
 
 var serverBuildString string
 
 func StartAuthenticationServer() {
-	globals.AuthenticationServer = nex.NewServer()
-	globals.AuthenticationServer.SetPRUDPVersion(1)
-	globals.AuthenticationServer.SetPRUDPProtocolMinorVersion(2)
-	globals.AuthenticationServer.SetDefaultNEXVersion(nex.NewPatchedNEXVersion(3, 8, 3, "AMAJ"))
-	globals.AuthenticationServer.SetKerberosPassword(globals.KerberosPassword)
-	globals.AuthenticationServer.SetAccessKey("9f2b4678")
+	serverBuildString = "branch:origin/project/nfs build:3_10_26_2006_0"
 
-	globals.AuthenticationServer.On("Data", func(packet *nex.PacketV1) {
-		request := packet.RMCRequest()
+	globals.AuthenticationServer = nex.NewPRUDPServer()
 
-		fmt.Println("==SMM1 - Auth==")
-		fmt.Printf("Protocol ID: %d\n", request.ProtocolID())
-		fmt.Printf("Method ID: %d\n", request.MethodID())
-		fmt.Println("===============")
+	globals.AuthenticationEndpoint = nex.NewPRUDPEndPoint(1)
+	globals.AuthenticationEndpoint.ServerAccount = globals.AuthenticationServerAccount
+	globals.AuthenticationEndpoint.AccountDetailsByPID = globals.AccountDetailsByPID
+	globals.AuthenticationEndpoint.AccountDetailsByUsername = globals.AccountDetailsByUsername
+	globals.AuthenticationServer.BindPRUDPEndPoint(globals.AuthenticationEndpoint)
+	globals.AuthenticationServer.ByteStreamSettings.UseStructureHeader = false
+
+	globals.AuthenticationServer.LibraryVersions.SetDefault(nex.NewLibraryVersion(3, 8, 3))
+	globals.AuthenticationServer.AccessKey = "9f2b4678"
+
+	globals.AuthenticationEndpoint.OnData(func(packet nex.PacketInterface) {
+		request := packet.RMCMessage()
+
+		fmt.Println("=== SMM1 - Auth ===")
+		fmt.Printf("Protocol ID: %d\n", request.ProtocolID)
+		fmt.Printf("Method ID: %d\n", request.MethodID)
+		fmt.Println("==================")
 	})
-
-	serverBuildString = "build:3_8_29_3022_0"
 
 	registerCommonAuthenticationServerProtocols()
 
-	globals.AuthenticationServer.Listen(fmt.Sprintf(":%s", os.Getenv("PN_SMM_AUTHENTICATION_SERVER_PORT")))
+	port, _ := strconv.Atoi(os.Getenv("PN_SMM_AUTHENTICATION_SERVER_PORT"))
+
+	globals.AuthenticationServer.Listen(port)
 }

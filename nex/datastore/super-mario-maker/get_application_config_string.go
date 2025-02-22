@@ -3,21 +3,20 @@ package nex_datastore_super_mario_maker
 import (
 	"fmt"
 
-	nex "github.com/PretendoNetwork/nex-go"
-	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
-	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
+	"github.com/PretendoNetwork/nex-go/v2"
+	"github.com/PretendoNetwork/nex-go/v2/types"
+	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/v2/datastore/super-mario-maker"
+	"github.com/PretendoNetwork/super-mario-maker/globals"
 )
 
-func GetApplicationConfigString(err error, packet nex.PacketInterface, callID uint32, applicationID uint32) uint32 {
+func GetApplicationConfigString(err error, packet nex.PacketInterface, callID uint32, applicationID types.UInt32) (*nex.RMCMessage, *nex.Error) {
 	if err != nil {
 		globals.Logger.Error(err.Error())
-		return nex.Errors.DataStore.Unknown
+		return nil, nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 	}
 
-	client := packet.Sender()
-
 	// * Word blacklists?
-	config := make([]string, 0)
+	var config []string
 
 	switch applicationID {
 	case 128:
@@ -30,31 +29,21 @@ func GetApplicationConfigString(err error, packet nex.PacketInterface, callID ui
 		fmt.Printf("[Warning] DataStoreSMMProtocol::GetApplicationConfigString Unsupported applicationID: %v\n", applicationID)
 	}
 
-	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
+	configNative := make(types.List[types.String], 0, len(config))
+	for i := range config {
+		configNative = append(configNative, types.NewString(config[i]))
+	}
 
-	rmcResponseStream.WriteListString(config)
+	rmcResponseStream := nex.NewByteStreamOut(globals.SecureServer.LibraryVersions, globals.SecureServer.ByteStreamSettings)
 
-	rmcResponseBody := rmcResponseStream.Bytes()
+	configNative.WriteTo(rmcResponseStream)
 
-	rmcResponse := nex.NewRMCResponse(datastore_super_mario_maker.ProtocolID, callID)
-	rmcResponse.SetSuccess(datastore_super_mario_maker.MethodGetApplicationConfigString, rmcResponseBody)
+	rmcResponse := nex.NewRMCSuccess(globals.SecureEndpoint, rmcResponseStream.Bytes())
+	rmcResponse.ProtocolID = datastore_super_mario_maker.ProtocolID
+	rmcResponse.MethodID = datastore_super_mario_maker.MethodGetApplicationConfigString
+	rmcResponse.CallID = callID
 
-	rmcResponseBytes := rmcResponse.Bytes()
-
-	responsePacket, _ := nex.NewPacketV1(client, nil)
-
-	responsePacket.SetVersion(1)
-	responsePacket.SetSource(0xA1)
-	responsePacket.SetDestination(0xAF)
-	responsePacket.SetType(nex.DataPacket)
-	responsePacket.SetPayload(rmcResponseBytes)
-
-	responsePacket.AddFlag(nex.FlagNeedsAck)
-	responsePacket.AddFlag(nex.FlagReliable)
-
-	globals.SecureServer.Send(responsePacket)
-
-	return 0
+	return rmcResponse, nil
 }
 
 func getApplicationConfigString_WordBlacklist1() []string {

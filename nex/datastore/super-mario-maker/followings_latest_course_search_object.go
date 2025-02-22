@@ -1,23 +1,22 @@
 package nex_datastore_super_mario_maker
 
 import (
-	nex "github.com/PretendoNetwork/nex-go"
-	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker"
-	datastore_super_mario_maker_types "github.com/PretendoNetwork/nex-protocols-go/datastore/super-mario-maker/types"
-	datastore_types "github.com/PretendoNetwork/nex-protocols-go/datastore/types"
-	datastore_smm_db "github.com/PretendoNetwork/super-mario-maker-secure/database/datastore/super-mario-maker"
-	"github.com/PretendoNetwork/super-mario-maker-secure/globals"
+	"github.com/PretendoNetwork/nex-go/v2"
+	"github.com/PretendoNetwork/nex-go/v2/types"
+	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/v2/datastore/super-mario-maker"
+	datastore_super_mario_maker_types "github.com/PretendoNetwork/nex-protocols-go/v2/datastore/super-mario-maker/types"
+	datastore_types "github.com/PretendoNetwork/nex-protocols-go/v2/datastore/types"
+	datastore_smm_db "github.com/PretendoNetwork/super-mario-maker/database/datastore/super-mario-maker"
+	"github.com/PretendoNetwork/super-mario-maker/globals"
 )
 
-func FollowingsLatestCourseSearchObject(err error, packet nex.PacketInterface, callID uint32, param *datastore_types.DataStoreSearchParam, extraData []string) uint32 {
+func FollowingsLatestCourseSearchObject(err error, packet nex.PacketInterface, callID uint32, param datastore_types.DataStoreSearchParam, extraData types.List[types.String]) (*nex.RMCMessage, *nex.Error) {
 	if err != nil {
 		globals.Logger.Error(err.Error())
-		return nex.Errors.DataStore.Unknown
+		return nil, nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 	}
 
-	client := packet.Sender()
-
-	pRankingResults := make([]*datastore_super_mario_maker_types.DataStoreCustomRankingResult, 0)
+	pRankingResults := types.NewList[datastore_super_mario_maker_types.DataStoreCustomRankingResult]()
 
 	// * This seems to ONLY be used to get rankings for course objects
 	// * uploaded by the users in param.OwnerIDs? If param.ResultOption
@@ -25,16 +24,16 @@ func FollowingsLatestCourseSearchObject(err error, packet nex.PacketInterface, c
 	// * does some kind of check over extraData. It's unknown what this
 	// * check is, so it's not done here. All other data in param seems
 	// * to be unused here.
-	for _, pid := range param.OwnerIDs {
-		courseObjectIDs, errCode := datastore_smm_db.GetUserCourseObjectIDs(pid)
-		if errCode != 0 {
-			return errCode
+	for i := range param.OwnerIDs {
+		courseObjectIDs, nexError := datastore_smm_db.GetUserCourseObjectIDs(param.OwnerIDs[i])
+		if nexError != nil {
+			return nil, nexError
 		}
 
 		// * This method seems to always use slot 0?
-		results := datastore_smm_db.GetCustomRankingsByDataIDs(0, courseObjectIDs)
+		results := datastore_smm_db.GetCustomRankingsByDataIDs(types.NewUInt32(0), courseObjectIDs)
 
-		for _, rankingResult := range results {
+		for j := range results {
 			// * This is kind of backwards.
 			// * The database pulls this data
 			// * by default, so it can be done
@@ -45,49 +44,34 @@ func FollowingsLatestCourseSearchObject(err error, packet nex.PacketInterface, c
 			// * is *NOT* set and conditionally
 			// * *REMOVE* the field
 			if param.ResultOption&0x1 == 0 {
-				rankingResult.MetaInfo.Tags = make([]string, 0)
+				results[j].MetaInfo.Tags = types.NewList[types.String]()
 			}
 
 			if param.ResultOption&0x2 == 0 {
-				rankingResult.MetaInfo.Ratings = make([]*datastore_types.DataStoreRatingInfoWithSlot, 0)
+				results[j].MetaInfo.Ratings = types.NewList[datastore_types.DataStoreRatingInfoWithSlot]()
 			}
 
 			if param.ResultOption&0x4 == 0 {
-				rankingResult.MetaInfo.MetaBinary = make([]byte, 0)
+				results[j].MetaInfo.MetaBinary = types.NewQBuffer(nil)
 			}
 
 			// TODO - If this flag is set, extraData is checked somehow
 			if param.ResultOption&0x20 == 0 {
-				rankingResult.Score = 0
+				results[j].Score = 0
 			}
 
-			pRankingResults = append(pRankingResults, rankingResult)
+			pRankingResults = append(pRankingResults, results[j])
 		}
 	}
 
-	rmcResponseStream := nex.NewStreamOut(globals.SecureServer)
+	rmcResponseStream := nex.NewByteStreamOut(globals.SecureServer.LibraryVersions, globals.SecureServer.ByteStreamSettings)
 
-	rmcResponseStream.WriteListStructure(pRankingResults)
+	pRankingResults.WriteTo(rmcResponseStream)
 
-	rmcResponseBody := rmcResponseStream.Bytes()
+	rmcResponse := nex.NewRMCSuccess(globals.SecureEndpoint, rmcResponseStream.Bytes())
+	rmcResponse.ProtocolID = datastore_super_mario_maker.ProtocolID
+	rmcResponse.MethodID = datastore_super_mario_maker.MethodFollowingsLatestCourseSearchObject
+	rmcResponse.CallID = callID
 
-	rmcResponse := nex.NewRMCResponse(datastore_super_mario_maker.ProtocolID, callID)
-	rmcResponse.SetSuccess(datastore_super_mario_maker.MethodFollowingsLatestCourseSearchObject, rmcResponseBody)
-
-	rmcResponseBytes := rmcResponse.Bytes()
-
-	responsePacket, _ := nex.NewPacketV1(client, nil)
-
-	responsePacket.SetVersion(1)
-	responsePacket.SetSource(0xA1)
-	responsePacket.SetDestination(0xAF)
-	responsePacket.SetType(nex.DataPacket)
-	responsePacket.SetPayload(rmcResponseBytes)
-
-	responsePacket.AddFlag(nex.FlagNeedsAck)
-	responsePacket.AddFlag(nex.FlagReliable)
-
-	globals.SecureServer.Send(responsePacket)
-
-	return 0
+	return rmcResponse, nil
 }
