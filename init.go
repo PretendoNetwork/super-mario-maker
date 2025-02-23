@@ -8,17 +8,23 @@ import (
 	"strings"
 
 	pb "github.com/PretendoNetwork/grpc/go/account"
+	"github.com/PretendoNetwork/plogger-go"
 	"github.com/PretendoNetwork/super-mario-maker/database"
 	"github.com/PretendoNetwork/super-mario-maker/globals"
 	"github.com/joho/godotenv"
-	"github.com/minio/minio-go/v7"
-	"github.com/minio/minio-go/v7/pkg/credentials"
+
+	"github.com/PretendoNetwork/nex-go/v2"
+
+	//"github.com/minio/minio-go/v7"
+	//"github.com/minio/minio-go/v7/pkg/credentials"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 )
 
 func init() {
+	globals.Logger = plogger.NewLogger()
+
 	var err error
 
 	err = godotenv.Load()
@@ -26,10 +32,10 @@ func init() {
 		globals.Logger.Warning("Error loading .env file")
 	}
 
-	s3Endpoint := os.Getenv("PN_SMM_CONFIG_S3_ENDPOINT")
-	s3AccessKey := os.Getenv("PN_SMM_CONFIG_S3_ACCESS_KEY")
-	s3AccessSecret := os.Getenv("PN_SMM_CONFIG_S3_ACCESS_SECRET")
-	s3SecureEnv := os.Getenv("PN_SMM_CONFIG_S3_SECURE")
+	// s3Endpoint := os.Getenv("PN_SMM_CONFIG_S3_ENDPOINT")
+	// s3AccessKey := os.Getenv("PN_SMM_CONFIG_S3_ACCESS_KEY")
+	// s3AccessSecret := os.Getenv("PN_SMM_CONFIG_S3_ACCESS_SECRET")
+	// s3SecureEnv := os.Getenv("PN_SMM_CONFIG_S3_SECURE")
 
 	postgresURI := os.Getenv("PN_SMM_POSTGRES_URI")
 	authenticationServerPort := os.Getenv("PN_SMM_AUTHENTICATION_SERVER_PORT")
@@ -53,7 +59,8 @@ func init() {
 
 	globals.KerberosPassword = string(kerberosPassword)
 
-	globals.InitAccounts()
+	globals.AuthenticationServerAccount = nex.NewAccount(1, "Quazal Authentication", globals.KerberosPassword)
+	globals.SecureServerAccount = nex.NewAccount(2, "Quazal Rendez-Vous", globals.KerberosPassword)
 
 	if strings.TrimSpace(authenticationServerPort) == "" {
 		globals.Logger.Error("PN_SMM_AUTHENTICATION_SERVER_PORT environment variable not set")
@@ -108,7 +115,7 @@ func init() {
 		globals.Logger.Warning("Insecure gRPC server detected. PN_SMM_ACCOUNT_GRPC_API_KEY environment variable not set")
 	}
 
-	globals.GRPCAccountClientConnection, err = grpc.Dial(fmt.Sprintf("%s:%s", accountGRPCHost, accountGRPCPort), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	globals.GRPCAccountClientConnection, err = grpc.NewClient(fmt.Sprintf("%s:%s", accountGRPCHost, accountGRPCPort), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		globals.Logger.Criticalf("Failed to connect to account gRPC server: %v", err)
 		os.Exit(0)
@@ -119,24 +126,24 @@ func init() {
 		"X-API-Key", accountGRPCAPIKey,
 	)
 
-	staticCredentials := credentials.NewStaticV4(s3AccessKey, s3AccessSecret, "")
+	// staticCredentials := credentials.NewStaticV4(s3AccessKey, s3AccessSecret, "")
 
-	s3Secure, err := strconv.ParseBool(s3SecureEnv)
-	if err != nil {
-		globals.Logger.Warningf("PN_SMM_CONFIG_S3_SECURE environment variable not set. Using default value: %t", true)
-		s3Secure = true
-	}
+	// s3Secure, err := strconv.ParseBool(s3SecureEnv)
+	// if err != nil {
+	// 	globals.Logger.Warningf("PN_SMM_CONFIG_S3_SECURE environment variable not set. Using default value: %t", true)
+	// 	s3Secure = true
+	// }
 
-	minIOClient, err := minio.New(s3Endpoint, &minio.Options{
-		Creds:  staticCredentials,
-		Secure: s3Secure,
-	})
-	if err != nil {
-		panic(err)
-	}
+	// minIOClient, err := minio.New(s3Endpoint, &minio.Options{
+	// 	Creds:  staticCredentials,
+	// 	Secure: s3Secure,
+	// })
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	globals.MinIOClient = minIOClient
-	globals.Presigner = globals.NewS3Presigner(globals.MinIOClient)
+	// globals.MinIOClient = minIOClient
+	// globals.Presigner = globals.NewS3Presigner(globals.MinIOClient)
 
 	// * Connect to and setup databases
 	database.ConnectPostgres()

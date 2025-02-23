@@ -10,11 +10,10 @@ import (
 )
 
 func StartSecureServer() {
-	serverBuildString = "branch:origin/project/nfs build:3_10_26_2006_0"
-
 	globals.SecureServer = nex.NewPRUDPServer()
 
 	globals.SecureEndpoint = nex.NewPRUDPEndPoint(1)
+	globals.SecureEndpoint.IsSecureEndPoint = true
 	globals.SecureEndpoint.ServerAccount = globals.SecureServerAccount
 	globals.SecureEndpoint.AccountDetailsByPID = globals.AccountDetailsByPID
 	globals.SecureEndpoint.AccountDetailsByUsername = globals.AccountDetailsByUsername
