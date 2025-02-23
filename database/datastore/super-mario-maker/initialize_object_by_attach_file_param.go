@@ -15,6 +15,15 @@ func InitializeObjectByAttachFileParam(ownerPID types.PID, param datastore_smm_t
 	now := time.Now()
 
 	var dataID types.UInt64
+	tagArray := make([]string, 0, len(param.PostParam.Tags))
+	for i := range param.PostParam.Tags {
+		tagArray = append(tagArray, string(param.PostParam.Tags[i]))
+	}
+
+	extraDataArray := make([]string, 0, len(param.PostParam.ExtraData))
+	for i := range param.PostParam.Tags {
+		extraDataArray = append(extraDataArray, string(param.PostParam.ExtraData[i]))
+	}
 
 	err := database.Postgres.QueryRow(`INSERT INTO datastore.objects (
 		owner,
@@ -65,9 +74,9 @@ func InitializeObjectByAttachFileParam(ownerPID types.PID, param datastore_smm_t
 		param.PostParam.Flag,
 		param.PostParam.Period,
 		param.ReferDataID,
-		pq.Array(param.PostParam.Tags),
+		pq.Array(tagArray),
 		param.PostParam.PersistenceInitParam.PersistenceSlotID, // TODO - Check param.PersistenceInitParam.DeleteLastObject?
-		pq.Array(param.PostParam.ExtraData),
+		pq.Array(extraDataArray),
 		now,
 		now,
 	).Scan(&dataID)

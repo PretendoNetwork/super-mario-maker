@@ -14,6 +14,16 @@ import (
 func InitializeObjectByPreparePostParam(ownerPID types.PID, param datastore_types.DataStorePreparePostParam) (uint64, *nex.Error) {
 	var dataID uint64
 
+	tagArray := make([]string, 0, len(param.Tags))
+	for i := range param.Tags {
+		tagArray = append(tagArray, string(param.Tags[i]))
+	}
+
+	extraDataArray := make([]string, 0, len(param.ExtraData))
+	for i := range param.Tags {
+		extraDataArray = append(extraDataArray, string(param.ExtraData[i]))
+	}
+
 	now := time.Now()
 	err := database.Postgres.QueryRow(`INSERT INTO datastore.objects (
 		owner,
@@ -64,9 +74,9 @@ func InitializeObjectByPreparePostParam(ownerPID types.PID, param datastore_type
 		param.Flag,
 		param.Period,
 		param.ReferDataID,
-		pq.Array(param.Tags),
+		pq.Array(tagArray),
 		param.PersistenceInitParam.PersistenceSlotID, // TODO - Check param.PersistenceInitParam.DeleteLastObject?
-		pq.Array(param.ExtraData),
+		pq.Array(extraDataArray),
 		now,
 		now,
 	).Scan(&dataID)

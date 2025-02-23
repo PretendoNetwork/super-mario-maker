@@ -71,6 +71,7 @@ func GetRandomCoursesWithLimit(limit int) (types.List[datastore_super_mario_make
 
 		var createdDate time.Time
 		var updatedDate time.Time
+		var tagArray []string
 
 		err := rows.Scan(
 			&course.MetaInfo.DataID,
@@ -86,7 +87,7 @@ func GetRandomCoursesWithLimit(limit int) (types.List[datastore_super_mario_make
 			&course.MetaInfo.Period,
 			&course.MetaInfo.ReferDataID,
 			&course.MetaInfo.Flag,
-			pq.Array(&course.MetaInfo.Tags),
+			pq.Array(&tagArray),
 			&createdDate,
 			&updatedDate,
 			&course.Score,
@@ -99,6 +100,11 @@ func GetRandomCoursesWithLimit(limit int) (types.List[datastore_super_mario_make
 		ratings, nexError := datastore_db.GetObjectRatingsWithSlotByDataID(course.MetaInfo.DataID)
 		if nexError != nil {
 			return nil, nexError
+		}
+
+		course.MetaInfo.Tags = make(types.List[types.String], 0, len(tagArray))
+		for i := range tagArray {
+			course.MetaInfo.Tags = append(course.MetaInfo.Tags, types.String(tagArray[i]))
 		}
 
 		course.MetaInfo.Ratings = ratings
