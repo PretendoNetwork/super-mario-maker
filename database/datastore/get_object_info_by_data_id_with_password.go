@@ -26,6 +26,7 @@ func GetObjectInfoByDataIDWithPassword(dataID, password types.UInt64) (datastore
 
 	var createdDate time.Time
 	var updatedDate time.Time
+	var tagArray []string
 
 	err := database.Postgres.QueryRow(`SELECT
 		data_id,
@@ -58,7 +59,7 @@ func GetObjectInfoByDataIDWithPassword(dataID, password types.UInt64) (datastore
 		&metaInfo.Period,
 		&metaInfo.ReferDataID,
 		&metaInfo.Flag,
-		pq.Array(&metaInfo.Tags),
+		pq.Array(&tagArray),
 		&createdDate,
 		&updatedDate,
 	)
@@ -76,6 +77,11 @@ func GetObjectInfoByDataIDWithPassword(dataID, password types.UInt64) (datastore
 	ratings, nexError := GetObjectRatingsWithSlotByDataIDWithPassword(metaInfo.DataID, password)
 	if nexError != nil {
 		return datastore_types.NewDataStoreMetaInfo(), nexError
+	}
+
+	metaInfo.Tags = make(types.List[types.String], 0, len(tagArray))
+	for i := range tagArray {
+		metaInfo.Tags = append(metaInfo.Tags, types.String(tagArray[i]))
 	}
 
 	metaInfo.Ratings = ratings

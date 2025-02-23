@@ -26,6 +26,7 @@ func GetObjectInfoByDataID(dataID types.UInt64) (datastore_types.DataStoreMetaIn
 
 	var createdDate time.Time
 	var updatedDate time.Time
+	var tagArray []string
 
 	err := database.Postgres.QueryRow(`SELECT
 		data_id,
@@ -58,7 +59,7 @@ func GetObjectInfoByDataID(dataID types.UInt64) (datastore_types.DataStoreMetaIn
 		&metaInfo.Period,
 		&metaInfo.ReferDataID,
 		&metaInfo.Flag,
-		pq.Array(&metaInfo.Tags),
+		pq.Array(&tagArray),
 		&createdDate,
 		&updatedDate,
 	)
@@ -77,6 +78,11 @@ func GetObjectInfoByDataID(dataID types.UInt64) (datastore_types.DataStoreMetaIn
 	ratings, nexError := GetObjectRatingsWithSlotByDataID(metaInfo.DataID)
 	if nexError != nil {
 		return datastore_types.NewDataStoreMetaInfo(), nexError
+	}
+
+	metaInfo.Tags = make(types.List[types.String], 0, len(tagArray))
+	for i := range tagArray {
+		metaInfo.Tags = append(metaInfo.Tags, types.String(tagArray[i]))
 	}
 
 	metaInfo.Ratings = ratings

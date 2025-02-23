@@ -23,6 +23,7 @@ func GetObjectInfoByPersistenceTargetWithPassword(persistenceTarget datastore_ty
 	var underReview bool
 	var createdDate time.Time
 	var updatedDate time.Time
+	var tagArray []string
 
 	err := database.Postgres.QueryRow(`SELECT
 		data_id,
@@ -57,7 +58,7 @@ func GetObjectInfoByPersistenceTargetWithPassword(persistenceTarget datastore_ty
 		&metaInfo.Period,
 		&metaInfo.ReferDataID,
 		&metaInfo.Flag,
-		pq.Array(&metaInfo.Tags),
+		pq.Array(&tagArray),
 		&createdDate,
 		&updatedDate,
 		&accessPassword,
@@ -87,6 +88,11 @@ func GetObjectInfoByPersistenceTargetWithPassword(persistenceTarget datastore_ty
 	if nexError != nil {
 		globals.Logger.Errorf("Failed to get ratings for object %d with password %d", metaInfo.DataID, password)
 		return datastore_types.NewDataStoreMetaInfo(), nexError
+	}
+
+	metaInfo.Tags = make(types.List[types.String], 0, len(tagArray))
+	for i := range tagArray {
+		metaInfo.Tags = append(metaInfo.Tags, types.String(tagArray[i]))
 	}
 
 	metaInfo.Ratings = ratings
