@@ -6,7 +6,6 @@ import (
 	"github.com/PretendoNetwork/nex-go/v2/types"
 	datastorecommon "github.com/PretendoNetwork/nex-protocols-common-go/v2/datastore"
 	securecommon "github.com/PretendoNetwork/nex-protocols-common-go/v2/secure-connection"
-	datastore "github.com/PretendoNetwork/nex-protocols-go/v2/datastore"
 	datastoresmm "github.com/PretendoNetwork/nex-protocols-go/v2/datastore/super-mario-maker"
 	secure "github.com/PretendoNetwork/nex-protocols-go/v2/secure-connection"
 	datastore_db "github.com/PretendoNetwork/super-mario-maker/database/datastore"
@@ -21,30 +20,6 @@ func registerCommonSecureProtocols() {
 	commonSecureProtocol.CreateReportDBRecord = func(pid types.PID, reportID types.UInt32, reportData types.QBuffer) error {
 		return nil
 	}
-
-	datastoreProtocol := datastore.NewProtocol()
-	commonDataStoreProtocol := datastorecommon.NewCommonProtocol(datastoreProtocol)
-
-	commonDataStoreProtocol.SetMinIOClient(globals.MinIOClient)
-	commonDataStoreProtocol.S3Bucket = os.Getenv("PN_SMM_CONFIG_S3_BUCKET")
-
-	commonDataStoreProtocol.GetObjectInfoByDataID = datastore_db.GetObjectInfoByDataID
-	commonDataStoreProtocol.GetObjectInfoByPersistenceTargetWithPassword = datastore_db.GetObjectInfoByPersistenceTargetWithPassword
-	commonDataStoreProtocol.GetObjectInfoByDataIDWithPassword = datastore_db.GetObjectInfoByDataIDWithPassword
-	commonDataStoreProtocol.GetObjectOwnerByDataID = datastore_db.GetObjectOwnerByDataID
-	commonDataStoreProtocol.GetObjectSizeByDataID = datastore_db.GetObjectSizeByDataID
-
-	commonDataStoreProtocol.UpdateObjectPeriodByDataIDWithPassword = datastore_db.UpdateObjectPeriodByDataIDWithPassword
-	commonDataStoreProtocol.UpdateObjectMetaBinaryByDataIDWithPassword = datastore_db.UpdateObjectMetaBinaryByDataIDWithPassword
-	commonDataStoreProtocol.UpdateObjectDataTypeByDataIDWithPassword = datastore_db.UpdateObjectDataTypeByDataIDWithPassword
-	commonDataStoreProtocol.UpdateObjectUploadCompletedByDataID = datastore_db.UpdateObjectUploadCompletedByDataID
-
-	commonDataStoreProtocol.InitializeObjectByPreparePostParam = datastore_db.InitializeObjectByPreparePostParam
-	commonDataStoreProtocol.InitializeObjectRatingWithSlot = datastore_db.InitializeObjectRatingWithSlot
-	commonDataStoreProtocol.RateObjectWithPassword = datastore_db.RateObjectWithPassword
-	commonDataStoreProtocol.DeleteObjectByDataID = datastore_db.DeleteObjectByDataID
-
-	globals.DatastoreCommon = commonDataStoreProtocol
 
 	smmDatastore := datastoresmm.NewProtocol(globals.SecureEndpoint)
 
@@ -66,4 +41,29 @@ func registerCommonSecureProtocols() {
 	smmDatastore.GetMetasWithCourseRecord = nex_datastore_super_mario_maker.GetMetasWithCourseRecord
 	smmDatastore.CheckRateCustomRankingCounter = nex_datastore_super_mario_maker.CheckRateCustomRankingCounter
 	smmDatastore.CTRPickUpCourseSearchObject = nex_datastore_super_mario_maker.CTRPickUpCourseSearchObject
+
+	globals.SecureEndpoint.RegisterServiceProtocol(smmDatastore)
+
+	commonDataStoreProtocol := datastorecommon.NewCommonProtocol(smmDatastore)
+
+	commonDataStoreProtocol.SetMinIOClient(globals.MinIOClient)
+	commonDataStoreProtocol.S3Bucket = os.Getenv("PN_SMM_CONFIG_S3_BUCKET")
+
+	commonDataStoreProtocol.GetObjectInfoByDataID = datastore_db.GetObjectInfoByDataID
+	commonDataStoreProtocol.GetObjectInfoByPersistenceTargetWithPassword = datastore_db.GetObjectInfoByPersistenceTargetWithPassword
+	commonDataStoreProtocol.GetObjectInfoByDataIDWithPassword = datastore_db.GetObjectInfoByDataIDWithPassword
+	commonDataStoreProtocol.GetObjectOwnerByDataID = datastore_db.GetObjectOwnerByDataID
+	commonDataStoreProtocol.GetObjectSizeByDataID = datastore_db.GetObjectSizeByDataID
+
+	commonDataStoreProtocol.UpdateObjectPeriodByDataIDWithPassword = datastore_db.UpdateObjectPeriodByDataIDWithPassword
+	commonDataStoreProtocol.UpdateObjectMetaBinaryByDataIDWithPassword = datastore_db.UpdateObjectMetaBinaryByDataIDWithPassword
+	commonDataStoreProtocol.UpdateObjectDataTypeByDataIDWithPassword = datastore_db.UpdateObjectDataTypeByDataIDWithPassword
+	commonDataStoreProtocol.UpdateObjectUploadCompletedByDataID = datastore_db.UpdateObjectUploadCompletedByDataID
+
+	commonDataStoreProtocol.InitializeObjectByPreparePostParam = datastore_db.InitializeObjectByPreparePostParam
+	commonDataStoreProtocol.InitializeObjectRatingWithSlot = datastore_db.InitializeObjectRatingWithSlot
+	commonDataStoreProtocol.RateObjectWithPassword = datastore_db.RateObjectWithPassword
+	commonDataStoreProtocol.DeleteObjectByDataID = datastore_db.DeleteObjectByDataID
+
+	globals.DatastoreCommon = commonDataStoreProtocol
 }
