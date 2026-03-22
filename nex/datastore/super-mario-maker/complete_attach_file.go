@@ -25,7 +25,8 @@ func CompleteAttachFile(err error, packet nex.PacketInterface, callID uint32, pa
 	}
 
 	bucket := os.Getenv("PN_SMM_CONFIG_S3_BUCKET")
-	key := fmt.Sprintf("%d.jpg", param.DataID)
+	key_base := os.Getenv("PN_SMM_CONFIG_S3_KEY_BASE")
+	key := fmt.Sprintf("%s/%d.jpg", key_base, param.DataID)
 
 	objectSizeS3, err := globals.S3ObjectSize(bucket, key)
 	if err != nil {

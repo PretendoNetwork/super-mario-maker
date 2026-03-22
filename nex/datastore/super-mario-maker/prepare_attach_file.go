@@ -46,7 +46,8 @@ func PrepareAttachFile(err error, packet nex.PacketInterface, callID uint32, par
 
 	// TODO - Check param.ContentType? Always seems to be "image/jpeg" but just in case?
 	bucket := os.Getenv("PN_SMM_CONFIG_S3_BUCKET")
-	key := fmt.Sprintf("%d.jpg", dataID)
+	key_base := os.Getenv("PN_SMM_CONFIG_S3_KEY_BASE")
+	key := fmt.Sprintf("%s/%d.jpg", key_base, dataID)
 
 	// TODO - Should this also take in the param.ContentType? To add it to the policy?
 	URL, formData, _ := globals.Presigner.PostObject(bucket, key, time.Minute*15)
