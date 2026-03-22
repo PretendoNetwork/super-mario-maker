@@ -49,16 +49,17 @@ All configuration options are handled via environment variables
 
 `.env` files are supported
 
-| Name                                | Description                                                           | Required                                      |
-|-------------------------------------|-----------------------------------------------------------------------|-----------------------------------------------|
-| `PN_SMM_POSTGRES_URI`               | Fully qualified URI to your Postgres server                           | Yes                                           |
-| `PN_SMM_AUTHENTICATION_SERVER_PORT` | Port for the authentication server                                    | Yes                                           |
-| `PN_SMM_SECURE_SERVER_HOST`         | Host name for the secure server                                       | Yes                                           |
-| `PN_SMM_SECURE_SERVER_PORT`         | Port for the secure server                                            | Yes                                           |
-| `PN_SMM_CONFIG_S3_ENDPOINT`         | S3 server endpoint                                                    | Yes                                           |
-| `PN_SMM_CONFIG_S3_ACCESS_KEY`       | S3 access key ID                                                      | Yes                                           |
-| `PN_SMM_CONFIG_S3_ACCESS_SECRET`    | S3 secret                                                             | Yes                                           |
-| `PN_SMM_CONFIG_S3_BUCKET`           | S3 bucket                                                             | Yes                                           |
-| `PN_SMM_ACCOUNT_GRPC_HOST`          | Host name for your account server gRPC service                        | Yes                                           |
-| `PN_SMM_ACCOUNT_GRPC_PORT`          | Port for your account server gRPC service                             | Yes                                           |
-| `PN_SMM_ACCOUNT_GRPC_API_KEY`       | API key for your account server gRPC service                          | No (Assumed to be an open gRPC API)           |
+| Name                                | Description                                    | Required                            |
+| ----------------------------------- | ---------------------------------------------- | ----------------------------------- |
+| `PN_SMM_POSTGRES_URI`               | Fully qualified URI to your Postgres server    | Yes                                 |
+| `PN_SMM_AUTHENTICATION_SERVER_PORT` | Port for the authentication server             | Yes                                 |
+| `PN_SMM_SECURE_SERVER_HOST`         | Host name for the secure server                | Yes                                 |
+| `PN_SMM_SECURE_SERVER_PORT`         | Port for the secure server                     | Yes                                 |
+| `PN_SMM_CONFIG_S3_ENDPOINT`         | S3 server endpoint                             | Yes                                 |
+| `PN_SMM_CONFIG_S3_ACCESS_KEY`       | S3 access key ID                               | Yes                                 |
+| `PN_SMM_CONFIG_S3_ACCESS_SECRET`    | S3 secret                                      | Yes                                 |
+| `PN_SMM_CONFIG_S3_BUCKET`           | S3 bucket                                      | Yes                                 |
+| `PN_SMM_CONFIG_S3_KEY_BASE`         | S3 Key prefix                                  | Yes                                 |
+| `PN_SMM_ACCOUNT_GRPC_HOST`          | Host name for your account server gRPC service | Yes                                 |
+| `PN_SMM_ACCOUNT_GRPC_PORT`          | Port for your account server gRPC service      | Yes                                 |
+| `PN_SMM_ACCOUNT_GRPC_API_KEY`       | API key for your account server gRPC service   | No (Assumed to be an open gRPC API) |

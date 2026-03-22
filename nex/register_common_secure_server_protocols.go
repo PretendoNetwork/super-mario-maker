@@ -48,6 +48,7 @@ func registerCommonSecureProtocols() {
 
 	commonDataStoreProtocol.SetMinIOClient(globals.MinIOClient)
 	commonDataStoreProtocol.S3Bucket = os.Getenv("PN_SMM_CONFIG_S3_BUCKET")
+	commonDataStoreProtocol.SetDataKeyBase(os.Getenv("PN_SMM_CONFIG_S3_KEY_BASE"))
 
 	commonDataStoreProtocol.GetObjectInfoByDataID = datastore_db.GetObjectInfoByDataID
 	commonDataStoreProtocol.GetObjectInfoByPersistenceTargetWithPassword = datastore_db.GetObjectInfoByPersistenceTargetWithPassword
