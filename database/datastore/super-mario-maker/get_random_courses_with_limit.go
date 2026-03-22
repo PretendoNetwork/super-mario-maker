@@ -1,7 +1,6 @@
 package datastore_smm_db
 
 import (
-	"database/sql"
 	"time"
 
 	"github.com/PretendoNetwork/nex-go/v2"
@@ -35,26 +34,22 @@ func GetRandomCoursesWithLimit(limit int) (types.List[datastore_super_mario_make
 			object.tags,
 			object.creation_date,
 			object.update_date,
-			ranking.value
+			COALESCE(ranking.value, 0)
 		FROM datastore.objects object
-		JOIN datastore.object_custom_rankings ranking
+		LEFT JOIN datastore.object_custom_rankings ranking
 		ON
 			object.data_id = ranking.data_id AND
+			ranking.application_id = 0
+		WHERE
 			object.upload_completed = TRUE AND
 			object.deleted = FALSE AND
-			object.under_review = FALSE AND
-			ranking.application_id = 0
+			object.under_review = FALSE
 		ORDER BY RANDOM()
 		LIMIT $1
 	`, limit)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, nex.NewError(nex.ResultCodes.DataStore.NotFound, "Object not found")
-		}
-
 		globals.Logger.Error(err.Error())
-		// TODO - Send more specific errors?
 		return nil, nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 	}
 
