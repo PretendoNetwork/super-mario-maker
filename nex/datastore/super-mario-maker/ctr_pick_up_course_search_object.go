@@ -30,14 +30,7 @@ func CTRPickUpCourseSearchObject(err error, packet nex.PacketInterface, callID u
 
 	// TODO - Research extraData
 	// TODO - Use the offet? Real client never uses it, but might be nice for completeness sake?
-	length := int(param.ResultRange.Length)
-	maxLength := 25
-	if length <= 0 || length > maxLength {
-		globals.Logger.Warningf("Limiting request to %d courses (was %d)", maxLength, length)
-		length = maxLength
-	}
-
-	pRankingResults, nexError := datastore_smm_db.GetRandomCoursesWithLimit(length)
+	pRankingResults, nexError := datastore_smm_db.GetRandomCoursesWithLimit(int(param.ResultRange.Length))
 	if nexError != nil {
 		return nil, nexError
 	}
