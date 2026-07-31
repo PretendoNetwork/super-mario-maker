@@ -41,6 +41,8 @@ func init() {
 	authenticationServerPort := os.Getenv("PN_SMM_AUTHENTICATION_SERVER_PORT")
 	secureServerHost := os.Getenv("PN_SMM_SECURE_SERVER_HOST")
 	secureServerPort := os.Getenv("PN_SMM_SECURE_SERVER_PORT")
+	gRPCServerPort := os.Getenv("PN_SMM_GRPC_SERVER_PORT")
+	gRPCAPIKey := os.Getenv("PN_SMM_GRPC_API_KEY")
 	accountGRPCHost := os.Getenv("PN_SMM_ACCOUNT_GRPC_HOST")
 	accountGRPCPort := os.Getenv("PN_SMM_ACCOUNT_GRPC_PORT")
 	accountGRPCAPIKey := os.Getenv("PN_SMM_ACCOUNT_GRPC_API_KEY")
@@ -92,6 +94,21 @@ func init() {
 		globals.Logger.Errorf("PN_SMM_SECURE_SERVER_PORT is not a valid port. Expected 0-65535, got %s", secureServerPort)
 		os.Exit(0)
 	}
+
+	gRPCPort, err := strconv.Atoi(gRPCServerPort)
+	if err != nil {
+		globals.Logger.Errorf("PN_SMM_GRPC_SERVER_PORT is not a valid port. Expected 0-65535, got %s", gRPCServerPort)
+		os.Exit(0)
+	} else if gRPCPort < 0 || gRPCPort > 65535 {
+		globals.Logger.Errorf("PN_SMM_GRPC_SERVER_PORT is not a valid port. Expected 0-65535, got %s", gRPCServerPort)
+		os.Exit(0)
+	}
+	globals.GRPCServerPort = gRPCPort;
+
+	if strings.TrimSpace(gRPCAPIKey) == "" {
+		globals.Logger.Warning("Insecure gRPC server detected. PN_SMM_GRPC_API_KEY environment variable not set")
+	}
+	globals.GRPCAPIKey = gRPCAPIKey;
 
 	if strings.TrimSpace(accountGRPCHost) == "" {
 		globals.Logger.Error("PN_SMM_ACCOUNT_GRPC_HOST environment variable not set")
