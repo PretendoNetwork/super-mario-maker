@@ -16,7 +16,7 @@ func GetApplicationConfig(err error, packet nex.PacketInterface, callID uint32, 
 		return nil, nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 	}
 
-	var config []uint32
+	var config []int32
 
 	switch applicationID {
 	case 0: // * Gameplay config (Wii U)
@@ -31,9 +31,9 @@ func GetApplicationConfig(err error, packet nex.PacketInterface, callID uint32, 
 		fmt.Printf("[Warning] DataStoreSMMProtocol::GetApplicationConfig Unsupported applicationID: %v\n", applicationID)
 	}
 
-	configNative := make(types.List[types.UInt32], 0, len(config))
+	configNative := make(types.List[types.Int32], 0, len(config))
 	for i := range config {
-		configNative = append(configNative, types.NewUInt32(config[i]))
+		configNative = append(configNative, types.Int32(config[i]))
 	}
 
 	rmcResponseStream := nex.NewByteStreamOut(globals.SecureServer.LibraryVersions, globals.SecureServer.ByteStreamSettings)
@@ -48,9 +48,9 @@ func GetApplicationConfig(err error, packet nex.PacketInterface, callID uint32, 
 	return rmcResponse, nil
 }
 
-func getApplicationConfig_GameplayConfig() []uint32 {
+func getApplicationConfig_GameplayConfig() []int32 {
 	// * This seems to be gameplay configuration settings
-	return []uint32{
+	return []int32{
 		constants.STARS_1ST_MEDAL,
 		constants.STARS_2ND_MEDAL,
 		constants.STARS_3RD_MEDAL,
@@ -99,9 +99,9 @@ func getApplicationConfig_GameplayConfig() []uint32 {
 	}
 }
 
-func getApplicationConfig_OfficialMakers() []uint32 {
+func getApplicationConfig_OfficialMakers() []int32 {
 	// * Used as the PIDs for the "Official" makers in the "MAKERS" section
-	return []uint32{
+	return []int32{
 		2,          // * Not a real user PID, this translates to the internal Quazal Rendez-Vous user used by NEX
 		1770179696, // * "official_player0" on NN, need to make PN versions
 		1770179664, // * "official_player1" on NN, need to make PN versions
@@ -114,11 +114,11 @@ func getApplicationConfig_OfficialMakers() []uint32 {
 	}
 }
 
-func getApplicationConfig_Bookmark() []uint32 {
+func getApplicationConfig_Bookmark() []int32 {
 	// * Looks like a date?
 	// * This was when the SMM bookmark was released, so maybe it controls accessibility to it?
 	// * Just replaying data sent from the real server
-	return []uint32{
+	return []int32{
 		constants.BOOKMARK_DATE_YEAR,
 		constants.BOOKMARK_DATE_MONTH,
 		constants.BOOKMARK_DATE_DAY,
@@ -127,9 +127,9 @@ func getApplicationConfig_Bookmark() []uint32 {
 	} // * 2015-12-22 5:00
 }
 
-func getApplicationConfig_GameplayConfig3DS() []uint32 {
+func getApplicationConfig_GameplayConfig3DS() []int32 {
 	// * This seems to be gameplay configuration settings for the 3DS
-	return []uint32{
+	return []int32{
 		constants.COURSE_WORLD_NORMAL_FAILURE_RATE_MIN,
 		constants.COURSE_WORLD_EXPERT_FAILURE_RATE_MIN,
 		constants.COURSE_WORLD_SUPER_EXPERT_FAILURE_RATE_MIN,
