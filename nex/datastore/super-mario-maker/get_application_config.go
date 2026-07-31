@@ -27,7 +27,7 @@ func GetApplicationConfig(err error, packet nex.PacketInterface, callID uint32, 
 
 	switch applicationID {
 	case 0: // * Player config?
-		config = getApplicationConfig_PlayerConfig()
+		config = getApplicationConfig_GlobalConfig()
 	case 1: // * PIDs of the "Official" makers in the "MAKERS" section
 		config = getApplicationConfig_OfficialMakers()
 	case 2: // * Unknown
@@ -55,21 +55,33 @@ func GetApplicationConfig(err error, packet nex.PacketInterface, callID uint32, 
 	return rmcResponse, nil
 }
 
-func getApplicationConfig_PlayerConfig() []uint32 {
-	// * This seems to be per-user configuration
-	// * settings, based on the fact that the
-	// * number of max uploads a user can do is
-	// * sent here. No idea what anything else
-	// * means
+func getApplicationConfig_GlobalConfig() []uint32 {
+	// * This seems to be global configuration settings
 	return []uint32{
-		0x00000001, 0x00000032, 0x00000096, 0x0000012c, 0x000001f4,
-		0x00000320, 0x00000514, 0x000007d0, 0x00000bb8, 0x00001388,
-		MAX_COURSE_UPLOADS, 0x00000014, 0x0000001e, 0x00000028, 0x00000032,
-		0x0000003c, 0x00000046, 0x00000050, 0x0000005a, 0x00000064,
-		0x00000023, 0x0000004b, 0x00000023, 0x0000004b, 0x00000032,
-		0x00000000, 0x00000003, 0x00000003, 0x00000064, 0x00000006,
-		0x00000001, 0x00000060, 0x00000005, 0x00000060, 0x00000000,
-		0x000007e4, 0x00000001, 0x00000001, 0x0000000c, 0x00000000,
+		1,                  // * Number of stars for the 1st medal
+		50,                 // * Number of stars for the 2nd medal
+		150,                // * Number of stars for the 3rd medal
+		300,                // * Number of stars for the 4th medal
+		500,                // * Number of stars for the 5th medal
+		800,                // * Number of stars for the 6th medal
+		1300,               // * Number of stars for the 7th medal
+		2000,               // * Number of stars for the 8th medal
+		3000,               // * Number of stars for the 9th medal
+		5000,               // * Number of stars for the 10th medal
+		MAX_COURSE_UPLOADS, // * Number of courses you can upload when you have 0 or 1 medal
+		MAX_COURSE_UPLOADS, // * Number of courses you can upload after getting the 2nd medal
+		MAX_COURSE_UPLOADS, // * Number of courses you can upload after getting the 3rd medal
+		MAX_COURSE_UPLOADS, // * Number of courses you can upload after getting the 4th medal
+		MAX_COURSE_UPLOADS, // * Number of courses you can upload after getting the 5th medal
+		MAX_COURSE_UPLOADS, // * Number of courses you can upload after getting the 6th medal
+		MAX_COURSE_UPLOADS, // * Number of courses you can upload after getting the 7th medal
+		MAX_COURSE_UPLOADS, // * Number of courses you can upload after getting the 8th medal
+		MAX_COURSE_UPLOADS, // * Number of courses you can upload after getting the 9th medal
+		MAX_COURSE_UPLOADS, // * Number of courses you can upload after getting the 10th medal
+		35, 75, 35, 75, 50, // * Unknown
+		0, 3, 3, 100, 6,    // * Unknown
+		1, 96, 5, 96, 0,    // * Unknown
+		2020, 1, 1, 12, 0,  // * Looks like a date? 2020-01-01 12:00?
 	}
 }
 
@@ -89,9 +101,10 @@ func getApplicationConfig_OfficialMakers() []uint32 {
 }
 
 func getApplicationConfig_Unknown2() []uint32 {
-	// * I have no idea what this is
+	// * I have no idea what this is, looks like a date?
+	// * This was when the SMM bookmark was released, so maybe it controls accessibility to it?
 	// * Just replaying data sent from the real server
-	return []uint32{0x000007df, 0x0000000c, 0x00000016, 0x00000005, 0x00000000}
+	return []uint32{2015, 12, 22, 5, 0} // * 2015-12-22 5:00
 }
 
 func getApplicationConfig_Unknown10() []uint32 {
