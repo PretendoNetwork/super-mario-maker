@@ -7,15 +7,8 @@ import (
 	"github.com/PretendoNetwork/nex-go/v2/types"
 	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/v2/datastore/super-mario-maker"
 	"github.com/PretendoNetwork/super-mario-maker/globals"
+	"github.com/PretendoNetwork/super-mario-maker/nex/datastore/super-mario-maker/constants"
 )
-
-// * Nintendo sets this to 10 by default
-// * and users earn more upload slots up
-// * to 100.
-// * This is a stupid, unfun, mechanic so
-// * everyone gets 100 by default. Can be
-// * more, but 100 is fine tbh
-var MAX_COURSE_UPLOADS uint32 = 100
 
 func GetApplicationConfig(err error, packet nex.PacketInterface, callID uint32, applicationID types.UInt32) (*nex.RMCMessage, *nex.Error) {
 	if err != nil {
@@ -26,14 +19,14 @@ func GetApplicationConfig(err error, packet nex.PacketInterface, callID uint32, 
 	var config []uint32
 
 	switch applicationID {
-	case 0: // * Global config?
-		config = getApplicationConfig_GlobalConfig()
+	case 0: // * Gameplay config (Wii U)
+		config = getApplicationConfig_GameplayConfig()
 	case 1: // * PIDs of the "Official" makers in the "MAKERS" section
 		config = getApplicationConfig_OfficialMakers()
-	case 2: // * Unknown
-		config = getApplicationConfig_Unknown2()
-	case 10: // * Unknown
-		config = getApplicationConfig_Unknown10()
+	case 2: // * SMM bookmark
+		config = getApplicationConfig_Bookmark()
+	case 10: // * Gameplay config (3DS)
+		config = getApplicationConfig_GameplayConfig3DS()
 	default:
 		fmt.Printf("[Warning] DataStoreSMMProtocol::GetApplicationConfig Unsupported applicationID: %v\n", applicationID)
 	}
@@ -55,33 +48,54 @@ func GetApplicationConfig(err error, packet nex.PacketInterface, callID uint32, 
 	return rmcResponse, nil
 }
 
-func getApplicationConfig_GlobalConfig() []uint32 {
-	// * This seems to be global configuration settings
+func getApplicationConfig_GameplayConfig() []uint32 {
+	// * This seems to be gameplay configuration settings
 	return []uint32{
-		1,                  // * Number of stars for the 1st medal
-		50,                 // * Number of stars for the 2nd medal
-		150,                // * Number of stars for the 3rd medal
-		300,                // * Number of stars for the 4th medal
-		500,                // * Number of stars for the 5th medal
-		800,                // * Number of stars for the 6th medal
-		1300,               // * Number of stars for the 7th medal
-		2000,               // * Number of stars for the 8th medal
-		3000,               // * Number of stars for the 9th medal
-		5000,               // * Number of stars for the 10th medal
-		MAX_COURSE_UPLOADS, // * Number of courses you can upload when you have 0 or 1 medal
-		MAX_COURSE_UPLOADS, // * Number of courses you can upload after getting the 2nd medal
-		MAX_COURSE_UPLOADS, // * Number of courses you can upload after getting the 3rd medal
-		MAX_COURSE_UPLOADS, // * Number of courses you can upload after getting the 4th medal
-		MAX_COURSE_UPLOADS, // * Number of courses you can upload after getting the 5th medal
-		MAX_COURSE_UPLOADS, // * Number of courses you can upload after getting the 6th medal
-		MAX_COURSE_UPLOADS, // * Number of courses you can upload after getting the 7th medal
-		MAX_COURSE_UPLOADS, // * Number of courses you can upload after getting the 8th medal
-		MAX_COURSE_UPLOADS, // * Number of courses you can upload after getting the 9th medal
-		MAX_COURSE_UPLOADS, // * Number of courses you can upload after getting the 10th medal
-		35, 75, 35, 75, 50, // * Unknown
-		0, 3, 3, 100, 6,    // * Unknown
-		1, 96, 5, 96, 0,    // * Unknown
-		2020, 1, 1, 12, 0,  // * Looks like a date? 2020-01-01 12:00?
+		constants.STARS_1ST_MEDAL,
+		constants.STARS_2ND_MEDAL,
+		constants.STARS_3RD_MEDAL,
+		constants.STARS_4TH_MEDAL,
+		constants.STARS_5TH_MEDAL,
+		constants.STARS_6TH_MEDAL,
+		constants.STARS_7TH_MEDAL,
+		constants.STARS_8TH_MEDAL,
+		constants.STARS_9TH_MEDAL,
+		constants.STARS_10TH_MEDAL,
+
+		constants.MAX_COURSE_UPLOADS_0TH_1ST_MEDAL,
+		constants.MAX_COURSE_UPLOADS_2ND_MEDAL,
+		constants.MAX_COURSE_UPLOADS_3RD_MEDAL,
+		constants.MAX_COURSE_UPLOADS_4TH_MEDAL,
+		constants.MAX_COURSE_UPLOADS_5TH_MEDAL,
+		constants.MAX_COURSE_UPLOADS_6TH_MEDAL,
+		constants.MAX_COURSE_UPLOADS_7TH_MEDAL,
+		constants.MAX_COURSE_UPLOADS_8TH_MEDAL,
+		constants.MAX_COURSE_UPLOADS_9TH_MEDAL,
+		constants.MAX_COURSE_UPLOADS_10TH_MEDAL,
+
+		// * These values are most likely settings about requesting courses, but it's not certain what they individually mean (mostly)
+		constants.COURSE_WORLD_NORMAL_FAILURE_RATE_MIN,
+		constants.COURSE_WORLD_EXPERT_FAILURE_RATE_MIN,
+		constants.COURSE_WORLD_NORMAL_FAILURE_RATE_MIN,
+		constants.COURSE_WORLD_EXPERT_FAILURE_RATE_MIN,
+		50,
+		0,
+		3,
+		3,
+		constants.COURSE_DOWNLOAD_WIIU, // * Maybe?
+		6, // * Might be related with the extraData?
+		1,
+		constants.COURSE_WORLD_SUPER_EXPERT_FAILURE_RATE_MIN,
+		5,
+		constants.COURSE_WORLD_SUPER_EXPERT_FAILURE_RATE_MIN,
+		0,
+
+		// * Looks like a date, possibly when the config was last changed? 2020-01-01 12:00?
+		constants.CHANGED_DATE_YEAR,
+		constants.CHANGED_DATE_MONTH,
+		constants.CHANGED_DATE_DAY,
+		constants.CHANGED_DATE_HOUR,
+		constants.CHANGED_DATE_MINUTE,
 	}
 }
 
@@ -100,16 +114,27 @@ func getApplicationConfig_OfficialMakers() []uint32 {
 	}
 }
 
-func getApplicationConfig_Unknown2() []uint32 {
-	// * I have no idea what this is, looks like a date?
+func getApplicationConfig_Bookmark() []uint32 {
+	// * Looks like a date?
 	// * This was when the SMM bookmark was released, so maybe it controls accessibility to it?
 	// * Just replaying data sent from the real server
-	return []uint32{2015, 12, 22, 5, 0} // * 2015-12-22 5:00
+	return []uint32{
+		constants.BOOKMARK_DATE_YEAR,
+		constants.BOOKMARK_DATE_MONTH,
+		constants.BOOKMARK_DATE_DAY,
+		constants.BOOKMARK_DATE_HOUR,
+		constants.BOOKMARK_DATE_MINUTE,
+	} // * 2015-12-22 5:00
 }
 
-func getApplicationConfig_Unknown10() []uint32 {
-	// * I have no idea what this is
-	// * Just replaying data sent from the real server
-	// * Only seen on the 3DS
-	return []uint32{35, 75, 96, 40, 5, 6}
+func getApplicationConfig_GameplayConfig3DS() []uint32 {
+	// * This seems to be gameplay configuration settings for the 3DS
+	return []uint32{
+		constants.COURSE_WORLD_NORMAL_FAILURE_RATE_MIN,
+		constants.COURSE_WORLD_EXPERT_FAILURE_RATE_MIN,
+		constants.COURSE_WORLD_SUPER_EXPERT_FAILURE_RATE_MIN,
+		constants.COURSE_DOWNLOAD_3DS, // * Probably
+		5,  // * Unknown. Might be the resultOption value?
+		6,  // * Unknown. Might be related with the extraData?
+	}
 }
