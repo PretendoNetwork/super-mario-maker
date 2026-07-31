@@ -26,7 +26,7 @@ func GetApplicationConfig(err error, packet nex.PacketInterface, callID uint32, 
 	var config []uint32
 
 	switch applicationID {
-	case 0: // * Player config?
+	case 0: // * Global config?
 		config = getApplicationConfig_GlobalConfig()
 	case 1: // * PIDs of the "Official" makers in the "MAKERS" section
 		config = getApplicationConfig_OfficialMakers()
