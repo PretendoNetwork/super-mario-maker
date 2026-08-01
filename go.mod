@@ -5,7 +5,7 @@ go 1.23.0
 toolchain go1.23.5
 
 require (
-	github.com/PretendoNetwork/grpc/go v0.0.0-20250123103241-5fb484bf544d
+	github.com/PretendoNetwork/grpc/go v0.0.0-20260801122926-a632ab44588d
 	github.com/PretendoNetwork/nex-go/v2 v2.1.2
 	github.com/PretendoNetwork/nex-protocols-common-go/v2 v2.2.2
 	github.com/PretendoNetwork/nex-protocols-go/v2 v2.2.1

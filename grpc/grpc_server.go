@@ -5,13 +5,13 @@ import (
 	"log"
 	"net"
 
-	pb "github.com/PretendoNetwork/grpc/go/smm"
+	pb "github.com/PretendoNetwork/grpc/go/smm/v1"
 	"github.com/PretendoNetwork/super-mario-maker/globals"
 	"google.golang.org/grpc"
 )
 
 type gRPCSMMServer struct {
-	pb.UnimplementedSMMServer
+	pb.UnimplementedSMMServiceServer
 }
 
 func StartGRPCServer() {
@@ -24,7 +24,7 @@ func StartGRPCServer() {
 		grpc.UnaryInterceptor(apiKeyInterceptor),
 	)
 
-	pb.RegisterSMMServer(server, &gRPCSMMServer{})
+	pb.RegisterSMMServiceServer(server, &gRPCSMMServer{})
 
 	log.Printf("server listening at %v", listener.Addr())
 

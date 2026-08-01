@@ -6,20 +6,22 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	pb "github.com/PretendoNetwork/grpc/go/smm"
+	pb "github.com/PretendoNetwork/grpc/go/smm/v1"
+	"github.com/PretendoNetwork/nex-go/v2/types"
 	datastore_db "github.com/PretendoNetwork/super-mario-maker/database/datastore"
 	"github.com/PretendoNetwork/super-mario-maker/globals"
 )
 
 func (s *gRPCSMMServer) DeleteCourse(ctx context.Context, in *pb.DeleteCourseRequest) (*pb.DeleteCourseResponse, error) {
-	err := datastore_db.IsObjectAvailable(in.DataID)
+	dataID := types.NewUInt64(in.DataId)
+	err := datastore_db.IsObjectAvailable(dataID)
 	if err != nil {
 		return &pb.DeleteCourseResponse{
 			Success: false,
 		}, status.Errorf(codes.NotFound, "Course not found")
 	}
 
-	metaInfo, err := datastore_db.GetObjectInfoByDataID(in.DataID)
+	metaInfo, err := datastore_db.GetObjectInfoByDataID(dataID)
 	if err != nil {
 		globals.Logger.Critical(err.Error())
 		return &pb.DeleteCourseResponse{
@@ -27,7 +29,7 @@ func (s *gRPCSMMServer) DeleteCourse(ctx context.Context, in *pb.DeleteCourseReq
 		}, status.Errorf(codes.Internal, "internal server error")
 	}
 
-	err = datastore_db.DeleteObjectByDataID(in.DataID)
+	err = datastore_db.DeleteObjectByDataID(dataID)
 	if err != nil {
 		globals.Logger.Critical(err.Error())
 		return &pb.DeleteCourseResponse{
@@ -35,8 +37,8 @@ func (s *gRPCSMMServer) DeleteCourse(ctx context.Context, in *pb.DeleteCourseReq
 		}, status.Errorf(codes.Internal, "internal server error")
 	}
 
-	return &pb.SendUserFriendRequestResponse{
-		CourseName: metaInfo.Name,
+	return &pb.DeleteCourseResponse{
+		CourseName: string(metaInfo.Name),
 		Success: true,
 	}, nil
 }
