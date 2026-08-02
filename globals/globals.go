@@ -22,3 +22,5 @@ var GRPCAccountClient pb.AccountClient
 var GRPCAccountCommonMetadata metadata.MD
 var MinIOClient *minio.Client
 var Presigner *S3Presigner
+var GRPCAPIKey string
+var GRPCServerPort int

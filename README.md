@@ -60,6 +60,8 @@ All configuration options are handled via environment variables
 | `PN_SMM_CONFIG_S3_ACCESS_SECRET`    | S3 secret                                      | Yes                                 |
 | `PN_SMM_CONFIG_S3_BUCKET`           | S3 bucket                                      | Yes                                 |
 | `PN_SMM_CONFIG_S3_KEY_BASE`         | S3 Key prefix                                  | Yes                                 |
+| `PN_SMM_GRPC_SERVER_PORT`           | Port for the GRPC server                       | Yes                                 |
+| `PN_SMM_GRPC_API_KEY`               | API key for your GRPC server                   | No (Assumed to be an open gRPC API) |
 | `PN_SMM_ACCOUNT_GRPC_HOST`          | Host name for your account server gRPC service | Yes                                 |
 | `PN_SMM_ACCOUNT_GRPC_PORT`          | Port for your account server gRPC service      | Yes                                 |
 | `PN_SMM_ACCOUNT_GRPC_API_KEY`       | API key for your account server gRPC service   | No (Assumed to be an open gRPC API) |
