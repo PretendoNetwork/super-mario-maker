@@ -39,6 +39,6 @@ func (s *gRPCSMMServer) DeleteCourse(ctx context.Context, in *pb.DeleteCourseReq
 
 	return &pb.DeleteCourseResponse{
 		CourseName: string(metaInfo.Name),
-		Success: true,
+		Success:    true,
 	}, nil
 }

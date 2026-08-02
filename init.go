@@ -103,12 +103,12 @@ func init() {
 		globals.Logger.Errorf("PN_SMM_GRPC_SERVER_PORT is not a valid port. Expected 0-65535, got %s", gRPCServerPort)
 		os.Exit(0)
 	}
-	globals.GRPCServerPort = gRPCPort;
+	globals.GRPCServerPort = gRPCPort
 
 	if strings.TrimSpace(gRPCAPIKey) == "" {
 		globals.Logger.Warning("Insecure gRPC server detected. PN_SMM_GRPC_API_KEY environment variable not set")
 	}
-	globals.GRPCAPIKey = gRPCAPIKey;
+	globals.GRPCAPIKey = gRPCAPIKey
 
 	if strings.TrimSpace(accountGRPCHost) == "" {
 		globals.Logger.Error("PN_SMM_ACCOUNT_GRPC_HOST environment variable not set")
