@@ -7,15 +7,8 @@ import (
 	"github.com/PretendoNetwork/nex-go/v2/types"
 	datastore_super_mario_maker "github.com/PretendoNetwork/nex-protocols-go/v2/datastore/super-mario-maker"
 	"github.com/PretendoNetwork/super-mario-maker/globals"
+	"github.com/PretendoNetwork/super-mario-maker/nex/datastore/super-mario-maker/constants"
 )
-
-// * Nintendo sets this to 10 by default
-// * and users earn more upload slots up
-// * to 100.
-// * This is a stupid, unfun, mechanic so
-// * everyone gets 100 by default. Can be
-// * more, but 100 is fine tbh
-var MAX_COURSE_UPLOADS uint32 = 100
 
 func GetApplicationConfig(err error, packet nex.PacketInterface, callID uint32, applicationID types.UInt32) (*nex.RMCMessage, *nex.Error) {
 	if err != nil {
@@ -23,24 +16,24 @@ func GetApplicationConfig(err error, packet nex.PacketInterface, callID uint32, 
 		return nil, nex.NewError(nex.ResultCodes.DataStore.Unknown, err.Error())
 	}
 
-	var config []uint32
+	var config []int32
 
 	switch applicationID {
-	case 0: // * Player config?
-		config = getApplicationConfig_PlayerConfig()
+	case 0: // * Gameplay config (Wii U)
+		config = getApplicationConfig_GameplayConfig()
 	case 1: // * PIDs of the "Official" makers in the "MAKERS" section
 		config = getApplicationConfig_OfficialMakers()
-	case 2: // * Unknown
-		config = getApplicationConfig_Unknown2()
-	case 10: // * Unknown
-		config = getApplicationConfig_Unknown10()
+	case 2: // * SMM bookmark
+		config = getApplicationConfig_Bookmark()
+	case 10: // * Gameplay config (3DS)
+		config = getApplicationConfig_GameplayConfig3DS()
 	default:
 		fmt.Printf("[Warning] DataStoreSMMProtocol::GetApplicationConfig Unsupported applicationID: %v\n", applicationID)
 	}
 
-	configNative := make(types.List[types.UInt32], 0, len(config))
+	configNative := make(types.List[types.Int32], 0, len(config))
 	for i := range config {
-		configNative = append(configNative, types.NewUInt32(config[i]))
+		configNative = append(configNative, types.Int32(config[i]))
 	}
 
 	rmcResponseStream := nex.NewByteStreamOut(globals.SecureServer.LibraryVersions, globals.SecureServer.ByteStreamSettings)
@@ -55,27 +48,60 @@ func GetApplicationConfig(err error, packet nex.PacketInterface, callID uint32, 
 	return rmcResponse, nil
 }
 
-func getApplicationConfig_PlayerConfig() []uint32 {
-	// * This seems to be per-user configuration
-	// * settings, based on the fact that the
-	// * number of max uploads a user can do is
-	// * sent here. No idea what anything else
-	// * means
-	return []uint32{
-		0x00000001, 0x00000032, 0x00000096, 0x0000012c, 0x000001f4,
-		0x00000320, 0x00000514, 0x000007d0, 0x00000bb8, 0x00001388,
-		MAX_COURSE_UPLOADS, 0x00000014, 0x0000001e, 0x00000028, 0x00000032,
-		0x0000003c, 0x00000046, 0x00000050, 0x0000005a, 0x00000064,
-		0x00000023, 0x0000004b, 0x00000023, 0x0000004b, 0x00000032,
-		0x00000000, 0x00000003, 0x00000003, 0x00000064, 0x00000006,
-		0x00000001, 0x00000060, 0x00000005, 0x00000060, 0x00000000,
-		0x000007e4, 0x00000001, 0x00000001, 0x0000000c, 0x00000000,
+func getApplicationConfig_GameplayConfig() []int32 {
+	// * This seems to be gameplay configuration settings
+	return []int32{
+		constants.STARS_1ST_MEDAL,
+		constants.STARS_2ND_MEDAL,
+		constants.STARS_3RD_MEDAL,
+		constants.STARS_4TH_MEDAL,
+		constants.STARS_5TH_MEDAL,
+		constants.STARS_6TH_MEDAL,
+		constants.STARS_7TH_MEDAL,
+		constants.STARS_8TH_MEDAL,
+		constants.STARS_9TH_MEDAL,
+		constants.STARS_10TH_MEDAL,
+
+		constants.MAX_COURSE_UPLOADS_0TH_1ST_MEDAL,
+		constants.MAX_COURSE_UPLOADS_2ND_MEDAL,
+		constants.MAX_COURSE_UPLOADS_3RD_MEDAL,
+		constants.MAX_COURSE_UPLOADS_4TH_MEDAL,
+		constants.MAX_COURSE_UPLOADS_5TH_MEDAL,
+		constants.MAX_COURSE_UPLOADS_6TH_MEDAL,
+		constants.MAX_COURSE_UPLOADS_7TH_MEDAL,
+		constants.MAX_COURSE_UPLOADS_8TH_MEDAL,
+		constants.MAX_COURSE_UPLOADS_9TH_MEDAL,
+		constants.MAX_COURSE_UPLOADS_10TH_MEDAL,
+
+		// * These values are most likely settings about requesting courses, but it's not certain what they individually mean (mostly)
+		constants.COURSE_WORLD_NORMAL_FAILURE_RATE_MIN,
+		constants.COURSE_WORLD_EXPERT_FAILURE_RATE_MIN,
+		constants.COURSE_WORLD_NORMAL_FAILURE_RATE_MIN,
+		constants.COURSE_WORLD_EXPERT_FAILURE_RATE_MIN,
+		50,
+		0,
+		3,
+		3,
+		constants.COURSE_DOWNLOAD_WIIU, // * Maybe?
+		6, // * Might be related with the extraData?
+		1,
+		constants.COURSE_WORLD_SUPER_EXPERT_FAILURE_RATE_MIN,
+		5,
+		constants.COURSE_WORLD_SUPER_EXPERT_FAILURE_RATE_MIN,
+		0,
+
+		// * Looks like a date, possibly when the config was last changed? 2020-01-01 12:00?
+		constants.CHANGED_DATE_YEAR,
+		constants.CHANGED_DATE_MONTH,
+		constants.CHANGED_DATE_DAY,
+		constants.CHANGED_DATE_HOUR,
+		constants.CHANGED_DATE_MINUTE,
 	}
 }
 
-func getApplicationConfig_OfficialMakers() []uint32 {
+func getApplicationConfig_OfficialMakers() []int32 {
 	// * Used as the PIDs for the "Official" makers in the "MAKERS" section
-	return []uint32{
+	return []int32{
 		2,          // * Not a real user PID, this translates to the internal Quazal Rendez-Vous user used by NEX
 		1770179696, // * "official_player0" on NN, need to make PN versions
 		1770179664, // * "official_player1" on NN, need to make PN versions
@@ -88,15 +114,27 @@ func getApplicationConfig_OfficialMakers() []uint32 {
 	}
 }
 
-func getApplicationConfig_Unknown2() []uint32 {
-	// * I have no idea what this is
+func getApplicationConfig_Bookmark() []int32 {
+	// * Looks like a date?
+	// * This was when the SMM bookmark was released, so maybe it controls accessibility to it?
 	// * Just replaying data sent from the real server
-	return []uint32{0x000007df, 0x0000000c, 0x00000016, 0x00000005, 0x00000000}
+	return []int32{
+		constants.BOOKMARK_DATE_YEAR,
+		constants.BOOKMARK_DATE_MONTH,
+		constants.BOOKMARK_DATE_DAY,
+		constants.BOOKMARK_DATE_HOUR,
+		constants.BOOKMARK_DATE_MINUTE,
+	} // * 2015-12-22 5:00
 }
 
-func getApplicationConfig_Unknown10() []uint32 {
-	// * I have no idea what this is
-	// * Just replaying data sent from the real server
-	// * Only seen on the 3DS
-	return []uint32{35, 75, 96, 40, 5, 6}
+func getApplicationConfig_GameplayConfig3DS() []int32 {
+	// * This seems to be gameplay configuration settings for the 3DS
+	return []int32{
+		constants.COURSE_WORLD_NORMAL_FAILURE_RATE_MIN,
+		constants.COURSE_WORLD_EXPERT_FAILURE_RATE_MIN,
+		constants.COURSE_WORLD_SUPER_EXPERT_FAILURE_RATE_MIN,
+		constants.COURSE_DOWNLOAD_3DS, // * Probably
+		5,  // * Unknown. Might be the resultOption value?
+		6,  // * Unknown. Might be related with the extraData?
+	}
 }
