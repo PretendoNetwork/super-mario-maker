@@ -110,6 +110,24 @@ const (
 	// COURSE_DOWNLOAD_3DS represents the number of courses downloaded by the 3DS at the same time
 	COURSE_DOWNLOAD_3DS int32 = 40
 
+	// ONE_HUNDRED_MARIO_RECOMMENDED_COURSE_COUNT is the resultRange size the client requests when calling
+	// RecommendedCourseSearchObject at the start of a 100 Mario run. These courses, plus the
+	// ONE_HUNDRED_MARIO_PICKUP_COURSE_COUNT courses from Dothub, must total at least 32 after the client filters out
+	// the player's own courses and duplicates, otherwise the client shows the "service is unavailable" error
+	ONE_HUNDRED_MARIO_RECOMMENDED_COURSE_COUNT int32 = 50
+
+	// ONE_HUNDRED_MARIO_NEW_COURSE_COUNT is the resultRange size of a second ("New") course search the client runs for
+	// Easy and Normal 100 Mario. On Easy the client requests 6x this value, capped at 100. Using 0 skips this step
+	ONE_HUNDRED_MARIO_NEW_COURSE_COUNT int32 = 0
+
+	// ONE_HUNDRED_MARIO_PICKUP_COURSE_COUNT is the number of course IDs the client randomly draws from the
+	// wup-ama.app.nintendo.net/api/v1/pickup/{difficulty} pool and adds to each 100 Mario pool
+	ONE_HUNDRED_MARIO_PICKUP_COURSE_COUNT int32 = 5
+
+	// DOTHUB_ENABLED enables the use of the wup-ama.app.nintendo.net HTTP API (internally called "Dothub").
+	// Any value other than 1 disables the 100 Mario pickup and the cleared_courses endpoints
+	DOTHUB_ENABLED int32 = 1
+
 	// COURSE_UPLOAD_NOTICE_NONE skips the course upload shutdown notice
 	COURSE_UPLOAD_NOTICE_NONE int32 = 0
 

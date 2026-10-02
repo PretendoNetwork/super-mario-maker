@@ -78,15 +78,15 @@ func getApplicationConfig_GameplayConfig() []int32 {
 		constants.COURSE_WORLD_EXPERT_FAILURE_RATE_MIN,
 		constants.COURSE_WORLD_NORMAL_FAILURE_RATE_MIN,
 		constants.COURSE_WORLD_EXPERT_FAILURE_RATE_MIN,
-		50,
-		0,
+		constants.ONE_HUNDRED_MARIO_RECOMMENDED_COURSE_COUNT,
+		constants.ONE_HUNDRED_MARIO_NEW_COURSE_COUNT,
 		3,
 		3,
 		constants.COURSE_DOWNLOAD_WIIU, // * Maybe?
 		6, // * Might be related with the extraData?
-		1,
+		constants.DOTHUB_ENABLED,
 		constants.COURSE_WORLD_SUPER_EXPERT_FAILURE_RATE_MIN,
-		5,
+		constants.ONE_HUNDRED_MARIO_PICKUP_COURSE_COUNT,
 		constants.COURSE_WORLD_SUPER_EXPERT_FAILURE_RATE_MIN,
 		constants.COURSE_UPLOAD_NOTICE,
 
