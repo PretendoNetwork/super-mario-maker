@@ -110,20 +110,39 @@ const (
 	// COURSE_DOWNLOAD_3DS represents the number of courses downloaded by the 3DS at the same time
 	COURSE_DOWNLOAD_3DS int32 = 40
 
-	// CHANGED_DATE_YEAR contains the year of an unknown date, possibly when the config was last changed (2020-01-01 12:00)
-	CHANGED_DATE_YEAR int32 = 2020
+	// COURSE_UPLOAD_NOTICE_NONE skips the course upload shutdown notice
+	COURSE_UPLOAD_NOTICE_NONE int32 = 0
 
-	// CHANGED_DATE_MONTH contains the month of an unknown date, possibly when the config was last changed (2020-01-01 12:00)
-	CHANGED_DATE_MONTH int32 = 1
+	// COURSE_UPLOAD_NOTICE_UPLOADING_ENDED blocks uploading. Client displays Lcl_Message.msbt Msg_0016
+	COURSE_UPLOAD_NOTICE_UPLOADING_ENDED int32 = 1
 
-	// CHANGED_DATE_DAY contains the day of an unknown date, possibly when the config was last changed (2020-01-01 12:00)
-	CHANGED_DATE_DAY int32 = 1
+	// COURSE_UPLOAD_NOTICE_UPLOADING_ENDING warns that uploading will end. Client displays
+	// Lcl_Message.msbt Msg_0015 using COURSE_UPLOAD_END_DATE_YEAR/MONTH/DAY as the date
+	COURSE_UPLOAD_NOTICE_UPLOADING_ENDING int32 = 2
 
-	// CHANGED_DATE_HOUR contains the hour of an unknown date, possibly when the config was last changed (2020-01-01 12:00)
-	CHANGED_DATE_HOUR int32 = 12
+	// COURSE_UPLOAD_NOTICE is the course upload shutdown notice sent to the client.
+	// Nintendo seems to have always used COURSE_UPLOAD_NOTICE_NONE?
+	COURSE_UPLOAD_NOTICE int32 = COURSE_UPLOAD_NOTICE_NONE
 
-	// CHANGED_DATE_MINUTE contains the minute of an unknown date, possibly when the config was last changed (2020-01-01 12:00)
-	CHANGED_DATE_MINUTE int32 = 0
+	// COURSE_UPLOAD_END_DATE_YEAR contains the year of the date uploading ends, shown when COURSE_UPLOAD_NOTICE is
+	// COURSE_UPLOAD_NOTICE_UPLOADING_ENDING. Unused otherwise. Nintendo sent 2020-01-01 12:00?
+	COURSE_UPLOAD_END_DATE_YEAR int32 = 2020
+
+	// COURSE_UPLOAD_END_DATE_MONTH contains the month of the date uploading ends, shown when COURSE_UPLOAD_NOTICE is
+	// COURSE_UPLOAD_NOTICE_UPLOADING_ENDING. Unused otherwise. Nintendo sent 2020-01-01 12:00?
+	COURSE_UPLOAD_END_DATE_MONTH int32 = 1
+
+	// COURSE_UPLOAD_END_DATE_DAY contains the day of the date uploading ends, shown when COURSE_UPLOAD_NOTICE is
+	// COURSE_UPLOAD_NOTICE_UPLOADING_ENDING. Unused otherwise. Nintendo sent 2020-01-01 12:00?
+	COURSE_UPLOAD_END_DATE_DAY int32 = 1
+
+	// COURSE_UPLOAD_END_DATE_HOUR contains the hour of the date uploading ends. Seems to not be displayed?
+	// Nintendo sent 2020-01-01 12:00?
+	COURSE_UPLOAD_END_DATE_HOUR int32 = 12
+
+	// COURSE_UPLOAD_END_DATE_MINUTE contains the minute of the date uploading ends. Seems to not be displayed?
+	// Nintendo sent 2020-01-01 12:00?
+	COURSE_UPLOAD_END_DATE_MINUTE int32 = 0
 
 	// BOOKMARK_DATE_YEAR contains the year of when the SMM bookmark was released (2015-12-22 5:00)
 	BOOKMARK_DATE_YEAR int32 = 2015

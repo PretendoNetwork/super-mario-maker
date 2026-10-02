@@ -88,14 +88,14 @@ func getApplicationConfig_GameplayConfig() []int32 {
 		constants.COURSE_WORLD_SUPER_EXPERT_FAILURE_RATE_MIN,
 		5,
 		constants.COURSE_WORLD_SUPER_EXPERT_FAILURE_RATE_MIN,
-		0,
+		constants.COURSE_UPLOAD_NOTICE,
 
-		// * Looks like a date, possibly when the config was last changed? 2020-01-01 12:00?
-		constants.CHANGED_DATE_YEAR,
-		constants.CHANGED_DATE_MONTH,
-		constants.CHANGED_DATE_DAY,
-		constants.CHANGED_DATE_HOUR,
-		constants.CHANGED_DATE_MINUTE,
+		// * Only shown when COURSE_UPLOAD_NOTICE is COURSE_UPLOAD_NOTICE_UPLOADING_ENDING
+		constants.COURSE_UPLOAD_END_DATE_YEAR,
+		constants.COURSE_UPLOAD_END_DATE_MONTH,
+		constants.COURSE_UPLOAD_END_DATE_DAY,
+		constants.COURSE_UPLOAD_END_DATE_HOUR,
+		constants.COURSE_UPLOAD_END_DATE_MINUTE,
 	}
 }
 
