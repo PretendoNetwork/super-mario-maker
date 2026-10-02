@@ -73,19 +73,18 @@ func getApplicationConfig_GameplayConfig() []int32 {
 		constants.MAX_COURSE_UPLOADS_9TH_MEDAL,
 		constants.MAX_COURSE_UPLOADS_10TH_MEDAL,
 
-		// * These values are most likely settings about requesting courses, but it's not certain what they individually mean (mostly)
 		constants.COURSE_WORLD_NORMAL_FAILURE_RATE_MIN,
 		constants.COURSE_WORLD_EXPERT_FAILURE_RATE_MIN,
-		constants.COURSE_WORLD_NORMAL_FAILURE_RATE_MIN,
-		constants.COURSE_WORLD_EXPERT_FAILURE_RATE_MIN,
+		constants.ONE_HUNDRED_MARIO_EASY_FAILURE_RATE_MAX + 1, // * 100 Mario Normal starts at 0, so there is no "Normal min" to use here
+		constants.ONE_HUNDRED_MARIO_EXPERT_FAILURE_RATE_MIN,
 		constants.ONE_HUNDRED_MARIO_RECOMMENDED_COURSE_COUNT,
 		constants.ONE_HUNDRED_MARIO_NEW_COURSE_COUNT,
 		3,
 		3,
 		constants.COURSE_DOWNLOAD_WIIU, // * Maybe?
-		6, // * Might be related with the extraData?
+		6,                              // * Might be related with the extraData?
 		constants.DOTHUB_ENABLED,
-		constants.COURSE_WORLD_SUPER_EXPERT_FAILURE_RATE_MIN,
+		constants.ONE_HUNDRED_MARIO_SUPER_EXPERT_FAILURE_RATE_MIN,
 		constants.ONE_HUNDRED_MARIO_PICKUP_COURSE_COUNT,
 		constants.COURSE_WORLD_SUPER_EXPERT_FAILURE_RATE_MIN,
 		constants.COURSE_UPLOAD_NOTICE,
@@ -134,7 +133,7 @@ func getApplicationConfig_GameplayConfig3DS() []int32 {
 		constants.COURSE_WORLD_EXPERT_FAILURE_RATE_MIN,
 		constants.COURSE_WORLD_SUPER_EXPERT_FAILURE_RATE_MIN,
 		constants.COURSE_DOWNLOAD_3DS, // * Probably
-		5,  // * Unknown. Might be the resultOption value?
-		6,  // * Unknown. Might be related with the extraData?
+		5,                             // * Unknown. Might be the resultOption value?
+		6,                             // * Unknown. Might be related with the extraData?
 	}
 }

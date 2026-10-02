@@ -104,6 +104,15 @@ const (
 	// COURSE_WORLD_SUPER_EXPERT_FAILURE_RATE_MAX is the maximum failure rate for Super Expert levels on the Course World
 	COURSE_WORLD_SUPER_EXPERT_FAILURE_RATE_MAX int32 = 100
 
+	// ONE_HUNDRED_MARIO_EASY_FAILURE_RATE_MAX is the maximum failure rate for Easy levels in 100 Mario
+	ONE_HUNDRED_MARIO_EASY_FAILURE_RATE_MAX int32 = 34
+
+	// ONE_HUNDRED_MARIO_EXPERT_FAILURE_RATE_MIN is the minimum failure rate for Expert levels in 100 Mario
+	ONE_HUNDRED_MARIO_EXPERT_FAILURE_RATE_MIN int32 = 75
+
+	// ONE_HUNDRED_MARIO_SUPER_EXPERT_FAILURE_RATE_MIN is the minimum failure rate for Super Expert levels in 100 Mario
+	ONE_HUNDRED_MARIO_SUPER_EXPERT_FAILURE_RATE_MIN int32 = 96
+
 	// COURSE_DOWNLOAD_WIIU represents the number of courses downloaded by the Wii U at the same time
 	COURSE_DOWNLOAD_WIIU int32 = 100
 
