@@ -80,7 +80,7 @@ func getApplicationConfig_GameplayConfig() []int32 {
 		constants.ONE_HUNDRED_MARIO_RECOMMENDED_COURSE_COUNT,
 		constants.ONE_HUNDRED_MARIO_NEW_COURSE_COUNT,
 		3, // * Unused? Parser never reads this value
-		3,
+		constants.RANKING_TIMEFRAME_DAYS,
 		constants.COURSE_DOWNLOAD_WIIU, // * Maybe?
 		6,                              // * Might be related with the extraData?
 		constants.DOTHUB_ENABLED,

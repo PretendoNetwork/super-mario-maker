@@ -137,6 +137,13 @@ const (
 	// Any value other than 1 disables the 100 Mario pickup and the cleared_courses endpoints
 	DOTHUB_ENABLED int32 = 1
 
+	// RANKING_TIMEFRAME_DAYS is the length, in days, of the windowed timeframe used by the dynamically generated
+	// custom ranking application IDs (type * 100000000 + YYYYMMDD of the timeframe start). The timeframe start
+	// is likely to be aligned to the unix epoch? Used by at least the "Star Ranking" tab in the "MAKERS" section.
+	// The game rounds the current day to a multiple of RANKING_TIMEFRAME_DAYS to create the windowed application
+	// ID. For example, a request made on October 24th 2023 and a type of 4 would use the ID 420231023
+	RANKING_TIMEFRAME_DAYS int32 = 3
+
 	// COURSE_UPLOAD_NOTICE_NONE skips the course upload shutdown notice
 	COURSE_UPLOAD_NOTICE_NONE int32 = 0
 
