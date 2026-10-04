@@ -81,8 +81,8 @@ func getApplicationConfig_GameplayConfig() []int32 {
 		constants.ONE_HUNDRED_MARIO_NEW_COURSE_COUNT,
 		3, // * Unused? Parser never reads this value
 		constants.RANKING_TIMEFRAME_DAYS,
-		constants.COURSE_DOWNLOAD_WIIU, // * Maybe?
-		6,                              // * Might be related with the extraData?
+		constants.COURSE_DOWNLOAD_WIIU, // * The number of courses Course World will download on the Wii U
+		6,                              // * Seems to some sort of timer? FUN_025865f8 reads this value and multiplies it by 60, which then seems to get decremented every frame? Once this reaches 0, a flag is set which is normally unset when this timer starts?
 		constants.DOTHUB_ENABLED,
 		constants.ONE_HUNDRED_MARIO_SUPER_EXPERT_FAILURE_RATE_MIN,
 		constants.ONE_HUNDRED_MARIO_PICKUP_COURSE_COUNT,
