@@ -104,26 +104,79 @@ const (
 	// COURSE_WORLD_SUPER_EXPERT_FAILURE_RATE_MAX is the maximum failure rate for Super Expert levels on the Course World
 	COURSE_WORLD_SUPER_EXPERT_FAILURE_RATE_MAX int32 = 100
 
+	// ONE_HUNDRED_MARIO_EASY_FAILURE_RATE_MAX is the maximum failure rate for Easy levels in 100 Mario
+	ONE_HUNDRED_MARIO_EASY_FAILURE_RATE_MAX int32 = 34
+
+	// ONE_HUNDRED_MARIO_EXPERT_FAILURE_RATE_MIN is the minimum failure rate for Expert levels in 100 Mario
+	ONE_HUNDRED_MARIO_EXPERT_FAILURE_RATE_MIN int32 = 75
+
+	// ONE_HUNDRED_MARIO_SUPER_EXPERT_FAILURE_RATE_MIN is the minimum failure rate for Super Expert levels in 100 Mario
+	ONE_HUNDRED_MARIO_SUPER_EXPERT_FAILURE_RATE_MIN int32 = 96
+
 	// COURSE_DOWNLOAD_WIIU represents the number of courses downloaded by the Wii U at the same time
 	COURSE_DOWNLOAD_WIIU int32 = 100
 
 	// COURSE_DOWNLOAD_3DS represents the number of courses downloaded by the 3DS at the same time
 	COURSE_DOWNLOAD_3DS int32 = 40
 
-	// CHANGED_DATE_YEAR contains the year of an unknown date, possibly when the config was last changed (2020-01-01 12:00)
-	CHANGED_DATE_YEAR int32 = 2020
+	// ONE_HUNDRED_MARIO_RECOMMENDED_COURSE_COUNT is the resultRange size the client requests when calling
+	// RecommendedCourseSearchObject at the start of a 100 Mario run. These courses, plus the
+	// ONE_HUNDRED_MARIO_PICKUP_COURSE_COUNT courses from Dothub, must total at least 32 after the client filters out
+	// the player's own courses and duplicates, otherwise the client shows the "service is unavailable" error
+	ONE_HUNDRED_MARIO_RECOMMENDED_COURSE_COUNT int32 = 50
 
-	// CHANGED_DATE_MONTH contains the month of an unknown date, possibly when the config was last changed (2020-01-01 12:00)
-	CHANGED_DATE_MONTH int32 = 1
+	// ONE_HUNDRED_MARIO_NEW_COURSE_COUNT is the resultRange size of a second ("New") course search the client runs for
+	// Easy and Normal 100 Mario. On Easy the client requests 6x this value, capped at 100. Using 0 skips this step
+	ONE_HUNDRED_MARIO_NEW_COURSE_COUNT int32 = 0
 
-	// CHANGED_DATE_DAY contains the day of an unknown date, possibly when the config was last changed (2020-01-01 12:00)
-	CHANGED_DATE_DAY int32 = 1
+	// ONE_HUNDRED_MARIO_PICKUP_COURSE_COUNT is the number of course IDs the client randomly draws from the
+	// wup-ama.app.nintendo.net/api/v1/pickup/{difficulty} pool and adds to each 100 Mario pool
+	ONE_HUNDRED_MARIO_PICKUP_COURSE_COUNT int32 = 5
 
-	// CHANGED_DATE_HOUR contains the hour of an unknown date, possibly when the config was last changed (2020-01-01 12:00)
-	CHANGED_DATE_HOUR int32 = 12
+	// DOTHUB_ENABLED enables the use of the wup-ama.app.nintendo.net HTTP API (internally called "Dothub").
+	// Any value other than 1 disables the 100 Mario pickup and the cleared_courses endpoints
+	DOTHUB_ENABLED int32 = 1
 
-	// CHANGED_DATE_MINUTE contains the minute of an unknown date, possibly when the config was last changed (2020-01-01 12:00)
-	CHANGED_DATE_MINUTE int32 = 0
+	// RANKING_TIMEFRAME_DAYS is the length, in days, of the windowed timeframe used by the dynamically generated
+	// custom ranking application IDs (type * 100000000 + YYYYMMDD of the timeframe start). The timeframe start
+	// is likely to be aligned to the unix epoch? Used by at least the "Star Ranking" tab in the "MAKERS" section.
+	// The game rounds the current day to a multiple of RANKING_TIMEFRAME_DAYS to create the windowed application
+	// ID. For example, a request made on October 24th 2023 and a type of 4 would use the ID 420231023
+	RANKING_TIMEFRAME_DAYS int32 = 3
+
+	// COURSE_UPLOAD_NOTICE_NONE skips the course upload shutdown notice
+	COURSE_UPLOAD_NOTICE_NONE int32 = 0
+
+	// COURSE_UPLOAD_NOTICE_UPLOADING_ENDED blocks uploading. Client displays Lcl_Message.msbt Msg_0016
+	COURSE_UPLOAD_NOTICE_UPLOADING_ENDED int32 = 1
+
+	// COURSE_UPLOAD_NOTICE_UPLOADING_ENDING warns that uploading will end. Client displays
+	// Lcl_Message.msbt Msg_0015 using COURSE_UPLOAD_END_DATE_YEAR/MONTH/DAY as the date
+	COURSE_UPLOAD_NOTICE_UPLOADING_ENDING int32 = 2
+
+	// COURSE_UPLOAD_NOTICE is the course upload shutdown notice sent to the client.
+	// Nintendo seems to have always used COURSE_UPLOAD_NOTICE_NONE?
+	COURSE_UPLOAD_NOTICE int32 = COURSE_UPLOAD_NOTICE_NONE
+
+	// COURSE_UPLOAD_END_DATE_YEAR contains the year of the date uploading ends, shown when COURSE_UPLOAD_NOTICE is
+	// COURSE_UPLOAD_NOTICE_UPLOADING_ENDING. Unused otherwise. Nintendo sent 2020-01-01 12:00?
+	COURSE_UPLOAD_END_DATE_YEAR int32 = 2020
+
+	// COURSE_UPLOAD_END_DATE_MONTH contains the month of the date uploading ends, shown when COURSE_UPLOAD_NOTICE is
+	// COURSE_UPLOAD_NOTICE_UPLOADING_ENDING. Unused otherwise. Nintendo sent 2020-01-01 12:00?
+	COURSE_UPLOAD_END_DATE_MONTH int32 = 1
+
+	// COURSE_UPLOAD_END_DATE_DAY contains the day of the date uploading ends, shown when COURSE_UPLOAD_NOTICE is
+	// COURSE_UPLOAD_NOTICE_UPLOADING_ENDING. Unused otherwise. Nintendo sent 2020-01-01 12:00?
+	COURSE_UPLOAD_END_DATE_DAY int32 = 1
+
+	// COURSE_UPLOAD_END_DATE_HOUR contains the hour of the date uploading ends. Seems to not be displayed?
+	// Nintendo sent 2020-01-01 12:00?
+	COURSE_UPLOAD_END_DATE_HOUR int32 = 12
+
+	// COURSE_UPLOAD_END_DATE_MINUTE contains the minute of the date uploading ends. Seems to not be displayed?
+	// Nintendo sent 2020-01-01 12:00?
+	COURSE_UPLOAD_END_DATE_MINUTE int32 = 0
 
 	// BOOKMARK_DATE_YEAR contains the year of when the SMM bookmark was released (2015-12-22 5:00)
 	BOOKMARK_DATE_YEAR int32 = 2015

@@ -73,29 +73,28 @@ func getApplicationConfig_GameplayConfig() []int32 {
 		constants.MAX_COURSE_UPLOADS_9TH_MEDAL,
 		constants.MAX_COURSE_UPLOADS_10TH_MEDAL,
 
-		// * These values are most likely settings about requesting courses, but it's not certain what they individually mean (mostly)
 		constants.COURSE_WORLD_NORMAL_FAILURE_RATE_MIN,
 		constants.COURSE_WORLD_EXPERT_FAILURE_RATE_MIN,
-		constants.COURSE_WORLD_NORMAL_FAILURE_RATE_MIN,
-		constants.COURSE_WORLD_EXPERT_FAILURE_RATE_MIN,
-		50,
-		0,
-		3,
-		3,
-		constants.COURSE_DOWNLOAD_WIIU, // * Maybe?
-		6, // * Might be related with the extraData?
-		1,
+		constants.ONE_HUNDRED_MARIO_EASY_FAILURE_RATE_MAX + 1, // * 100 Mario Normal starts at 0, so there is no "Normal min" to use here
+		constants.ONE_HUNDRED_MARIO_EXPERT_FAILURE_RATE_MIN,
+		constants.ONE_HUNDRED_MARIO_RECOMMENDED_COURSE_COUNT,
+		constants.ONE_HUNDRED_MARIO_NEW_COURSE_COUNT,
+		3, // * Unused? Parser never reads this value
+		constants.RANKING_TIMEFRAME_DAYS,
+		constants.COURSE_DOWNLOAD_WIIU, // * The number of courses Course World will download on the Wii U
+		6,                              // * Seems to some sort of timer? FUN_025865f8 reads this value and multiplies it by 60, which then seems to get decremented every frame? Once this reaches 0, a flag is set which is normally unset when this timer starts?
+		constants.DOTHUB_ENABLED,
+		constants.ONE_HUNDRED_MARIO_SUPER_EXPERT_FAILURE_RATE_MIN,
+		constants.ONE_HUNDRED_MARIO_PICKUP_COURSE_COUNT,
 		constants.COURSE_WORLD_SUPER_EXPERT_FAILURE_RATE_MIN,
-		5,
-		constants.COURSE_WORLD_SUPER_EXPERT_FAILURE_RATE_MIN,
-		0,
+		constants.COURSE_UPLOAD_NOTICE,
 
-		// * Looks like a date, possibly when the config was last changed? 2020-01-01 12:00?
-		constants.CHANGED_DATE_YEAR,
-		constants.CHANGED_DATE_MONTH,
-		constants.CHANGED_DATE_DAY,
-		constants.CHANGED_DATE_HOUR,
-		constants.CHANGED_DATE_MINUTE,
+		// * Only shown when COURSE_UPLOAD_NOTICE is COURSE_UPLOAD_NOTICE_UPLOADING_ENDING
+		constants.COURSE_UPLOAD_END_DATE_YEAR,
+		constants.COURSE_UPLOAD_END_DATE_MONTH,
+		constants.COURSE_UPLOAD_END_DATE_DAY,
+		constants.COURSE_UPLOAD_END_DATE_HOUR,
+		constants.COURSE_UPLOAD_END_DATE_MINUTE,
 	}
 }
 
@@ -134,7 +133,7 @@ func getApplicationConfig_GameplayConfig3DS() []int32 {
 		constants.COURSE_WORLD_EXPERT_FAILURE_RATE_MIN,
 		constants.COURSE_WORLD_SUPER_EXPERT_FAILURE_RATE_MIN,
 		constants.COURSE_DOWNLOAD_3DS, // * Probably
-		5,  // * Unknown. Might be the resultOption value?
-		6,  // * Unknown. Might be related with the extraData?
+		5,                             // * Unknown. Might be the resultOption value?
+		6,                             // * Unknown. Might be related with the extraData?
 	}
 }
