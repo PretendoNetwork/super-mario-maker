@@ -35,12 +35,12 @@ func RecommendedCourseSearchObject(err error, packet nex.PacketInterface, callID
 	// ! All requests are treated as filtering for "All" right now
 	// TODO - Use these ranges to properly filter by difficulty
 
-	// HACK The database load is exponential here and
+	// * 100 Mario requests 50 courses and needs at least 32 back,
+	// * Course World on the Wii U requests 100
 	length := int(param.ResultRange.Length)
-	maxLength := 25
-	if length < 0 || length > maxLength {
-		globals.Logger.Warningf("Limiting request to %d courses (was %d)", maxLength, length)
-		length = maxLength
+	if length < 0 || length > datastore_smm_db.MaxRandomCourses {
+		globals.Logger.Warningf("Limiting request to %d courses (was %d)", datastore_smm_db.MaxRandomCourses, length)
+		length = datastore_smm_db.MaxRandomCourses
 	}
 
 	// TODO - Use the offet? Real client never uses it, but might be nice for completeness sake?
